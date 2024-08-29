@@ -1,0 +1,9 @@
+.DS_Store
+.idea
+env
+
+tests/__pycache__/
+
+ wmm/.DS_Store
+wmm/__pycache__/
+wmm_test.egg-info/
