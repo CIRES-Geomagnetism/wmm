@@ -1,3 +1,5 @@
+from geomaglib import sh_loader
+
 def load_wmm_coef(filename, skip_two_columns=False, load_sv=True, end_degree=None, load_year=None):
     """
     Takes a coefficient filename or path and gives you back a dictionary with the
@@ -43,7 +45,7 @@ def load_wmm_coef(filename, skip_two_columns=False, load_sv=True, end_degree=Non
     num_lines_load = None
     load_counter = 0
     if end_degree is not None:
-        num_lines_load = calc_sh_degrees_to_num_elems(end_degree)
+        num_lines_load = sh_loader.calc_sh_degrees_to_num_elems(end_degree)
     for line in lines:
         split = line.split()
         # This will detect the footer and we can stop loading
@@ -60,7 +62,8 @@ def load_wmm_coef(filename, skip_two_columns=False, load_sv=True, end_degree=Non
         if header_line:
             header_line = False
             if load_sv:
-                coef_dict["epoch"] = int(float(split[1]))
+                coef_dict["epoch"] = int(float(split[0]))
+            coef_dict["min_year"] = float(split[2])
             continue
         if num_lines_load is not None and load_counter >= num_lines_load:
             break

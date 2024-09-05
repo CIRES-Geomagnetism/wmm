@@ -5,7 +5,8 @@ description = "A test version of WMM Python project"
 authors = [{ name = "Li-Yin Young", email = "you@example.com" }]
 dependencies = [
     "requests",  # Example of a PyPI package
-    "geomaglib @ git+https://github.com/liyo6397/geomaglib.git@v0.1.0"  # Git dependency
+    "numpy",
+    "geomaglib @ git+https://github.com/CIRES-Geomagnetism/geomaglib.git@v0.1.2"  # Git dependency
 ]
 
 [build-system]
