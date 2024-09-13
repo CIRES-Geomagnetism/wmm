@@ -55,15 +55,16 @@ def load_wmm_coef(filename, skip_two_columns=False, load_sv=True, end_degree=Non
         if load_year is not None and split[1] == (str(load_year) + ".0"):
             load = True
             header_line = False
-            coef_dict["epoch"] = int(float(split[1]))
+            coef_dict["epoch"] = float(split[1])
             continue
         if load_year is not None and split[1] == (str(load_year + 1) + ".0"):
             break
         if header_line:
             header_line = False
             if load_sv:
-                coef_dict["epoch"] = int(float(split[0]))
+                coef_dict["epoch"] = float(split[0])
             coef_dict["min_year"] = float(split[2])
+            coef_dict["min_date"] = str(split[3])
             continue
         if num_lines_load is not None and load_counter >= num_lines_load:
             break

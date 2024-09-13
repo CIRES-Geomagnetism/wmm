@@ -15,7 +15,8 @@ class Test_wmm(unittest.TestCase):
         self.dec_year = 2024.5
 
         self.top_dir = os.path.dirname(os.path.dirname(__file__))
-        self.wmm_file = os.path.join(self.top_dir, "wmm", "coefs", "WMM2020.cof")
+        self.wmm_file = os.path.join(self.top_dir, "wmm", "coefs", "WMM2020.COF")
+
     def test_compile(self):
 
         lat = -18
@@ -23,13 +24,13 @@ class Test_wmm(unittest.TestCase):
         alt = 77
         dec_year = 2024.5
 
-        Bx, By, Bz = build.compile(lat, lon, alt, dec_year, self.wmm_file)
+        results = build.compile(lat, lon, alt, dec_year, self.wmm_file)
 
-        print(f"Bx: {Bx}, By: {By}, Bz:{Bz}")
+        print(f"Bx: {results.Bx}, By: {results.By}, Bz:{results.Bz}")
 
-        self.assertAlmostEqual(round(Bx, 1), 31722.0, delta=0.01)
-        self.assertAlmostEqual(round(By, 1), 2569.6 , delta=0.01)
-        self.assertAlmostEqual(round(Bz, 1), -34986.2 , delta=0.01)
+        self.assertAlmostEqual(round(results.Bx, 1), 31722.0, delta=0.01)
+        self.assertAlmostEqual(round(results.By, 1), 2569.6 , delta=0.01)
+        self.assertAlmostEqual(round(results.Bz, 1), -34986.2 , delta=0.01)
 
 
     def test_get_minyear(self):
