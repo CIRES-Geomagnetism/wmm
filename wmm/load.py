@@ -1,3 +1,4 @@
+import os
 from geomaglib import sh_loader
 
 def load_wmm_coef(filename, skip_two_columns=False, load_sv=True, end_degree=None, load_year=None):

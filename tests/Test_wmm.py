@@ -1,6 +1,8 @@
 import os.path
 import unittest
 
+from geomaglib import util
+from wmm import coef_dict
 from wmm import load
 from wmm import build
 
@@ -17,6 +19,60 @@ class Test_wmm(unittest.TestCase):
         self.top_dir = os.path.dirname(os.path.dirname(__file__))
         self.wmm_file = os.path.join(self.top_dir, "wmm", "coefs", "WMM2020.COF")
 
+    def test_setup_env(self):
+
+        lat = -18
+        lon = 138
+        alt = 77
+        dec_year = 2024.5
+
+        alt_true = util.alt_to_ellipsoid_height(alt, lat, lon)
+        r, theta = util.geod_to_geoc_lat(lat, alt_true)
+
+
+        wmm_model = build.model(lat, lon, alt, dyear=dec_year)
+        wmm_model.setup_env()
+
+        self.assertAlmostEqual(wmm_model.lat, lat, places=6)
+        self.assertAlmostEqual(wmm_model.alt, alt_true, places=6)
+        self.assertAlmostEqual(wmm_model.theta, theta, places=6)
+
+    def test_forward_base(self):
+
+        lat = -18
+        lon = 138
+        alt = 77
+
+        dec_year = 2024.5
+
+        wmm_model = build.model()
+        wmm_model._set_msl_False()
+        wmm_model.setup_env(lat, lon, alt, dyear=dec_year)
+
+
+        mag_vec = wmm_model.forward_base()
+
+        self.assertAlmostEqual(round(mag_vec.Bx, 1), 31722.0, delta=0.01)
+        self.assertAlmostEqual(round(mag_vec.By, 1), 2569.6, delta=0.01)
+        self.assertAlmostEqual(round(mag_vec.Bz, 1), -34986.2, delta=0.01)
+
+    def test_reset_env(self):
+        lat = -18
+        lon = 138
+        alt = 77
+
+        dec_year = 2024.5
+
+        wmm_model = build.model()
+        wmm_model.setup_env(lat, lon, alt, dyear=dec_year)
+
+
+
+        lat1 = -19
+        wmm_model.setup_env(lat1, lon, alt, dyear=dec_year)
+        lat2 = wmm_model.lat
+
+        self.assertAlmostEqual(lat2, -19)
     def test_compile(self):
 
         lat = -18
