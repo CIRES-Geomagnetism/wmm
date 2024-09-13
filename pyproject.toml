@@ -6,7 +6,7 @@ authors = [{ name = "Li-Yin Young", email = "you@example.com" }]
 dependencies = [
     "requests",  # Example of a PyPI package
     "numpy",
-    "geomaglib @ git+https://github.com/CIRES-Geomagnetism/geomaglib.git@v0.1.2"  # Git dependency
+    "geomaglib @ git+https://github.com/CIRES-Geomagnetism/geomaglib.git@v0.2.2"  # Git dependency
 ]
 
 [build-system]

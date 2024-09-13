@@ -64,18 +64,21 @@ class model:
 
         Bt, Bp, Br = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g"], self.timly_coef_dict["h"], self.Leg, self.theta)
 
-        print(f"Br:{Br} Bt:{Bt} Bp:{Bp}")
-        Bx, By, Bz = magmath.rotate_magvec(Bt, Bp, Br, self.theta, self.lat)
-
-        return magmath.GeomagElements(Bx, By, Bz)
-
-    def forward_sv(self):
-
-        Bt, Bp, Br = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g_sv"], self.timly_coef_dict["h_sv"], self.Leg, self.theta)
 
         Bx, By, Bz = magmath.rotate_magvec(Bt, Bp, Br, self.theta, self.lat)
 
         return magmath.GeomagElements(Bx, By, Bz)
+
+    def forward(self):
+
+        mag_vec = self.forward_base()
+
+        dBt, dBp, dBr = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g_sv"], self.timly_coef_dict["h_sv"], self.Leg, self.theta)
+
+        dBx, dBy, dBz = magmath.rotate_magvec(dBt, dBp, dBr, self.theta, self.lat)
+        mag_vec.set_sv_vec(dBx, dBy, dBz)
+
+        return mag_vec
 
 
 def calc_magnetic_elements(lat, alt, lon, year, month, day):
