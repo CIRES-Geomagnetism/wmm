@@ -1,27 +1,46 @@
 import os
 import warnings
 from geomaglib import util, legendre, magmath, sh_vars, sh_loader
-from wmm import load, coef_dict
+from wmm import load, COEFS_FILE
 
 
 class model:
 
     def __init__(self):
-        self.max_year = coef_dict["epoch"] + 5.0
-        self.min_date = coef_dict["min_date"]
-        self.lat = None
-        self.msl = True
 
+        self.coef_file = COEFS_FILE
+        self.nmax = 12
+        self.max_year = 2030.0
+        self.min_date = ""
+        self.msl = True
+        self.coef_dict = {}
         self.timly_coef_dict = {}
-        self.nmax = sh_loader.calc_num_elems_to_sh_degrees(len(coef_dict["g"]))
+        self.lat = None
         self.r = None
         self.theta = None
         self.sph_dict = {}
         self.Leg = []
 
+    def get_wmmcoefs_path(self, filename):
+
+        currdir = os.path.dirname(__file__)
+
+        coef_file = os.path.join(currdir, "coefs", filename)
+
+        return coef_file
+
+    def load_coeffs(self, filename):
+        wmm_coeffs = self.get_wmmcoefs_path(filename)
+        self.coef_dict = load.load_wmm_coef(wmm_coeffs, skip_two_columns=True)
+        self.max_year = self.coef_dict["epoch"] + 5.0
+        self.min_date = self.coef_dict["min_date"]
+        self.nmax = sh_loader.calc_num_elems_to_sh_degrees(len(self.coef_dict["g"]))
+
+
     def _set_msl_False(self):
         self.msl = False
     def setup_env(self, lat, lon, alt, year=None, month=None, day=None, dyear=None):
+
 
         self.lat = lat
         lon = lon
@@ -31,9 +50,12 @@ class model:
         if self.dyear == None:
             self.dyear = util.calc_dec_year(year, month, day)
 
-        self.check_coords(self.lat, lon, alt, self.dyear)
+        if not self.coef_dict:
+            self.load_coeffs(self.coef_file)
 
-        self.timly_coef_dict = sh_loader.timely_modify_magnetic_model(coef_dict, self.dyear)
+        self.check_coords(self.lat, lon, alt, self.dyear, self.coef_dict)
+
+        self.timly_coef_dict = sh_loader.timely_modify_magnetic_model(self.coef_dict, self.dyear)
 
         if self.msl:
             alt = util.alt_to_ellipsoid_height(alt, self.lat, lon)
@@ -48,7 +70,7 @@ class model:
 
 
 
-    def check_coords(self, lat, lon, alt, dyear):
+    def check_coords(self, lat, lon, alt, dyear, coef_dict):
 
         if dyear < coef_dict["min_year"] or dyear > self.max_year:
             max_year = round(self.max_year, 1)

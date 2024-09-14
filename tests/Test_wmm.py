@@ -2,7 +2,7 @@ import os.path
 import unittest
 
 from geomaglib import util
-from wmm import coef_dict
+
 from wmm import load
 from wmm import build
 
