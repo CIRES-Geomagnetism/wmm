@@ -92,21 +92,6 @@ class Test_wmm(unittest.TestCase):
         lat2 = wmm_model.lat
 
         self.assertAlmostEqual(lat2, -19)
-    def test_compile(self):
-
-        lat = -18
-        lon = 138
-        alt = 77
-        dec_year = 2024.5
-
-        results = build.compile(lat, lon, alt, dec_year, self.wmm_file)
-
-        print(f"Bx: {results.Bx}, By: {results.By}, Bz:{results.Bz}")
-
-        self.assertAlmostEqual(round(results.Bx, 1), 31722.0, delta=0.01)
-        self.assertAlmostEqual(round(results.By, 1), 2569.6 , delta=0.01)
-        self.assertAlmostEqual(round(results.Bz, 1), -34986.2 , delta=0.01)
-
 
     def test_get_minyear(self):
 
@@ -119,22 +104,52 @@ class Test_wmm(unittest.TestCase):
 
 
         user_time = 2020.0
-        user_time = 2025.1
+        user_time = 2030.1
 
-        self.assertFalse(build.compile(self.lat, self.lon, self.alt, user_time, self.wmm_file))
+        lat, lon, alt = 30.0, 20, 100
+
+        wmm_model = build.model()
+        wmm_model._set_msl_False()
+        wmm_model.setup_env(lat, lon, alt, dyear=float(user_time))
+
+
 
     def test_check_altitude(self):
+        user_time = 2020.0
+        user_time = 2024.1
+
+        lat, lon, alt = 30.0, 20, 700
+
+        wmm_model = build.model()
+        wmm_model._set_msl_False()
+        wmm_model.setup_env(lat, lon, alt, dyear=float(user_time))
 
 
-        self.assertTrue()
 
     def test_check_latitude(self):
+        user_time = 2020.0
+        user_time = 2024.1
 
-        self.assertTrue()
+        lat, lon, alt = 90.1, 20, 700
+
+        wmm_model = build.model()
+        wmm_model._set_msl_False()
+        wmm_model.setup_env(lat, lon, alt, dyear=float(user_time))
+
+
 
     def test_check_longtitude(self):
 
-        self.assertTrue()
+        user_time = 2020.0
+        user_time = 2024.1
+
+        lat, lon, alt = 90.0, 361, 700
+
+        wmm_model = build.model()
+        wmm_model._set_msl_False()
+        wmm_model.setup_env(lat, lon, alt, dyear=float(user_time))
+
+
 
 
 

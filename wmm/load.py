@@ -1,5 +1,5 @@
 import os
-from geomaglib import sh_loader
+from geomaglib import sh_loader, util
 
 def load_wmm_coef(filename, skip_two_columns=False, load_sv=True, end_degree=None, load_year=None):
     """
@@ -65,7 +65,8 @@ def load_wmm_coef(filename, skip_two_columns=False, load_sv=True, end_degree=Non
             if load_sv:
                 coef_dict["epoch"] = float(split[0])
             coef_dict["min_year"] = float(split[2])
-            coef_dict["min_date"] = str(split[3])
+            year, month, day, hour, minute = util.decimalYearToDateTime(float(split[2]))
+            coef_dict["min_date"] = str(f"{year}-{month}-{day} {hour}:{minute}")
             continue
         if num_lines_load is not None and load_counter >= num_lines_load:
             break
