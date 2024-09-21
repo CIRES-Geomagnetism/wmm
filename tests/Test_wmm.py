@@ -56,7 +56,7 @@ class Test_wmm(unittest.TestCase):
         self.assertAlmostEqual(round(mag_vec.By, 1), 2569.6, delta=0.01)
         self.assertAlmostEqual(round(mag_vec.Bz, 1), -34986.2, delta=0.01)
 
-    def test_forward_sv(self):
+    def test_setup_sv(self):
 
         lat = -18
         lon = 138
@@ -74,6 +74,24 @@ class Test_wmm(unittest.TestCase):
         self.assertAlmostEqual(round(mag_vec.dBx, 1), -9.0, delta=0.01)
         self.assertAlmostEqual(round(mag_vec.dBy, 1), -27.7, delta=0.01)
         self.assertAlmostEqual(round(mag_vec.dBz, 1), -26.8, delta=0.01)
+
+        mag_map = mag_vec.get_all()
+
+    def test_inherit_GeomagElements(self):
+        lat = -21
+        lon = 32
+        alt = 66
+
+        dec_year = 2024.5
+
+        wmm_model = build.model()
+        wmm_model._set_msl_False()
+        wmm_model.setup_env(lat, lon, alt, dyear=dec_year)
+
+        mag_vec = wmm_model.forward()
+        map = mag_vec.get_all()
+        self.assertAlmostEqual(round(map["ddec"]/60, 1), -0.1, places=6)
+        self.assertAlmostEqual(round(map["dinc"] / 60, 1), 0.1, places=6)
 
     def test_reset_env(self):
         lat = -18

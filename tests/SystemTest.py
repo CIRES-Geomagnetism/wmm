@@ -32,9 +32,9 @@ def check_sv_results(res_map, lat, lon, alt, dyear, dec, inc, h, x, y, z, f, tol
         res_fp.write(f"h,{lat},{lon},{alt},{dyear},{res_map['dh']},{h}\n")
     if (fabs(round(res_map["df"], 1) - f) > tol):
         res_fp.write(f"f,{lat},{lon},{alt},{dyear},{res_map['df']},{f}\n")
-    if (fabs(round(res_map["ddec"], 1) - dec) > tol):
+    if (fabs(round(res_map["ddec"]/60, 1) - dec) > tol):
         res_fp.write(f"dec,{lat},{lon},{alt},{dyear},{res_map['ddec']},{dec}\n")
-    if (fabs(round(res_map["dinc"], 1) - inc) > tol):
+    if (fabs(round(res_map["dinc"]/60, 1) - inc) > tol):
         res_fp.write(f"inc,{lat},{lon},{alt},{dyear},{res_map['dinc']},{inc}\n")
 
 

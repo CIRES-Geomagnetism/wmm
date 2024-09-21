@@ -1,10 +1,30 @@
 import os
 import warnings
+import math
 from geomaglib import util, legendre, magmath, sh_vars, sh_loader
 from wmm import load, COEFS_FILE
 
+class wmm_elements(magmath.GeomagElements):
 
-class model:
+    def __init__(self, Bx, By, Bz):
+        super().__init__(Bx, By, Bz)
+    def get_all(self):
+
+        mag_map = super().get_all_base()
+
+        mag_map["dx"] = float(self.dBx)
+        mag_map["dy"] = float(self.dBy)
+        mag_map["dz"] = float(self.dBz)
+        mag_map["dh"] = (mag_map["x"] * self.dBx + mag_map["y"] * self.dBy) / mag_map["h"]
+        mag_map["df"] = (mag_map["x"] * self.dBx + mag_map["y"] * self.dBy + mag_map["z"] * self.dBz) / mag_map["f"]
+        mag_map["ddec"] = 180 / math.pi * (mag_map["x"] * self.dBy - mag_map["y"] * self.dBx) / (mag_map["h"] ** 2)
+        mag_map["dinc"] = 180 / math.pi * (mag_map["h"] * self.dBz - mag_map["z"] * mag_map["dh"]) / (mag_map["f"] ** 2)
+
+        mag_map["ddec"] = mag_map["ddec"]*60.0
+        mag_map["dinc"] = mag_map["dinc"]*60.0
+
+        return mag_map
+class model():
 
     def __init__(self):
 
@@ -68,10 +88,7 @@ class model:
 
         self.Leg = legendre.Flattened_Chaos_Legendre1(self.nmax, colats)
 
-
-
     def check_coords(self, lat, lon, alt, dyear, coef_dict):
-
         if dyear < coef_dict["min_year"] or dyear > self.max_year:
             max_year = round(self.max_year, 1)
             raise ValueError(f"Invalid year. Please provide date from {self.min_date} to {int(max_year)}-01-01 00:00")
@@ -82,8 +99,10 @@ class model:
         if lon > 360.0 or lon < -180.0:
             raise ValueError("lontitude should between -180 t")
 
-        if alt > -1 or alt < 600:
-            warnings.warn("Altitude is should between -1 km to 600 km")
+        if alt > -1 or alt < 850:
+            warnings.warn("Altitude is should between -1 km to 850 km")
+
+
 
     def forward_base(self):
 
@@ -92,7 +111,8 @@ class model:
 
         Bx, By, Bz = magmath.rotate_magvec(Bt, Bp, Br, self.theta, self.lat)
 
-        return magmath.GeomagElements(Bx, By, Bz)
+
+        return wmm_elements(Bx, By, Bz)
 
     def forward(self):
 
