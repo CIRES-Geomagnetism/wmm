@@ -8,6 +8,10 @@ class wmm_elements(magmath.GeomagElements):
 
     def __init__(self, Bx, By, Bz):
         super().__init__(Bx, By, Bz)
+
+
+
+
     def get_all(self):
 
         mag_map = super().get_all_base()
@@ -23,7 +27,13 @@ class wmm_elements(magmath.GeomagElements):
         mag_map["ddec"] = mag_map["ddec"]*60.0
         mag_map["dinc"] = mag_map["dinc"]*60.0
 
+
+
         return mag_map
+
+
+
+
 class model():
 
     def __init__(self):
@@ -59,12 +69,26 @@ class model():
 
     def _set_msl_False(self):
         self.msl = False
-    def setup_env(self, lat, lon, alt, year=None, month=None, day=None, dyear=None):
+
+    def to_km(self, alt, unit):
+
+        if unit == "km":
+            return alt
+
+        elif unit == "m":
+            return alt*1000
+        elif unit == "feet":
+            return alt*0.0003048
+        else:
+            raise ValueError("Get unknown unit. Please provide km, m or feet.")
+    def setup_env(self, lat, lon, alt, year=None, month=None, day=None, dyear=None, unit="km"):
 
 
         self.lat = lat
         lon = lon
-        alt = alt
+
+
+        alt = self.to_km(alt, unit)
 
         self.dyear = dyear
         if self.dyear == None:
@@ -103,7 +127,15 @@ class model():
             warnings.warn("Altitude is should between -1 km to 850 km")
 
 
+    def check_blackout_zone(self, mag_vec):
 
+        h = mag_vec.get_Bh()
+        if h <= 2000.0:
+            warnings.warn(f"Warning: location is in the blackout zone around the magnetic pole as defined by the WMM military specification"
+                          " (https://www.ngdc.noaa.gov/geomag/WMM/data/MIL-PRF-89500B.pdf). Compass accuracy is highly degraded in this region.\n")
+        if h <= 6000.0:
+            warnings.warn(f"Caution: location is approaching the blackout zone around the magnetic pole as defined by the WMM military specification "
+                                     "(https://www.ngdc.noaa.gov/geomag/WMM/data/MIL-PRF-89500B.pdf). Compass accuracy may be degraded in this region.\n")
     def forward_base(self):
 
         Bt, Bp, Br = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g"], self.timly_coef_dict["h"], self.Leg, self.theta)
@@ -111,8 +143,11 @@ class model():
 
         Bx, By, Bz = magmath.rotate_magvec(Bt, Bp, Br, self.theta, self.lat)
 
+        mag_vec = wmm_elements(Bx, By, Bz)
 
-        return wmm_elements(Bx, By, Bz)
+        self.check_blackout_zone(mag_vec)
+
+        return mag_vec
 
     def forward(self):
 

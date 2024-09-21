@@ -5,6 +5,7 @@ from geomaglib import util
 
 from wmm import load
 from wmm import build
+from wmm import uncertainty
 
 
 class Test_wmm(unittest.TestCase):
@@ -166,7 +167,6 @@ class Test_wmm(unittest.TestCase):
         wmm_model = build.model()
         wmm_model._set_msl_False()
         wmm_model.setup_env(lat, lon, alt, dyear=float(user_time))
-
 
 
 
