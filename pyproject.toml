@@ -1,11 +1,10 @@
 [project]
-name = "wmm_test"
+name = "wmm"
 version = "0.1.0"
-description = "A test version of WMM Python project"
-authors = [{ name = "Li-Yin Young", email = "you@example.com" }]
+description = "WMM Python Module based on WMM2020"
+authors = [{ name = "Li-Yin Young", email = "liyin.young@noaa.gov" }]
 dependencies = [
-    "requests",  # Example of a PyPI package
-    "numpy",
+    "numpy==2.1.1",
     "geomaglib @ git+https://github.com/CIRES-Geomagnetism/geomaglib.git@v0.3.1"  # Git dependency
 ]
 
