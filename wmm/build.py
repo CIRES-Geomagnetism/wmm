@@ -1,47 +1,103 @@
 import os
 import warnings
 import math
+import datetime as dt
+from typing import Optional, Tuple
+
 from geomaglib import util, legendre, magmath, sh_vars, sh_loader
-from wmm import load, COEFS_FILE
+from wmm import load
+
+
+def fill_timeslot(year: Optional[int], month: Optional[int], day: Optional[int]) -> Tuple:
+    """
+    Fill out the missing year, month or day with the current time.
+
+    Inputs:
+    :param year: int or None type
+    :param month: int or None type
+    :param day: int or None type
+
+    Outputs:
+    :return: year, month, day
+    """
+    curr_time = dt.datetime.now()
+
+    if year == None:
+        year = curr_time.year
+    if month == None:
+        month = curr_time.month
+    if day == None:
+        day = curr_time.day
+
+    return year, month, day
+
 
 class wmm_elements(magmath.GeomagElements):
 
-    def __init__(self, Bx, By, Bz, dBx = None, dBy = None, dBz = None):
+    def __init__(self, Bx: float, By: float, Bz: float, dBx: Optional[float] = None, dBy: Optional[float] = None,
+                 dBz: Optional[float] = None):
+        """
+
+        The class is used to compute the magnetic elements for
+        Bx, By, Bz, Bh, Bf, Bdec, Binc
+        dBx, dBy, dBz, dBh, dBf, dBdec, dBinc
+
+
+        :param Bx: Magnetic elements Bx in geodetic degree
+        :param By: Magnetic elements By in geodetic degree
+        :param Bz: Magnetic elements Bz in geodetic degree
+        :param dBx: allow None or Magnetic elements dBx in geodetic degree
+        :param dBy: allow None or Magnetic elements dBy in geodetic degree
+        :param dBz: allow None or Magnetic elements dBz in geodetic degree
+        """
         super().__init__(Bx, By, Bz, dBx, dBy, dBz)
 
-
-
-    def get_dBdec(self):
-
+    def get_dBdec(self) -> float:
+        """
+        Get magnetic elemnts delta declination(dBdec). The dBdec need to be multiplied with 60 for argmin.
+        :return: delta declination
+        """
         ddec = super().get_dBdec()
 
-        return ddec*60.0
+        return ddec * 60.0
 
-    def get_dBinc(self):
+    def get_dBinc(self) -> float:
+        """
+            Get magnetic elemnts delta inclination(dBdec). The dBinc need to be multiplied with 60 for argmin.
+            :return: delta inclination
+        """
         ddec = super().get_dBinc()
 
         return ddec * 60.0
 
-    def get_all(self):
+    def get_all(self) -> dict:
+        """
+            Get all of magnetic elemnts for
+             Bx, By, Bz, Bh, Bf, Bdec, Binc
+            dBx, dBy, dBz, dBh, dBf, dBdec, dBinc
 
+            :return: delta inclination
+        """
         mag_map = super().get_all()
 
-        mag_map["ddec"] = mag_map["ddec"]*60.0
-        mag_map["dinc"] = mag_map["dinc"]*60.0
+        mag_map["ddec"] = mag_map["ddec"] * 60.0
+        mag_map["dinc"] = mag_map["dinc"] * 60.0
 
         return mag_map
 
 
-
-
-class model():
+class wmm_calc():
 
     def __init__(self):
+        """
+        The WMM model class for computing magnetic elements
+        """
 
-        self.coef_file = COEFS_FILE
         self.nmax = 12
         self.max_year = 2030.0
+        self.coef_file = "WMM2020.cof"
         self.min_date = ""
+        self.dyear = None
         self.coef_dict = {}
         self.timly_coef_dict = {}
         self.lat = None
@@ -52,7 +108,12 @@ class model():
         self.sph_dict = {}
         self.Leg = []
 
-    def get_wmmcoefs_path(self, filename):
+    def get_coefs_path(self, filename: str) -> str:
+        """
+        Get the path of coefficient file
+        :param filename: Provide the file name of coefficient file. The coefficient file should saved in wmm/wmm/coefs
+        :return: The path to the coefficient file
+        """
 
         currdir = os.path.dirname(__file__)
 
@@ -60,50 +121,58 @@ class model():
 
         return coef_file
 
-    def load_coeffs(self, filename):
-        wmm_coeffs = self.get_wmmcoefs_path(filename)
-        self.coef_dict = load.load_wmm_coef(wmm_coeffs, skip_two_columns=True)
-        self.max_year = self.coef_dict["epoch"] + 5.0
-        self.min_date = self.coef_dict["min_date"]
-        self.nmax = sh_loader.calc_num_elems_to_sh_degrees(len(self.coef_dict["g"]))
+    def load_coeffs(self) -> dict:
+        """
+        load the WMM model coefficients and meta data like max degree, minimal and maximum date
+        :return: the dict type of object including g, h, g_sv and h_sv coefficients and max degree, minimal and maximum date
+        """
 
+        wmm_coeffs = self.get_coefs_path(self.coef_file)
+        return load.load_wmm_coef(wmm_coeffs, skip_two_columns=True)
 
-    def _set_msl_False(self):
-        self.msl = False
+    def to_km(self, alt: float, unit: str) -> float:
+        """
+        Transform the meter or feet to km
+        :param alt: the altitude in meter or feet or km
+        :param unit: "m" for meter and "feet" or feet, "km" for kilometer
 
-    def to_km(self, alt, unit):
+        :return: the altitude absed on km
+        """
 
         if unit == "km":
             return alt
 
         elif unit == "m":
-            return alt*1000
+            return alt * 1000
         elif unit == "feet":
-            return alt*0.0003048
+            return alt * 0.0003048
         else:
             raise ValueError("Get unknown unit. Please provide km, m or feet.")
-    def setup_env(self, lat, lon, alt, year=None, month=None, day=None, dyear=None, unit="km", msl=True):
 
+    def setup_env(self, lat: float, lon: float, alt: float, unit: str = "km", msl: bool = True):
+        """
+        The function will initialize the radius, geocentric latitude in degree,
+        spherical harmonic terms, maximum degree and legendre function for users.If user is not
+        provide time before calling the function, it will use current time by default.
+
+
+        :param lat: latitude in degree
+        :param lon: longtitude in degree
+        :param alt: altitude in km, meter or feet
+        :param unit: default is kilometer. assign "m" for meter or "feet" if your altitude is not based on km.
+        :param msl: default is True. set it to False if the altitude is ellipsoid height.
+
+        """
 
         self.lat = lat
         self.lon = lon
-
-
         self.alt = self.to_km(alt, unit)
 
-        self.dyear = dyear
-        if self.dyear == None:
-            self.dyear = util.calc_dec_year(year, month, day)
-
-        if not self.coef_dict:
-            self.load_coeffs(self.coef_file)
-
-        self.check_coords(self.lat, self.lon, self.alt, self.dyear, self.coef_dict)
-
-        self.timly_coef_dict = sh_loader.timely_modify_magnetic_model(self.coef_dict, self.dyear)
+        self.check_coords(self.lat, self.lon, self.alt)
 
         if msl:
             self.alt = util.alt_to_ellipsoid_height(alt, self.lat, self.lon)
+
         self.r, self.theta = util.geod_to_geoc_lat(self.lat, self.alt)
         self.sph_dict = sh_vars.comp_sh_vars(self.lon, self.r, self.theta, self.nmax)
 
@@ -113,10 +182,46 @@ class model():
 
         self.Leg = legendre.Flattened_Chaos_Legendre1(self.nmax, colats)
 
-    def check_coords(self, lat, lon, alt, dyear, coef_dict):
-        if dyear < coef_dict["min_year"] or dyear > self.max_year:
+    def setup_time(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None,
+                   decyear: Optional[float] = None):
+        """
+        It will load the coefficients and adjust g and h with the decimal year. The maximum and minimum year of the model
+        will also be initialized at here.
+        :param year: None or int type
+        :param month: None or int type
+        :param day: None or int type
+        :param decyear: None or int type
+
+        """
+
+        if decyear is None:
+            if year is None or month is None or day is None:
+                year, month, day = fill_timeslot(year, month, day)
+            self.dyear = util.calc_dec_year(year, month, day)
+        else:
+            self.dyear = decyear
+
+        if not self.coef_dict:
+            self.coef_dict = self.load_coeffs()
+
+        self.max_year = self.coef_dict["epoch"] + 5.0
+        self.min_date = self.coef_dict["min_date"]
+        self.nmax = sh_loader.calc_num_elems_to_sh_degrees(len(self.coef_dict["g"]))
+
+        if self.dyear < self.coef_dict["min_year"] or self.dyear > self.max_year:
             max_year = round(self.max_year, 1)
             raise ValueError(f"Invalid year. Please provide date from {self.min_date} to {int(max_year)}-01-01 00:00")
+
+        self.timly_coef_dict = sh_loader.timely_modify_magnetic_model(self.coef_dict, self.dyear)
+
+    def check_coords(self, lat: float, lon: float, alt: float):
+        """
+        Validify the coordinate provide from user
+        :param lat: latitude in degree
+        :param lon: longtitude in degree
+        :param alt: altitude in degree
+        :return:
+        """
 
         if lat > 90.0 or lat < -90.0:
             raise ValueError("latitude should between -90 to 90")
@@ -127,58 +232,104 @@ class model():
         if alt > -1 or alt < 850:
             warnings.warn("Altitude is should between -1 km to 850 km")
 
+    def check_blackout_zone(self, Bx: float, By: float, Bz: float):
+        """
+        Return warning if the location is in balckout zone
+        :param Bx: magnetic elements Bx
+        :param By: magnetic elements By
+        :param Bz: magnetic elements Bz
 
-    def check_blackout_zone(self, Bx, By, Bz):
+        """
 
         wmm_calc = wmm_elements(Bx, By, Bz)
         h = wmm_calc.get_Bh()
         if h <= 2000.0:
-            warnings.warn(f"Warning: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat}, {self.lon}, {self.alt}) is in the blackout zone around the magnetic pole as defined by the WMM military specification"
-                          " (https://www.ngdc.noaa.gov/geomag/WMM/data/MIL-PRF-89500B.pdf). Compass accuracy is highly degraded in this region.\n")
+            warnings.warn(
+                f"Warning: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat}, {self.lon}, {self.alt}) is in the blackout zone around the magnetic pole as defined by the WMM military specification"
+                " (https://www.ngdc.noaa.gov/geomag/WMM/data/MIL-PRF-89500B.pdf). Compass accuracy is highly degraded in this region.\n")
         elif h <= 6000.0:
-            warnings.warn(f"Caution: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat}, {self.lon}, {self.alt}) is approaching the blackout zone around the magnetic pole as defined by the WMM military specification "
-                                     "(https://www.ngdc.noaa.gov/geomag/WMM/data/MIL-PRF-89500B.pdf). Compass accuracy may be degraded in this region.\n")
-    def forward_base(self):
+            warnings.warn(
+                f"Caution: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat}, {self.lon}, {self.alt}) is approaching the blackout zone around the magnetic pole as defined by the WMM military specification "
+                "(https://www.ngdc.noaa.gov/geomag/WMM/data/MIL-PRF-89500B.pdf). Compass accuracy may be degraded in this region.\n")
 
-        Bt, Bp, Br = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g"], self.timly_coef_dict["h"], self.Leg, self.theta)
+    def forward_base(self) -> Tuple:
+        """
+        Compute the magnetic elements Bx, By and Bz in geodetic degree. If users didn't assinn the time by setup_time(), it will
+        use the current time as default.
+        :return: magnetic elements Bx, By and Bz in geodetic degree
+        """
 
+        if self.lat is None or self.lon is None or self.alt is None:
+            raise TypeError("Coordinates haven't set up yet. Please use setup_env() to set up coordinates first.")
+
+        if self.timly_coef_dict == None:
+            self.setup_time()
+
+        Bt, Bp, Br = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g"],
+                                               self.timly_coef_dict["h"], self.Leg, self.theta)
 
         Bx, By, Bz = magmath.rotate_magvec(Bt, Bp, Br, self.theta, self.lat)
 
         self.check_blackout_zone(Bx, By, Bz)
 
-
         return Bx, By, Bz
 
-    def forward_sv(self):
+    def forward_sv(self) -> Tuple:
 
+        """
+        Compute the magnetic elements dBx, dBy and dBz in geodetic degree. If users didn't assign the time by setup_time(), it will
+        use the current time as default.
+        :return: magnetic elements dBx, dBy and dBz in geodetic degree
+        """
 
+        if self.lat is None or self.lon is None or self.alt is None:
+            raise TypeError("Coordinates haven't set up yet. Please use setup_env() to set up coordinates first.")
 
-        dBt, dBp, dBr = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g_sv"], self.timly_coef_dict["h_sv"], self.Leg, self.theta)
+        if not self.timly_coef_dict:
+            self.setup_time()
+
+        dBt, dBp, dBr = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g_sv"],
+                                                  self.timly_coef_dict["h_sv"], self.Leg, self.theta)
 
         dBx, dBy, dBz = magmath.rotate_magvec(dBt, dBp, dBr, self.theta, self.lat)
 
         return dBx, dBy, dBz
 
-    def get_Bx(self):
+    def get_Bx(self) -> float:
+        """
+        Get the Bx magnetic elements
+        :return: Bx
+        """
 
         Bx, By, Bz = self.forward_base()
 
         return Bx
 
-    def get_By(self):
+    def get_By(self) -> float:
+        """
+        Get the By magnetic elements
+        :return: By
+        """
 
         Bx, By, Bz = self.forward_base()
 
         return By
 
-    def get_Bz(self):
+    def get_Bz(self) -> float:
+        """
+        Get the Bz magnetic elements
+        :return: Bz
+        """
 
         Bx, By, Bz = self.forward_base()
 
         return Bz
 
-    def get_Bh(self):
+    def get_Bh(self) -> float:
+        """
+        Get the horizontal magnetic elements
+        :return: horizontal magnetic elements in float type
+        """
 
         Bx, By, Bz = self.forward_base()
 
@@ -186,15 +337,22 @@ class model():
 
         return wmm_calc.get_Bh()
 
-    def get_Bf(self):
+    def get_Bf(self) -> float:
+        """
+        Get the total intensity magnetic elements
+        :return: total intensity in float type
+        """
 
         Bx, By, Bz = self.forward_base()
-
         wmm_calc = wmm_elements(Bx, By, Bz)
 
         return wmm_calc.get_Bf()
 
-    def get_Bdec(self):
+    def get_Bdec(self) -> float:
+        """
+        Get the declination magnetic elements
+        :return: declination in float type
+        """
 
         Bx, By, Bz = self.forward_base()
 
@@ -202,7 +360,11 @@ class model():
 
         return wmm_calc.get_Bdec()
 
-    def get_Binc(self):
+    def get_Binc(self) -> float:
+        """
+        Get the inclination magnetic elements
+        :return: By
+        """
 
         Bx, By, Bz = self.forward_base()
 
@@ -210,7 +372,11 @@ class model():
 
         return wmm_calc.get_Binc()
 
-    def get_dBh(self):
+    def get_dBh(self) -> float:
+        """
+        Get the delta horizontal magnetic elements
+        :return: delta horizontal in float type
+        """
 
         Bx, By, Bz = self.forward_base()
         dBx, dBy, dBz = self.forward_sv()
@@ -219,7 +385,11 @@ class model():
 
         return wmm_calc.get_dBh()
 
-    def get_dBf(self):
+    def get_dBf(self) -> float:
+        """
+        Get the delta total intensity magnetic elements
+        :return: delta total intensity in float type
+        """
 
         Bx, By, Bz = self.forward_base()
         dBx, dBy, dBz = self.forward_sv()
@@ -228,7 +398,11 @@ class model():
 
         return wmm_calc.get_dBf()
 
-    def get_dBdec(self):
+    def get_dBdec(self) -> float:
+        """
+        Get the delta declination magnetic elements
+        :return: delta declination in float type
+        """
 
         Bx, By, Bz = self.forward_base()
         dBx, dBy, dBz = self.forward_sv()
@@ -237,7 +411,11 @@ class model():
 
         return wmm_calc.get_dBdec()
 
-    def get_dBinc(self):
+    def get_dBinc(self) -> float:
+        """
+        Get the delta inclination magnetic elements
+        :return: delta inclination in float type
+        """
 
         Bx, By, Bz = self.forward_base()
         dBx, dBy, dBz = self.forward_sv()
@@ -246,7 +424,14 @@ class model():
 
         return wmm_calc.get_dBinc()
 
-    def get_all(self):
+    def get_all(self) -> dict:
+        """
+        Get the all of magnetic elements:
+        Bx, By, Bz, Bh, Bf, Bdec, Binc
+        dBx, dBy, dBz, dBh, dBf, dBdec, dBinc
+
+        :return: dict object includes all of magnetic elements
+        """
 
         Bx, By, Bz = self.forward_base()
         dBx, dBy, dBz = self.forward_sv()
@@ -254,8 +439,3 @@ class model():
         wmm_calc = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
 
         return wmm_calc.get_all()
-
-
-
-
-
