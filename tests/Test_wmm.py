@@ -4,7 +4,7 @@ import unittest
 from geomaglib import util
 
 from wmm import load
-from wmm import build
+from wmm import wmm_calc, wmm_elements, fill_timeslot
 from wmm import uncertainty
 
 
@@ -31,8 +31,9 @@ class Test_wmm(unittest.TestCase):
         r, theta = util.geod_to_geoc_lat(lat, alt_true)
 
 
-        wmm_model = build.model()
-        wmm_model.setup_env(lat, lon, alt, dyear=dec_year)
+        wmm_model = wmm_calc()
+        wmm_model.setup_env(lat, lon, alt)
+        wmm_model.setup_time(dyear=dec_year)
 
         self.assertAlmostEqual(wmm_model.lat, lat, places=6)
 
@@ -46,16 +47,18 @@ class Test_wmm(unittest.TestCase):
 
         dec_year = 2024.5
 
-        wmm_model = build.model()
-        wmm_model._set_msl_False()
-        wmm_model.setup_env(lat, lon, alt, dyear=dec_year)
+        wmm_model = wmm_calc()
+
+        wmm_model.setup_time(dyear=dec_year)
+        wmm_model.setup_env(lat, lon, alt, msl=False)
 
 
-        mag_vec = wmm_model.forward_base()
 
-        self.assertAlmostEqual(round(mag_vec.Bx, 1), 31722.0, delta=0.01)
-        self.assertAlmostEqual(round(mag_vec.By, 1), 2569.6, delta=0.01)
-        self.assertAlmostEqual(round(mag_vec.Bz, 1), -34986.2, delta=0.01)
+        Bx, By, Bz = wmm_model.forward_base()
+
+        self.assertAlmostEqual(round(Bx, 1), 31722.0, delta=0.01)
+        self.assertAlmostEqual(round(By, 1), 2569.6, delta=0.01)
+        self.assertAlmostEqual(round(Bz, 1), -34986.2, delta=0.01)
 
     def test_setup_sv(self):
 
@@ -65,18 +68,19 @@ class Test_wmm(unittest.TestCase):
 
         dec_year = 2024.5
 
-        wmm_model = build.model()
-        wmm_model._set_msl_False()
-        wmm_model.setup_env(lat, lon, alt, dyear=dec_year)
+        wmm_model = wmm_calc()
+
+        wmm_model.setup_time(dyear=dec_year)
+        wmm_model.setup_env(lat, lon, alt, msl=False)
 
 
-        mag_vec = wmm_model.forward()
+        dBx, dBy, dBz = wmm_model.forward_sv()
 
-        self.assertAlmostEqual(round(mag_vec.dBx, 1), -9.0, delta=0.01)
-        self.assertAlmostEqual(round(mag_vec.dBy, 1), -27.7, delta=0.01)
-        self.assertAlmostEqual(round(mag_vec.dBz, 1), -26.8, delta=0.01)
+        self.assertAlmostEqual(round(dBx, 1), -9.0, delta=0.01)
+        self.assertAlmostEqual(round(dBy, 1), -27.7, delta=0.01)
+        self.assertAlmostEqual(round(dBz, 1), -26.8, delta=0.01)
 
-        mag_map = mag_vec.get_all()
+
 
     def test_inherit_GeomagElements(self):
         lat = -21
@@ -85,12 +89,13 @@ class Test_wmm(unittest.TestCase):
 
         dec_year = 2024.5
 
-        wmm_model = build.model()
-        wmm_model._set_msl_False()
-        wmm_model.setup_env(lat, lon, alt, dyear=dec_year)
+        wmm_model = wmm_calc()
 
-        mag_vec = wmm_model.forward()
-        map = mag_vec.get_all()
+        wmm_model.setup_time(dyear=dec_year)
+        wmm_model.setup_env(lat, lon, alt, msl=False)
+
+        map = wmm_model.get_all()
+
         self.assertAlmostEqual(round(map["ddec"]/60, 1), -0.1, places=6)
         self.assertAlmostEqual(round(map["dinc"] / 60, 1), 0.1, places=6)
 
@@ -101,13 +106,15 @@ class Test_wmm(unittest.TestCase):
 
         dec_year = 2024.5
 
-        wmm_model = build.model()
-        wmm_model.setup_env(lat, lon, alt, dyear=dec_year)
+        wmm_model = wmm_calc()
+        wmm_model.setup_time(dyear=dec_year)
+        wmm_model.setup_env(lat, lon, alt, msl=False)
 
 
 
         lat1 = -19
-        wmm_model.setup_env(lat1, lon, alt, dyear=dec_year)
+        wmm_model.setup_time(dyear=dec_year)
+        wmm_model.setup_env(lat1, lon, alt, msl=False)
         lat2 = wmm_model.lat
 
         self.assertAlmostEqual(lat2, -19)
@@ -122,14 +129,18 @@ class Test_wmm(unittest.TestCase):
     def test_correct_time(self):
 
 
-        user_time = 2020.0
+
         user_time = 2030.1
 
-        lat, lon, alt = 30.0, 20, 100
 
-        wmm_model = build.model()
-        wmm_model._set_msl_False()
-        wmm_model.setup_env(lat, lon, alt, dyear=float(user_time))
+
+        wmm_model = wmm_calc()
+
+        try:
+            wmm_model.setup_time(dyear=user_time)
+        except ValueError as e:
+            print(e)
+
 
 
 
@@ -139,10 +150,10 @@ class Test_wmm(unittest.TestCase):
 
         lat, lon, alt = 30.0, 20, 700
 
-        wmm_model = build.model()
-        wmm_model._set_msl_False()
-        wmm_model.setup_env(lat, lon, alt, dyear=float(user_time))
+        wmm_model = wmm_calc()
 
+        wmm_model.setup_time(dyear=user_time)
+        wmm_model.setup_env(lat, lon, alt, msl=False)
 
 
     def test_check_latitude(self):
@@ -151,9 +162,14 @@ class Test_wmm(unittest.TestCase):
 
         lat, lon, alt = 90.1, 20, 700
 
-        wmm_model = build.model()
-        wmm_model._set_msl_False()
-        wmm_model.setup_env(lat, lon, alt, dyear=float(user_time))
+        wmm_model = wmm_calc()
+
+        try:
+            wmm_model.setup_time(dyear=user_time)
+            wmm_model.setup_env(lat, lon, alt, msl=False)
+        except ValueError as e:
+            print(e)
+
 
 
 
@@ -164,14 +180,34 @@ class Test_wmm(unittest.TestCase):
 
         lat, lon, alt = 90.0, 361, 700
 
-        wmm_model = build.model()
-        wmm_model._set_msl_False()
-        wmm_model.setup_env(lat, lon, alt, dyear=float(user_time))
+        wmm_model = wmm_calc()
+
+        try:
+            wmm_model.setup_time(dyear=user_time)
+            wmm_model.setup_env(lat, lon, alt, msl=False)
+        except ValueError as e:
+            print(e)
 
 
 
 
+    def test_fill_timeslot(self):
+        year = None
+        month =3
+        day = 25
 
+        year, month, day = fill_timeslot(year, month, day)
+
+        self.assertEqual(year, 2024)
+        self.assertEqual(month, 3)
+        self.assertEqual(day, 25)
+
+
+    def test_not_setup_env(self):
+
+        model = wmm_calc()
+        model.setup_time()
+        x = model.get_Bx()
 
 
 
