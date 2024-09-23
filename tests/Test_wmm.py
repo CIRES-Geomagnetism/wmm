@@ -4,7 +4,8 @@ import unittest
 from geomaglib import util
 
 from wmm import load
-from wmm import wmm_calc, wmm_elements, fill_timeslot
+from wmm import wmm_calc
+from wmm.build import fill_timeslot
 from wmm import uncertainty
 
 
@@ -208,6 +209,7 @@ class Test_wmm(unittest.TestCase):
         model = wmm_calc()
         model.setup_time()
         x = model.get_Bx()
+
 
 
 

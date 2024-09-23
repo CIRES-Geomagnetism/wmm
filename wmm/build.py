@@ -22,11 +22,11 @@ def fill_timeslot(year: Optional[int], month: Optional[int], day: Optional[int])
     """
     curr_time = dt.datetime.now()
 
-    if year == None:
+    if year is None:
         year = curr_time.year
-    if month == None:
+    if month is None:
         month = curr_time.month
-    if day == None:
+    if day is None:
         day = curr_time.day
 
     return year, month, day
