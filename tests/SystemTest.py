@@ -45,7 +45,7 @@ def check_sv_results(res_map, lat, lon, alt, dyear, dec, inc, h, x, y, z, f, tol
 def refer_testValues(testval_filename, res_filename):
 
     wmm_model = model()
-    wmm_model._set_msl_False()
+
     tol = 1e-6
 
 
@@ -68,11 +68,11 @@ def refer_testValues(testval_filename, res_filename):
                 dec, inc, h, x, y, z, f = vals[4], vals[5], vals[6], vals[7], vals[8], vals[9], vals[10]
                 ddec, dinc, dh, dx, dy, dz, df = vals[11], vals[12], vals[13], vals[14], vals[15], vals[16], vals[17]
 
-                wmm_model.setup_env(lat, lon, alt, dyear=float(dyear))
+                wmm_model.setup_env(lat, lon, alt, dyear=float(dyear), msl=False)
 
-                res = wmm_model.forward()
+                mag_map = wmm_model.get_all()
 
-                mag_map = res.get_all()
+
 
                 check_base_results(mag_map, lat, lon, alt, dyear, dec, inc, h, x, y, z, f, tol, res_fp)
                 check_sv_results(mag_map, lat, lon, alt, dyear, ddec, dinc, dh, dx, dy, dz, df, tol, resd_fp)

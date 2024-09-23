@@ -6,28 +6,28 @@ from wmm import load, COEFS_FILE
 
 class wmm_elements(magmath.GeomagElements):
 
-    def __init__(self, Bx, By, Bz):
-        super().__init__(Bx, By, Bz)
+    def __init__(self, Bx, By, Bz, dBx = None, dBy = None, dBz = None):
+        super().__init__(Bx, By, Bz, dBx, dBy, dBz)
 
 
 
+    def get_dBdec(self):
+
+        ddec = super().get_dBdec()
+
+        return ddec*60.0
+
+    def get_dBinc(self):
+        ddec = super().get_dBinc()
+
+        return ddec * 60.0
 
     def get_all(self):
 
-        mag_map = super().get_all_base()
-
-        mag_map["dx"] = float(self.dBx)
-        mag_map["dy"] = float(self.dBy)
-        mag_map["dz"] = float(self.dBz)
-        mag_map["dh"] = (mag_map["x"] * self.dBx + mag_map["y"] * self.dBy) / mag_map["h"]
-        mag_map["df"] = (mag_map["x"] * self.dBx + mag_map["y"] * self.dBy + mag_map["z"] * self.dBz) / mag_map["f"]
-        mag_map["ddec"] = 180 / math.pi * (mag_map["x"] * self.dBy - mag_map["y"] * self.dBx) / (mag_map["h"] ** 2)
-        mag_map["dinc"] = 180 / math.pi * (mag_map["h"] * self.dBz - mag_map["z"] * mag_map["dh"]) / (mag_map["f"] ** 2)
+        mag_map = super().get_all()
 
         mag_map["ddec"] = mag_map["ddec"]*60.0
         mag_map["dinc"] = mag_map["dinc"]*60.0
-
-
 
         return mag_map
 
@@ -42,10 +42,11 @@ class model():
         self.nmax = 12
         self.max_year = 2030.0
         self.min_date = ""
-        self.msl = True
         self.coef_dict = {}
         self.timly_coef_dict = {}
         self.lat = None
+        self.lon = None
+        self.alt = None
         self.r = None
         self.theta = None
         self.sph_dict = {}
@@ -81,14 +82,14 @@ class model():
             return alt*0.0003048
         else:
             raise ValueError("Get unknown unit. Please provide km, m or feet.")
-    def setup_env(self, lat, lon, alt, year=None, month=None, day=None, dyear=None, unit="km"):
+    def setup_env(self, lat, lon, alt, year=None, month=None, day=None, dyear=None, unit="km", msl=True):
 
 
         self.lat = lat
-        lon = lon
+        self.lon = lon
 
 
-        alt = self.to_km(alt, unit)
+        self.alt = self.to_km(alt, unit)
 
         self.dyear = dyear
         if self.dyear == None:
@@ -97,14 +98,14 @@ class model():
         if not self.coef_dict:
             self.load_coeffs(self.coef_file)
 
-        self.check_coords(self.lat, lon, alt, self.dyear, self.coef_dict)
+        self.check_coords(self.lat, self.lon, self.alt, self.dyear, self.coef_dict)
 
         self.timly_coef_dict = sh_loader.timely_modify_magnetic_model(self.coef_dict, self.dyear)
 
-        if self.msl:
-            alt = util.alt_to_ellipsoid_height(alt, self.lat, lon)
-        self.r, self.theta = util.geod_to_geoc_lat(self.lat, alt)
-        self.sph_dict = sh_vars.comp_sh_vars(lon, self.r, self.theta, self.nmax)
+        if msl:
+            self.alt = util.alt_to_ellipsoid_height(alt, self.lat, self.lon)
+        self.r, self.theta = util.geod_to_geoc_lat(self.lat, self.alt)
+        self.sph_dict = sh_vars.comp_sh_vars(self.lon, self.r, self.theta, self.nmax)
 
         cotheta = 90.0 - self.theta
 
@@ -127,14 +128,15 @@ class model():
             warnings.warn("Altitude is should between -1 km to 850 km")
 
 
-    def check_blackout_zone(self, mag_vec):
+    def check_blackout_zone(self, Bx, By, Bz):
 
-        h = mag_vec.get_Bh()
+        wmm_calc = wmm_elements(Bx, By, Bz)
+        h = wmm_calc.get_Bh()
         if h <= 2000.0:
-            warnings.warn(f"Warning: location is in the blackout zone around the magnetic pole as defined by the WMM military specification"
+            warnings.warn(f"Warning: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat}, {self.lon}, {self.alt}) is in the blackout zone around the magnetic pole as defined by the WMM military specification"
                           " (https://www.ngdc.noaa.gov/geomag/WMM/data/MIL-PRF-89500B.pdf). Compass accuracy is highly degraded in this region.\n")
-        if h <= 6000.0:
-            warnings.warn(f"Caution: location is approaching the blackout zone around the magnetic pole as defined by the WMM military specification "
+        elif h <= 6000.0:
+            warnings.warn(f"Caution: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat}, {self.lon}, {self.alt}) is approaching the blackout zone around the magnetic pole as defined by the WMM military specification "
                                      "(https://www.ngdc.noaa.gov/geomag/WMM/data/MIL-PRF-89500B.pdf). Compass accuracy may be degraded in this region.\n")
     def forward_base(self):
 
@@ -143,20 +145,117 @@ class model():
 
         Bx, By, Bz = magmath.rotate_magvec(Bt, Bp, Br, self.theta, self.lat)
 
-        mag_vec = wmm_elements(Bx, By, Bz)
+        self.check_blackout_zone(Bx, By, Bz)
 
-        self.check_blackout_zone(mag_vec)
 
-        return mag_vec
+        return Bx, By, Bz
 
-    def forward(self):
+    def forward_sv(self):
 
-        mag_vec = self.forward_base()
+
 
         dBt, dBp, dBr = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g_sv"], self.timly_coef_dict["h_sv"], self.Leg, self.theta)
 
         dBx, dBy, dBz = magmath.rotate_magvec(dBt, dBp, dBr, self.theta, self.lat)
-        mag_vec.set_sv_vec(dBx, dBy, dBz)
-        return mag_vec
+
+        return dBx, dBy, dBz
+
+    def get_Bx(self):
+
+        Bx, By, Bz = self.forward_base()
+
+        return Bx
+
+    def get_By(self):
+
+        Bx, By, Bz = self.forward_base()
+
+        return By
+
+    def get_Bz(self):
+
+        Bx, By, Bz = self.forward_base()
+
+        return Bz
+
+    def get_Bh(self):
+
+        Bx, By, Bz = self.forward_base()
+
+        wmm_calc = wmm_elements(Bx, By, Bz)
+
+        return wmm_calc.get_Bh()
+
+    def get_Bf(self):
+
+        Bx, By, Bz = self.forward_base()
+
+        wmm_calc = wmm_elements(Bx, By, Bz)
+
+        return wmm_calc.get_Bf()
+
+    def get_Bdec(self):
+
+        Bx, By, Bz = self.forward_base()
+
+        wmm_calc = wmm_elements(Bx, By, Bz)
+
+        return wmm_calc.get_Bdec()
+
+    def get_Binc(self):
+
+        Bx, By, Bz = self.forward_base()
+
+        wmm_calc = wmm_elements(Bx, By, Bz)
+
+        return wmm_calc.get_Binc()
+
+    def get_dBh(self):
+
+        Bx, By, Bz = self.forward_base()
+        dBx, dBy, dBz = self.forward_sv()
+
+        wmm_calc = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
+
+        return wmm_calc.get_dBh()
+
+    def get_dBf(self):
+
+        Bx, By, Bz = self.forward_base()
+        dBx, dBy, dBz = self.forward_sv()
+
+        wmm_calc = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
+
+        return wmm_calc.get_dBf()
+
+    def get_dBdec(self):
+
+        Bx, By, Bz = self.forward_base()
+        dBx, dBy, dBz = self.forward_sv()
+
+        wmm_calc = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
+
+        return wmm_calc.get_dBdec()
+
+    def get_dBinc(self):
+
+        Bx, By, Bz = self.forward_base()
+        dBx, dBy, dBz = self.forward_sv()
+
+        wmm_calc = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
+
+        return wmm_calc.get_dBinc()
+
+    def get_all(self):
+
+        Bx, By, Bz = self.forward_base()
+        dBx, dBy, dBz = self.forward_sv()
+
+        wmm_calc = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
+
+        return wmm_calc.get_all()
+
+
+
 
 
