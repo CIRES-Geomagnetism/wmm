@@ -53,6 +53,7 @@ It will return
 
 **setup_time(year**=None, **month**=None, **day**=None, **dyear** = None)
 
+If users don't call or assign any value to setup_time(), it will use the current time to compute the model.
 Either by providing year, month, day
 ```python
 from wmm import wmm_calc
