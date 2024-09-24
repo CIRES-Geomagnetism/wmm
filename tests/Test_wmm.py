@@ -81,12 +81,11 @@ class Test_wmm(unittest.TestCase):
         self.assertAlmostEqual(round(dBy, 1), -27.7, delta=0.01)
         self.assertAlmostEqual(round(dBz, 1), -26.8, delta=0.01)
 
+    def test_get_dBh(self):
 
-
-    def test_inherit_GeomagElements(self):
-        lat = -21
-        lon = 32
-        alt = 66
+        lat = -18
+        lon = 138
+        alt = 77
 
         dec_year = 2024.5
 
@@ -95,7 +94,29 @@ class Test_wmm(unittest.TestCase):
         wmm_model.setup_time(dyear=dec_year)
         wmm_model.setup_env(lat, lon, alt, msl=False)
 
+
+        self.assertTrue(isinstance(wmm_model.get_dBh(), float))
+
+
+
+    def test_inherit_GeomagElements(self):
+        lat = -21
+        lon = 32
+        alt = 66
+
+
+
+        dec_year = 2024.5
+
+        wmm_model = wmm_calc()
+
+        wmm_model.setup_time(dyear=dec_year)
+        wmm_model.setup_env(lat, lon, alt, msl=False)
+
+
         map = wmm_model.get_all()
+
+        print(map)
 
         self.assertAlmostEqual(round(map["ddec"]/60, 1), -0.1, places=6)
         self.assertAlmostEqual(round(map["dinc"] / 60, 1), 0.1, places=6)

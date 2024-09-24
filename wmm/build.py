@@ -3,6 +3,7 @@ import warnings
 import math
 import datetime as dt
 from typing import Optional, Tuple
+import numpy as np
 
 from geomaglib import util, legendre, magmath, sh_vars, sh_loader
 from wmm import load
@@ -70,7 +71,7 @@ class wmm_elements(magmath.GeomagElements):
 
         return ddec * 60.0
 
-    def get_all(self) -> dict:
+    def get_all(self) -> dict[str, float]:
         """
             Get all of magnetic elemnts for
              Bx, By, Bz, Bh, Bf, Bdec, Binc
@@ -79,6 +80,8 @@ class wmm_elements(magmath.GeomagElements):
             :return: delta inclination
         """
         mag_map = super().get_all()
+
+
 
         mag_map["ddec"] = mag_map["ddec"] * 60.0
         mag_map["dinc"] = mag_map["dinc"] * 60.0
@@ -178,12 +181,12 @@ class wmm_calc():
 
         cotheta = 90.0 - self.theta
 
-        colats = [cotheta]
 
-        self.Leg = legendre.Flattened_Chaos_Legendre1(self.nmax, colats)
+
+        self.Leg = legendre.Flattened_Chaos_Legendre1(self.nmax, cotheta)
 
     def setup_time(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None,
-                   decyear: Optional[float] = None):
+                   dyear: Optional[float] = None):
         """
         It will load the coefficients and adjust g and h with the decimal year. The maximum and minimum year of the model
         will also be initialized at here.
@@ -194,12 +197,12 @@ class wmm_calc():
 
         """
 
-        if decyear is None:
+        if dyear is None:
             if year is None or month is None or day is None:
                 year, month, day = fill_timeslot(year, month, day)
             self.dyear = util.calc_dec_year(year, month, day)
         else:
-            self.dyear = decyear
+            self.dyear = dyear
 
         if not self.coef_dict:
             self.coef_dict = self.load_coeffs()
@@ -333,9 +336,9 @@ class wmm_calc():
 
         Bx, By, Bz = self.forward_base()
 
-        wmm_calc = wmm_elements(Bx, By, Bz)
+        mag_vec = wmm_elements(Bx, By, Bz)
 
-        return wmm_calc.get_Bh()
+        return mag_vec.get_Bh()
 
     def get_Bf(self) -> float:
         """
@@ -344,9 +347,9 @@ class wmm_calc():
         """
 
         Bx, By, Bz = self.forward_base()
-        wmm_calc = wmm_elements(Bx, By, Bz)
+        mag_vec = wmm_elements(Bx, By, Bz)
 
-        return wmm_calc.get_Bf()
+        return mag_vec.get_Bf()
 
     def get_Bdec(self) -> float:
         """
@@ -356,9 +359,9 @@ class wmm_calc():
 
         Bx, By, Bz = self.forward_base()
 
-        wmm_calc = wmm_elements(Bx, By, Bz)
+        mag_vec = wmm_elements(Bx, By, Bz)
 
-        return wmm_calc.get_Bdec()
+        return mag_vec.get_Bdec()
 
     def get_Binc(self) -> float:
         """
@@ -368,9 +371,9 @@ class wmm_calc():
 
         Bx, By, Bz = self.forward_base()
 
-        wmm_calc = wmm_elements(Bx, By, Bz)
+        mag_vec = wmm_elements(Bx, By, Bz)
 
-        return wmm_calc.get_Binc()
+        return mag_vec.get_Binc()
 
     def get_dBh(self) -> float:
         """
@@ -381,9 +384,9 @@ class wmm_calc():
         Bx, By, Bz = self.forward_base()
         dBx, dBy, dBz = self.forward_sv()
 
-        wmm_calc = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
+        mag_vec = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
 
-        return wmm_calc.get_dBh()
+        return mag_vec.get_dBh()
 
     def get_dBf(self) -> float:
         """
@@ -394,9 +397,9 @@ class wmm_calc():
         Bx, By, Bz = self.forward_base()
         dBx, dBy, dBz = self.forward_sv()
 
-        wmm_calc = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
+        mag_vec = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
 
-        return wmm_calc.get_dBf()
+        return mag_vec.get_dBf()
 
     def get_dBdec(self) -> float:
         """
@@ -407,9 +410,9 @@ class wmm_calc():
         Bx, By, Bz = self.forward_base()
         dBx, dBy, dBz = self.forward_sv()
 
-        wmm_calc = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
+        mag_vec = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
 
-        return wmm_calc.get_dBdec()
+        return mag_vec.get_dBdec()
 
     def get_dBinc(self) -> float:
         """
@@ -420,9 +423,9 @@ class wmm_calc():
         Bx, By, Bz = self.forward_base()
         dBx, dBy, dBz = self.forward_sv()
 
-        wmm_calc = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
+        mag_vec = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
 
-        return wmm_calc.get_dBinc()
+        return mag_vec.get_dBinc()
 
     def get_all(self) -> dict:
         """
@@ -436,6 +439,6 @@ class wmm_calc():
         Bx, By, Bz = self.forward_base()
         dBx, dBy, dBz = self.forward_sv()
 
-        wmm_calc = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
+        mag_vec = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
 
-        return wmm_calc.get_all()
+        return mag_vec.get_all()
