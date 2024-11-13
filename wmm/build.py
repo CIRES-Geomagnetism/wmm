@@ -98,7 +98,7 @@ class wmm_calc():
 
         self.nmax = 12
         self.max_year = 2030.0
-        self.coef_file = "WMM2020.cof"
+        self.coef_file = "WMM.cof"
         self.min_date = ""
         self.dyear = None
         self.coef_dict = {}
@@ -211,7 +211,7 @@ class wmm_calc():
         self.min_date = self.coef_dict["min_date"]
         self.nmax = sh_loader.calc_num_elems_to_sh_degrees(len(self.coef_dict["g"]))
 
-        if self.dyear < self.coef_dict["min_year"] or self.dyear > self.max_year:
+        if self.dyear < self.coef_dict["min_year"] or self.dyear >= self.max_year:
             max_year = round(self.max_year, 1)
             raise ValueError(f"Invalid year. Please provide date from {self.min_date} to {int(max_year)}-01-01 00:00")
 

@@ -1,0 +1,8 @@
+certifi==2024.8.30
+charset-normalizer==3.3.2
+geomaglib @ git+https://github.com/CIRES-Geomagnetism/geomaglib.git@8c995e9cbadccbebed22e26fc10cccf2b6501185
+idna==3.10
+numpy==2.1.1
+requests==2.32.3
+urllib3==2.2.3
+-e git+ssh://git@github.com/CIRES-Geomagnetism/wmm.git@b2f054f3f14e952534369add8521fcd241bdf000#egg=wmm

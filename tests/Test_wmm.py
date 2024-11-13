@@ -152,7 +152,7 @@ class Test_wmm(unittest.TestCase):
 
 
 
-        user_time = 2030.1
+        user_time = 2030.0
 
 
 

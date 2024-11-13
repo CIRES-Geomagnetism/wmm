@@ -1,19 +1,5 @@
 ## Create the environment for developing wmm Python module
 
-### Install the package in developer mode
-
-`pip install -e .`
-
-### Update the depepdency from github repository
-
-The dependency of the Python module is `numpy==2.1.1` and the git repository for geomaglib.
-
-If you want to reinstall the updated Git dependency without installing entire project, you can use
-  
-`pip install --upgrade --force-reinstall git+https://github.com/CIRES-Geomagnetism/geomaglib.git@v0.1.0`
-
-- **git+https://github.com/liyo6397/geomaglib.git**: git repository url
-- **v0.3.1:** git tag. Please check the latest tag at https://github.com/liyo6397/geomaglib.git
 
 ## WMM Python API Quick Start
 
@@ -58,7 +44,7 @@ Either by providing year, month, day
 ```python
 from wmm import wmm_calc
 model = wmm_calc()
-model.setup_time(2024, 9, 20)
+model.setup_time(2024, 12, 30)
 ```
 or 
 ```python
@@ -97,23 +83,23 @@ which will return all magnetic elements in dict type.
 
 or get single magnetic elements by calling
 
-- Get Bx value: `get_Bx()`
-- Get By value: `get_By()`
-- Get Bz value: `get_Bz()`
-- Get Bh value: `get_Bh()`
-- Get Bf value: `get_Bf()`
-- Get Bdec value: `get_Bdec()`
-- Get Binc value: `get_Binc()`
-- Get dBx value: `get_dBx()`
-- Get dBy value: `get_dBy()`
-- Get dBz value: `get_dBz()`
-- Get dBh value: `get_dBh()`
-- Get dBf value: `get_dBf()`
-- Get dBdec value: `get_dBdec`
-- Get dBinc value: `get_dBinc`
+- `get_Bx()`
+- `get_By()`
+- `get_Bz()`
+- `get_Bh()`
+- `get_Bf()`
+- `get_Bdec()`
+- `get_Binc()`
+- `get_dBx()`
+- `get_dBy()`
+- `get_dBz()`
+- `get_dBh()`
+- `get_dBf()`
+- `get_dBdec()`
+- `get_dBinc()`
 
 for example,
 ```python
-bh = model.get_Bh()
+Bh = model.get_Bh()
 ```
 
