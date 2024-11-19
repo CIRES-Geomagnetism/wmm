@@ -5,7 +5,7 @@ def check_base_results(res_map, lat, lon, alt, dyear, dec, inc, h, x, y, z, f, t
 
     if (fabs(round(res_map["x"], 1) - x) > tol):
         res_fp.write(f"x,{lat},{lon},{alt},{dyear},{res_map['x']},{x}\n")
-        print(f"x,{lat},{lon},{alt},{dyear},{res_map['x']},{x}\n")
+
     if (fabs(round(res_map["y"], 1) - y) > tol):
         res_fp.write(f"y,{lat},{lon},{alt},{dyear},{res_map['y']},{y}\n")
     if (fabs(round(res_map["z"], 1) - z) > tol):
@@ -23,7 +23,7 @@ def check_sv_results(res_map, lat, lon, alt, dyear, dec, inc, h, x, y, z, f, tol
 
     if (fabs(round(res_map["dx"], 1) - x) > tol):
         res_fp.write(f"x,{lat},{lon},{alt},{dyear},{res_map['dx']},{x}\n")
-        print(f"x,{lat},{lon},{alt},{dyear},{res_map['dx']},{x}\n")
+
     if (fabs(round(res_map["dy"], 1) - y) > tol):
         res_fp.write(f"y,{lat},{lon},{alt},{dyear},{res_map['dy']},{y}\n")
     if (fabs(round(res_map["dz"], 1) - z) > tol):
