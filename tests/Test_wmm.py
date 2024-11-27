@@ -16,7 +16,7 @@ class Test_wmm(unittest.TestCase):
         self.lat = -18
         self.lon = 138
         self.alt = 77
-        self.dec_year = 2024.5
+        self.dec_year = 2025.5
 
         self.top_dir = os.path.dirname(os.path.dirname(__file__))
         self.wmm_file = os.path.join(self.top_dir, "wmm", "coefs", "WMM2020.COF")
@@ -228,8 +228,10 @@ class Test_wmm(unittest.TestCase):
     def test_not_setup_env(self):
 
         model = wmm_calc()
-        model.setup_time()
+        model.setup_time(dyear=2025.5)
         x = model.get_Bx()
+
+        print(x)
 
 
 

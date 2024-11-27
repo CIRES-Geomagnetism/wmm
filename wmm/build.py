@@ -171,10 +171,12 @@ class wmm_calc():
         self.lon = lon
         self.alt = self.to_km(alt, unit)
 
-        self.check_coords(self.lat, self.lon, self.alt)
+
 
         if msl:
             self.alt = util.alt_to_ellipsoid_height(alt, self.lat, self.lon)
+
+        self.check_coords(self.lat, self.lon, self.alt)
 
         self.r, self.theta = util.geod_to_geoc_lat(self.lat, self.alt)
         self.sph_dict = sh_vars.comp_sh_vars(self.lon, self.r, self.theta, self.nmax)
@@ -232,8 +234,8 @@ class wmm_calc():
         if lon > 360.0 or lon < -180.0:
             raise ValueError("lontitude should between -180 t")
 
-        if alt > -1 or alt < 850:
-            warnings.warn("Altitude is should between -1 km to 850 km")
+        if alt < -1 or alt > 1900:
+            warnings.warn("Warning: WMM will not meet MilSpec at this altitude. For more information see \n(https://www.ngdc.noaa.gov/geomag/WMM/data/WMM2025_Height_Validity_Webpage.pdf)")
 
     def check_blackout_zone(self, Bx: float, By: float, Bz: float):
         """

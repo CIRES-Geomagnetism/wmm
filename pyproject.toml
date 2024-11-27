@@ -1,6 +1,6 @@
 [project]
 name = "wmm"
-version = "1.1.1"
+version = "1.2.1"
 description = "WMM Python Module based on WMM2025"
 authors = [{ name = "Li-Yin Young", email = "liyin.young@noaa.gov" }]
 requires-python = ">=3.9"
@@ -16,7 +16,7 @@ classifiers = [
 ]
 dependencies = [
     "numpy",
-    "geomaglib==0.4.4"  # Git dependency
+    "geomaglib==0.5.4"  # Git dependency
 ]
 readme = "README.md"
 
