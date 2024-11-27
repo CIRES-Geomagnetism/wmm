@@ -3,7 +3,7 @@ from .uncertainty import uncertainty
 
 __all__ = ['wmm_calc', 'wmm_elements', 'uncertainty']
 
-__version__ = "0.1.1"
+__version__ = "1.2.1"
 
 
 
