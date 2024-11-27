@@ -232,7 +232,7 @@ class wmm_calc():
             raise ValueError("latitude should between -90 to 90")
 
         if lon > 360.0 or lon < -180.0:
-            raise ValueError("lontitude should between -180 t")
+            raise ValueError("lontitude should between -180 to 180")
 
         if alt < -1 or alt > 1900:
             warnings.warn("Warning: WMM will not meet MilSpec at this altitude. For more information see \n(https://www.ngdc.noaa.gov/geomag/WMM/data/WMM2025_Height_Validity_Webpage.pdf)")
@@ -376,6 +376,37 @@ class wmm_calc():
         mag_vec = wmm_elements(Bx, By, Bz)
 
         return mag_vec.get_Binc()
+
+    def get_dBx(self) -> float:
+        """
+        Get the Bx magnetic elements
+        :return: Bx
+        """
+
+
+        dBx, dBy, dBz = self.forward_sv()
+
+        return dBx
+
+    def get_dBy(self) -> float:
+        """
+        Get the By magnetic elements
+        :return: By
+        """
+
+        dBx, dBy, dBz = self.forward_sv()
+
+        return dBy
+
+    def get_dBz(self) -> float:
+        """
+        Get the Bz magnetic elements
+        :return: Bz
+        """
+
+        dBx, dBy, dBz = self.forward_sv()
+
+        return dBz
 
     def get_dBh(self) -> float:
         """
