@@ -3,6 +3,14 @@
 env
 
 tests/__pycache__/
+dist/
+tests/delta_res.csv
+tests/diff_results.csv
+tests/res.csv
+tests/results/
+tests/results_err/
+wmm.egg-info/
+
 
 wmm/.DS_Store
 wmm/__pycache__/

@@ -46,7 +46,7 @@ class Test_wmm(unittest.TestCase):
         lon = 138
         alt = 77
 
-        dec_year = 2024.5
+        dec_year = 2029.5
 
         wmm_model = wmm_calc()
 
@@ -57,9 +57,9 @@ class Test_wmm(unittest.TestCase):
 
         Bx, By, Bz = wmm_model.forward_base()
 
-        self.assertAlmostEqual(round(Bx, 1), 31722.0, delta=0.01)
-        self.assertAlmostEqual(round(By, 1), 2569.6, delta=0.01)
-        self.assertAlmostEqual(round(Bz, 1), -34986.2, delta=0.01)
+        self.assertAlmostEqual(Bx, 31751.497580, delta=1e-6)
+        self.assertAlmostEqual(By, 2472.257962, delta=1e-6)
+        self.assertAlmostEqual(Bz, -34817.395113, delta=1e-6)
 
     def test_setup_sv(self):
 
@@ -232,6 +232,16 @@ class Test_wmm(unittest.TestCase):
         x = model.get_Bx()
 
         print(x)
+
+    def test_wmm_altitude_warning(self):
+
+        lat = -18
+        lon = 138
+        alt = -20
+        dec_year = 2025.5
+
+        wmmhr_model = wmm_calc()
+        wmmhr_model.setup_env(lat, lon, alt)
 
 
 

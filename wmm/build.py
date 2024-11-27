@@ -235,7 +235,7 @@ class wmm_calc():
             raise ValueError("lontitude should between -180 to 180")
 
         if alt < -1 or alt > 1900:
-            warnings.warn("Warning: WMM will not meet MilSpec at this altitude. For more information see \n(https://www.ngdc.noaa.gov/geomag/WMM/data/WMM2025_Height_Validity_Webpage.pdf)")
+            warnings.warn("Warning: WMM will not meet MilSpec at this altitude. For more information see \n (https://www.ngdc.noaa.gov/geomag/WMM/data/WMM2025_Height_Validity_Webpage.pdf)")
 
     def check_blackout_zone(self, Bx: float, By: float, Bz: float):
         """
