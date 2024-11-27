@@ -1,9 +1,12 @@
-## Create the environment for developing wmm Python module
+## Create the environment for developing WMMHR Python module
+
+This is a Python implementation of the latest World Magnetic Model(WMM) by the Cooperative Institute For Research in Environmental Sciences (CIRES), University of Colorado. The software computes all the geomagnetic field components from the WMM model for a specific date and location. 
+For more information about the WMM model, please visit [WMM](https://www.ncei.noaa.gov/products/world-magnetic-model)
 
 
 ## WMM Python API Quick Start
 
-Set up the time and latitude and longtitude and altitude for WMM model
+Set up the time and latitude and longtitude and altitude for the WMM model
 
 ```python
 from wmm import wmm_calc
@@ -11,12 +14,12 @@ from wmm import wmm_calc
 model = wmm_calc()
 lat, lon, alt = 23.35, 40, 21.0
 
-model.setup_time(2024, 9, 20)
+model.setup_time(2025, 1, 1)
 
 model.setup_env(lat, lon, alt)
 ```
 
-Get all of magnetic elements
+Get all of the geomagnetic elements
 
 ```python
 mag_map = model.get_all()
@@ -24,22 +27,49 @@ mag_map = model.get_all()
 It will return 
 
 ```python
-{'x': 33794.99979072497, 'y': 2259.9561008893347, 'z': 23918.715487668323, 
- 'h': 33870.47995575274, 'f': 41464.61579483249, 'dec': 3.8258158337337047, 'inc': 35.22904145081409, 
- 'dx': 9.626049027096451, 'dy': 24.214119374622555, 'dz': 76.85040189603315, 
- 'dh': 11.220247606796214, 'df': 53.496168412711995, 
- 'ddec': 2.386990047280268, 'dinc': 4.667974602946641}
+{'x': 33796.64504090552, 'y': 2169.5000759823192, 'z': 23807.375974798473, 'h': 33866.20655757965, 'f': 41396.993820881034, 'dec': 3.6729349783895064, 'inc': 35.10657605259875, 
+ 'dx': 9.912130962173165, 'dy': -2.634967419902889, 'dz': 40.350644235766644, 'dh': 9.722972933209986, 'df': 31.159827050181296, 'ddec': -0.3313818373851883, 'dinc': 2.276927851932716}
 ```
+
+### Get the uncertainty value of geomagnetic elements
+
+```python
+import wmm
+print(wmm.uncertainty)
+```
+
+```python
+{'X': 134, 'Y': 85, 'Z': 133, 'F': 133, 'H': 130, 'I': 0.19, 'D_OFFSET': 0.25, 'D_COEF': 5199}
+```
+
+### Description of the components
+
+- **‘Dec’ - Declination (deg)** Angle between the horizontal magnetic field vector and true north, positive east, measured in degrees.
+- **‘Inc’ - Inclination (deg)**: The angle made by the Earth's magnetic field with the horizontal plane, positive down, measured in degrees.
+- **‘h’ - H (nT)**: Horizontal intensity of the Earth's magnetic field, measured in nanoteslas (nT).
+- **‘x’- X (nT)**: Northward component of the Earth's magnetic field, measured in nanoteslas (nT).
+- **‘y’ - Y (nT)**: Eastward component of the Earth's magnetic field, measured in nanoteslas (nT).
+- **‘z’ - Z (nT)**: Downward component of the Earth's magnetic field, measured in nanoteslas (nT).
+- **F (nT)**: Total intensity of the Earth's magnetic field, measured in nanoteslas (nT).
+- **dD/dt (deg/year)**: Rate of change of declination over time, measured in degrees per year.
+- **dI/dt (deg/year)**: Rate of inclination change over time, measured in degrees per year.
+- **dH/dt (nT/year)**: Rate of change of horizontal intensity over time, measured in nanoteslas per year.
+- **dX/dt (nT/year)**: Rate of change of the northward component over time, measured in nanoteslas per year.
+- **dY/dt (nT/year)**: Rate of change of the eastward component over time, measured in nanoteslas per year.
+- **dZ/dt (nT/year)**: Rate of change of the downward component over time, measured in nanoteslas per year.
+- **dF/dt (nT/year)**: Rate of change of the total intensity over time, measured in nanoteslas per year.
+
+
 
 ## WMM Python API Reference
 
-### Set up the environment for WMM model
+### Set up the environment for the WMM model
 
 #### Set up time 
 
 **setup_time(year**=None, **month**=None, **day**=None, **dyear** = None)
 
-If users don't call or assign any value to setup_time(), it will use the current time to compute the model.
+If users don't call or assign any value to setup_time(), the current time will be used to compute the model.
 Either by providing year, month, day
 ```python
 from wmm import wmm_calc
@@ -49,10 +79,10 @@ model.setup_time(2024, 12, 30)
 or 
 ```python
 model = wmm_calc()
-model.setup_time(dyear=2024.9)
+model.setup_time(dyear=2025.1)
 ```
 
-User allow to assign the date from "2019-11-17" to "2025-01-01"
+User allow to assign the date from "2024-12-17" to "2030-01-01"
 
 #### Set up the coordinates
 
@@ -71,9 +101,9 @@ Assign the parameter for unit and msl, if the latitude is not in km or ellipsoid
 model.setup_env(lat, lon, alt, unit="m", msl=False)
 ```
 
-#### Get the magnetic elements
+#### Get the geomagnetic elements
 
-After setting up the time and coordinates for WMM model, you can get the all magnetic elements by
+After setting up the time and coordinates for the WMM model, you can get all the geomagnetic elements by
 
 ```
 mag_map = model.get_all()

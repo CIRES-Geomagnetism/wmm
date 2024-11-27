@@ -19,14 +19,27 @@ class Test_wmm(unittest.TestCase):
         self.dec_year = 2025.5
 
         self.top_dir = os.path.dirname(os.path.dirname(__file__))
-        self.wmm_file = os.path.join(self.top_dir, "wmm", "coefs", "WMM2020.COF")
+        self.wmm_file = os.path.join(self.top_dir, "wmm", "coefs", "WMM2025.cof")
+
+    def test_setup_time(self):
+
+        model = wmm_calc()
+        lat, lon, alt = 23.35, 40, 21.0
+
+        model.setup_time(2025, 1, 1)
+
+        model.setup_env(lat, lon, alt)
+
+        model.get_all()
+
+        print(model.get_all())
 
     def test_setup_env(self):
 
         lat = -18
         lon = 138
         alt = 77
-        dec_year = 2024.5
+        dec_year = 2029.5
 
         alt_true = util.alt_to_ellipsoid_height(alt, lat, lon)
         r, theta = util.geod_to_geoc_lat(lat, alt_true)
@@ -67,7 +80,7 @@ class Test_wmm(unittest.TestCase):
         lon = 138
         alt = 77
 
-        dec_year = 2024.5
+        dec_year = 2029.5
 
         wmm_model = wmm_calc()
 
@@ -77,9 +90,10 @@ class Test_wmm(unittest.TestCase):
 
         dBx, dBy, dBz = wmm_model.forward_sv()
 
-        self.assertAlmostEqual(round(dBx, 1), -9.0, delta=0.01)
-        self.assertAlmostEqual(round(dBy, 1), -27.7, delta=0.01)
-        self.assertAlmostEqual(round(dBz, 1), -26.8, delta=0.01)
+        tol = 1e-6
+        self.assertAlmostEqual(dBx,  2.471158, delta=tol)
+        self.assertAlmostEqual(dBy, -20.201885, delta=tol)
+        self.assertAlmostEqual(dBz, 14.262673, delta=tol)
 
     def test_get_dBh(self):
 
@@ -87,7 +101,7 @@ class Test_wmm(unittest.TestCase):
         lon = 138
         alt = 77
 
-        dec_year = 2024.5
+        dec_year = 2029.5
 
         wmm_model = wmm_calc()
 
@@ -106,7 +120,7 @@ class Test_wmm(unittest.TestCase):
 
 
 
-        dec_year = 2024.5
+        dec_year = 2029.5
 
         wmm_model = wmm_calc()
 
@@ -126,7 +140,7 @@ class Test_wmm(unittest.TestCase):
         lon = 138
         alt = 77
 
-        dec_year = 2024.5
+        dec_year = 2029.5
 
         wmm_model = wmm_calc()
         wmm_model.setup_time(dyear=dec_year)
@@ -145,7 +159,7 @@ class Test_wmm(unittest.TestCase):
 
         coef = load.load_wmm_coef(self.wmm_file, skip_two_columns=True)
 
-        self.assertAlmostEqual(coef["min_year"], 2019.756, delta=1e-6)
+        self.assertAlmostEqual(coef["min_year"], 2024.96, delta=1e-6)
 
 
     def test_correct_time(self):
@@ -168,7 +182,7 @@ class Test_wmm(unittest.TestCase):
 
     def test_check_altitude(self):
         user_time = 2020.0
-        user_time = 2024.1
+        user_time = 2025.1
 
         lat, lon, alt = 30.0, 20, 700
 
@@ -180,7 +194,7 @@ class Test_wmm(unittest.TestCase):
 
     def test_check_latitude(self):
         user_time = 2020.0
-        user_time = 2024.1
+        user_time = 2025.1
 
         lat, lon, alt = 90.1, 20, 700
 
@@ -198,7 +212,7 @@ class Test_wmm(unittest.TestCase):
     def test_check_longtitude(self):
 
         user_time = 2020.0
-        user_time = 2024.1
+        user_time = 2025.1
 
         lat, lon, alt = 90.0, 361, 700
 
