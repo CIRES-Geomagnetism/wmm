@@ -204,8 +204,6 @@ class wmm_calc():
 
         """
 
-        #self.lat = lat
-        #self.lon = lon
         alt = self.to_km(alt, unit)
         if msl:
             self.alt = util.alt_to_ellipsoid_height(alt, lat, lon)
