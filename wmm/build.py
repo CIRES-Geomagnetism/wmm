@@ -204,19 +204,22 @@ class wmm_calc():
 
         """
 
+        #self.lat = lat
+        #self.lon = lon
+        alt = self.to_km(alt, unit)
+        if msl:
+            self.alt = util.alt_to_ellipsoid_height(alt, lat, lon)
+
+        self.check_coords(lat, lon, alt)
+
+        if (lat != self.lat or lon != self.lon or alt != self.alt):
+
+            self.r, self.theta = util.geod_to_geoc_lat(lat, alt)
+            self.sph_dict = sh_vars.comp_sh_vars(lon, self.r, self.theta, self.nmax)
+
         self.lat = lat
         self.lon = lon
-        self.alt = self.to_km(alt, unit)
-
-
-
-        if msl:
-            self.alt = util.alt_to_ellipsoid_height(alt, self.lat, self.lon)
-
-        self.check_coords(self.lat, self.lon, self.alt)
-
-        self.r, self.theta = util.geod_to_geoc_lat(self.lat, self.alt)
-        self.sph_dict = sh_vars.comp_sh_vars(self.lon, self.r, self.theta, self.nmax)
+        self.alt = alt
 
         cotheta = 90.0 - self.theta
 
