@@ -7,6 +7,7 @@ import numpy as np
 
 from geomaglib import util, legendre, magmath, sh_vars, sh_loader
 from wmm import load
+from wmm import uncertainty
 
 
 def fill_timeslot(year: Optional[int], month: Optional[int], day: Optional[int]) -> Tuple:
@@ -52,6 +53,7 @@ class wmm_elements(magmath.GeomagElements):
         :param dBz: allow None or Magnetic elements dBz in geodetic degree
         """
         super().__init__(Bx, By, Bz, dBx, dBy, dBz)
+        self.err_vals = uncertainty.err_model
 
     def get_dBdec(self) -> float:
         """
@@ -59,8 +61,13 @@ class wmm_elements(magmath.GeomagElements):
         :return: delta declination
         """
         ddec = super().get_dBdec()
+        ddec = ddec * 60.0
 
-        return ddec * 60.0
+        if (ddec > 180): ddec-=360
+
+        if (ddec <= -180): ddec += 360
+
+        return ddec
 
     def get_dBinc(self) -> float:
         """
@@ -87,6 +94,34 @@ class wmm_elements(magmath.GeomagElements):
         mag_map["dinc"] = mag_map["dinc"] * 60.0
 
         return mag_map
+
+    def get_uncertainity(self):
+
+        h = self.get_Bh()
+
+        decl_variable = self.err_vals["D_OFFSET"] / h
+        decl_constant = int(self.err_vals["D_OFFSET"])
+        uncert_decl = math.sqrt(decl_constant*decl_constant + decl_variable*decl_variable)
+
+        if uncert_decl > 180:
+            uncert_decl = 180
+
+        uncerMap = {}
+        uncerMap["x_uncertainty"] = self.err_vals["X"]
+        uncerMap["y_uncertainty"] = self.err_vals["Y"]
+        uncerMap["z_uncertainty"] = self.err_vals["Z"]
+        uncerMap["h_uncertainty"] = self.err_vals["H"]
+        uncerMap["f_uncertainty"] = self.err_vals["F"]
+        uncerMap["declination_uncertainty"] = uncert_decl
+        uncerMap["inclination_uncertainty"] = self.err_vals["I"]
+
+        return uncerMap
+
+
+
+
+
+
 
 
 class wmm_calc():
@@ -475,3 +510,13 @@ class wmm_calc():
         mag_vec = wmm_elements(Bx, By, Bz, dBx, dBy, dBz)
 
         return mag_vec.get_all()
+
+    def get_uncertainty(self):
+
+        Bx, By, Bz = self.forward_base()
+
+        mag_vec = wmm_elements(Bx, By, Bz)
+
+        return mag_vec.get_uncertainity()
+
+

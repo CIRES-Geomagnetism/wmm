@@ -34,13 +34,22 @@ It will return
 ### Get the uncertainty value of geomagnetic elements
 
 ```python
-import wmm
-print(wmm.uncertainty)
+from wmm import wmm_calc
+model = wmm_calc()
+
+# set up time
+model.setup_time(dyear=2025.5)
+# set up the occrdinates
+model.setup_env(lat, lon, alt)
+# get the uncertainty value
+print(model.get_uncertainty())
 ```
 
 ```python
-{'X': 134, 'Y': 85, 'Z': 133, 'F': 133, 'H': 130, 'I': 0.19, 'D_OFFSET': 0.25, 'D_COEF': 5199}
+{'x_uncertainty': 131, 'y_uncertainty': 94, 'z_uncertainty': 157, 'h_uncertainty': 128, 'f_uncertainty': 145, 'declination_uncertainty': 7.77269711369558e-06, 'inclination_uncertainty': 0.21}
 ```
+
+## WMM Python API Reference
 
 ### Description of the components
 
@@ -60,17 +69,15 @@ print(wmm.uncertainty)
 - **dF/dt (nT/year)**: Rate of change of the total intensity over time, measured in nanoteslas per year.
 
 
+### Set up the time and coordinates for the WMM model
 
-## WMM Python API Reference
+#### 1. Set up time 
 
-### Set up the environment for the WMM model
-
-#### Set up time 
-
-**setup_time(year**=None, **month**=None, **day**=None, **dyear** = None)
+**setup_time**(self, **year**: Optional[int] = None, **month**: Optional[int] = None, **day**: Optional[int] = None,
+                   **dyear**: Optional[float] = None):
 
 If users don't call or assign any value to setup_time(), the current time will be used to compute the model.
-Either by providing year, month, day
+Either by providing year, month, day or deciaml year.
 ```python
 from wmm import wmm_calc
 model = wmm_calc()
@@ -84,9 +91,9 @@ model.setup_time(dyear=2025.1)
 
 User allow to assign the date from "2024-12-17" to "2030-01-01"
 
-#### Set up the coordinates
+#### 2. Set up the coordinates
 
-**setup_env(lat**, **lon**, **alt**, **unit**="km", **msl**=True)
+**setup_env**(self, **lat**: float, **lon**: float, **alt**: float, **unit**: str = "km", **msl**: bool = True)
 ```python
 from wmm import wmm_calc
 model = wmm_calc()
@@ -98,10 +105,10 @@ The default unit and type of altitude is km and mean sea level.
 Assign the parameter for unit and msl, if the latitude is not in km or ellipsoid height.
 "m" for meter and "feet" for feet. For example,
 ```
-model.setup_env(lat, lon, alt, unit="m", msl=False)
+model.setup_env(lat, lon, alt, unit="m", msl=True)
 ```
 
-#### Get the geomagnetic elements
+#### 3. Get the geomagnetic elements
 
 After setting up the time and coordinates for the WMM model, you can get all the geomagnetic elements by
 

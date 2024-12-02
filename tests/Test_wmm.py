@@ -254,8 +254,22 @@ class Test_wmm(unittest.TestCase):
         alt = -20
         dec_year = 2025.5
 
-        wmmhr_model = wmm_calc()
-        wmmhr_model.setup_env(lat, lon, alt)
+        wmm_model = wmm_calc()
+        wmm_model.setup_env(lat, lon, alt)
+
+    def test_get_uncertainty(self):
+
+        lat = -18
+        lon = 138
+        alt = -20
+
+        model = wmm_calc()
+        model.setup_time(dyear=2025.5)
+        model.setup_env(lat, lon, alt)
+
+        print(model.get_uncertainty())
+
+
 
 
 
