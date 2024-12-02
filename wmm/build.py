@@ -53,7 +53,7 @@ class wmm_elements(magmath.GeomagElements):
         :param dBz: allow None or Magnetic elements dBz in geodetic degree
         """
         super().__init__(Bx, By, Bz, dBx, dBy, dBz)
-        self.err_vals = uncertainty.err_model
+
 
     def get_dBdec(self) -> float:
         """
@@ -95,25 +95,25 @@ class wmm_elements(magmath.GeomagElements):
 
         return mag_map
 
-    def get_uncertainity(self):
+    def get_uncertainity(self, err_vals):
 
         h = self.get_Bh()
 
-        decl_variable = self.err_vals["D_OFFSET"] / h
-        decl_constant = int(self.err_vals["D_OFFSET"])
+        decl_variable = err_vals["D_OFFSET"] / h
+        decl_constant = int(err_vals["D_OFFSET"])
         uncert_decl = math.sqrt(decl_constant*decl_constant + decl_variable*decl_variable)
 
         if uncert_decl > 180:
             uncert_decl = 180
 
         uncerMap = {}
-        uncerMap["x_uncertainty"] = self.err_vals["X"]
-        uncerMap["y_uncertainty"] = self.err_vals["Y"]
-        uncerMap["z_uncertainty"] = self.err_vals["Z"]
-        uncerMap["h_uncertainty"] = self.err_vals["H"]
-        uncerMap["f_uncertainty"] = self.err_vals["F"]
+        uncerMap["x_uncertainty"] = err_vals["X"]
+        uncerMap["y_uncertainty"] = err_vals["Y"]
+        uncerMap["z_uncertainty"] = err_vals["Z"]
+        uncerMap["h_uncertainty"] = err_vals["H"]
+        uncerMap["f_uncertainty"] = err_vals["F"]
         uncerMap["declination_uncertainty"] = uncert_decl
-        uncerMap["inclination_uncertainty"] = self.err_vals["I"]
+        uncerMap["inclination_uncertainty"] = err_vals["I"]
 
         return uncerMap
 
@@ -133,7 +133,9 @@ class wmm_calc():
 
         self.nmax = 12
         self.max_year = 2030.0
+        self.max_sv = 12
         self.coef_file = "WMM.cof"
+        self.err_vals = uncertainty.err_model
         self.min_date = ""
         self.dyear = None
         self.coef_dict = {}
@@ -187,7 +189,7 @@ class wmm_calc():
         else:
             raise ValueError("Get unknown unit. Please provide km, m or feet.")
 
-    def setup_env(self, lat: float, lon: float, alt: float, unit: str = "km", msl: bool = True):
+    def setup_env(self, lat: float, lon: float, alt: float, unit: str = "km", msl: bool = False):
         """
         The function will initialize the radius, geocentric latitude in degree,
         spherical harmonic terms, maximum degree and legendre function for users.If user is not
@@ -237,22 +239,24 @@ class wmm_calc():
         if dyear is None:
             if year is None or month is None or day is None:
                 year, month, day = fill_timeslot(year, month, day)
-            self.dyear = util.calc_dec_year(year, month, day)
+            curr_dyear = util.calc_dec_year(year, month, day)
         else:
-            self.dyear = dyear
+            curr_dyear = dyear
 
         if not self.coef_dict:
             self.coef_dict = self.load_coeffs()
 
         self.max_year = self.coef_dict["epoch"] + 5.0
         self.min_date = self.coef_dict["min_date"]
-        self.nmax = sh_loader.calc_num_elems_to_sh_degrees(len(self.coef_dict["g"]))
 
-        if self.dyear < self.coef_dict["min_year"] or self.dyear >= self.max_year:
+
+        if curr_dyear < self.coef_dict["min_year"] or curr_dyear >= self.max_year:
             max_year = round(self.max_year, 1)
             raise ValueError(f"Invalid year. Please provide date from {self.min_date} to {int(max_year)}-01-01 00:00")
 
-        self.timly_coef_dict = sh_loader.timely_modify_magnetic_model(self.coef_dict, self.dyear)
+        if curr_dyear != self.dyear:
+            self.dyear = curr_dyear
+            self.timly_coef_dict = load.timely_modify_magnetic_model(self.coef_dict, self.dyear, self.max_sv)
 
     def check_coords(self, lat: float, lon: float, alt: float):
         """
@@ -517,6 +521,6 @@ class wmm_calc():
 
         mag_vec = wmm_elements(Bx, By, Bz)
 
-        return mag_vec.get_uncertainity()
+        return mag_vec.get_uncertainity(self.err_vals)
 
 

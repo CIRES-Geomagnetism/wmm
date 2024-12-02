@@ -93,7 +93,7 @@ User allow to assign the date from "2024-12-17" to "2030-01-01"
 
 #### 2. Set up the coordinates
 
-**setup_env**(self, **lat**: float, **lon**: float, **alt**: float, **unit**: str = "km", **msl**: bool = True)
+**setup_env**(self, **lat**: float, **lon**: float, **alt**: float, **unit**: str = "km", **msl**: bool = False)
 ```python
 from wmm import wmm_calc
 model = wmm_calc()
@@ -101,8 +101,8 @@ lat, lon, alt = 50.3, 100.4, 0
 model.setup_env(lat, lon, alt, unit="m")
 ```
 
-The default unit and type of altitude is km and mean sea level. 
-Assign the parameter for unit and msl, if the latitude is not in km or ellipsoid height.
+The default unit and type of altitude is km and default in GPS(ellipsoid height). 
+Assign the parameter for unit and msl, if the latitude is not in km or in mean sea level.
 "m" for meter and "feet" for feet. For example,
 ```
 model.setup_env(lat, lon, alt, unit="m", msl=True)
