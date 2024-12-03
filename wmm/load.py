@@ -103,7 +103,7 @@ def load_wmm_coef(filename: str, skip_two_columns: bool =False, load_sv: bool = 
 
     return coef_dict
 
-def timely_modify_magnetic_model(sh_dict, dec_year, max_sv: Optional[int]):
+def timely_modify_magnetic_model(sh_dict, dec_year, max_sv: Optional[int] = None):
     """
     Time change the Model coefficients from the base year of the model(epoch) using secular variation coefficients.
 Store the coefficients of the static model with their values advanced from epoch t0 to epoch t.
@@ -118,12 +118,15 @@ Copy the SV coefficients.  If input "t�" is the same as "t0", then this is mer
     dictionary: Copy of sh_dict with the elements timely shifted
     """
 
-    sh_dict_time = copy.copy(sh_dict)
+    sh_dict_time = {}
     epoch = sh_dict.get("epoch", 0)
     #If the sh_dict doesn't have secular variations just return a copy
     #of the dictionary
     num_elems = len(sh_dict["g"])
-    if max_sv == None:
+
+    for key in sh_dict.keys():
+        sh_dict_time[key] = [0]*num_elems
+    if max_sv is None:
         max_sv = sh_loader.calc_num_elems_to_sh_degrees(num_elems)
     if  "g_sv" not in sh_dict or "h_sv" not in sh_dict:
         return sh_dict_time

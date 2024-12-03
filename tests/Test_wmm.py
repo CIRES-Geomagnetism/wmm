@@ -55,11 +55,13 @@ class Test_wmm(unittest.TestCase):
 
     def test_forward_base(self):
 
-        lat = -18
-        lon = 138
-        alt = 77
 
-        dec_year = 2029.5
+
+        lat = -57
+        lon = 3
+        alt = 74
+
+        dec_year = 2026.0
 
         wmm_model = wmm_calc()
 
@@ -67,12 +69,11 @@ class Test_wmm(unittest.TestCase):
         wmm_model.setup_env(lat, lon, alt, msl=False)
 
 
-
         Bx, By, Bz = wmm_model.forward_base()
 
-        self.assertAlmostEqual(Bx, 31751.497580, delta=1e-6)
-        self.assertAlmostEqual(By, 2472.257962, delta=1e-6)
-        self.assertAlmostEqual(Bz, -34817.395113, delta=1e-6)
+        self.assertAlmostEqual(Bx, 13268.119649, delta=1e-6)
+        self.assertAlmostEqual(By, 5498.179626, delta=1e-6)
+        self.assertAlmostEqual(Bz, 23576.062921, delta=1e-6)
 
     def test_setup_sv(self):
 
