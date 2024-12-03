@@ -118,14 +118,13 @@ Copy the SV coefficients.  If input "t�" is the same as "t0", then this is mer
     dictionary: Copy of sh_dict with the elements timely shifted
     """
 
-    sh_dict_time = {}
+    sh_dict_time = copy.deepcopy(sh_dict)
     epoch = sh_dict.get("epoch", 0)
     #If the sh_dict doesn't have secular variations just return a copy
     #of the dictionary
     num_elems = len(sh_dict["g"])
 
-    for key in sh_dict.keys():
-        sh_dict_time[key] = [0]*num_elems
+
     if max_sv is None:
         max_sv = sh_loader.calc_num_elems_to_sh_degrees(num_elems)
     if  "g_sv" not in sh_dict or "h_sv" not in sh_dict:
