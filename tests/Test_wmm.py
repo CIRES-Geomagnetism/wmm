@@ -270,6 +270,16 @@ class Test_wmm(unittest.TestCase):
 
         print(model.get_uncertainty())
 
+    def test_coef_load(self):
+
+        model = wmm_calc()
+        model.setup_time(dyear=2025.5)
+        for lat in range(-90, 91):
+            for lon in range(-180, 180):
+
+                model.setup_env(lat, lon, 0)
+                model.get_all()
+
 
 
 
