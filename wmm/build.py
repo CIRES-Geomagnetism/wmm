@@ -6,8 +6,10 @@ from typing import Optional, Tuple
 import numpy as np
 
 from geomaglib import util, legendre, magmath, sh_vars, sh_loader
-from wmm import load
-from wmm import uncertainty
+# from wmm import load
+# from wmm import uncertainty
+import load
+import uncertainty
 
 
 def fill_timeslot(year: Optional[int], month: Optional[int], day: Optional[int]) -> Tuple:
@@ -131,10 +133,10 @@ class wmm_calc():
         The WMM model class for computing magnetic elements
         """
 
-        self.nmax = 12
+        self.nmax = 133
         self.max_year = 2030.0
-        self.max_sv = 12
-        self.coef_file = "WMM.cof"
+        self.max_sv = 15
+        self.coef_file = "WMMHR.cof"
         self.err_vals = uncertainty.err_model
         self.min_date = ""
         self.dyear = None
@@ -209,8 +211,16 @@ class wmm_calc():
             self.alt = util.alt_to_ellipsoid_height(alt, lat, lon)
 
         self.check_coords(lat, lon, alt)
+        if self.lat is not None and self.lon is not None and self.alt is not None:
+            # print('hi there!, the output is ',type(self.lon))
+            if (lat.size != self.lat.size or lon.size != self.lon.size or alt.size != self.alt.size):
+                self.r, self.theta = util.geod_to_geoc_lat(lat, alt)
+                self.alt = alt
+                self.lon = lon
+                self.lat = lat
+                self.sph_dict = sh_vars.comp_sh_vars(lon, self.r, self.theta, self.nmax)
 
-        if (lat != self.lat or lon != self.lon or alt != self.alt):
+        if (np.any(lat != self.lat) or np.any(lon != self.lon) or np.any(alt != self.alt)):
 
             self.r, self.theta = util.geod_to_geoc_lat(lat, alt)
             self.sph_dict = sh_vars.comp_sh_vars(lon, self.r, self.theta, self.nmax)
@@ -268,13 +278,13 @@ class wmm_calc():
         :return:
         """
 
-        if lat > 90.0 or lat < -90.0:
+        if np.any(lat > 90.0) or np.any(lat < -90.0):
             raise ValueError("latitude should between -90 to 90")
 
-        if lon > 360.0 or lon < -180.0:
+        if np.any(lon > 360.0) or np.any(lon < -180.0):
             raise ValueError("lontitude should between -180 to 180")
 
-        if alt < -1 or alt > 1900:
+        if np.any(alt < -1) or np.any(alt > 1900):
             warnings.warn("Warning: WMM will not meet MilSpec at this altitude. For more information see \n (https://www.ngdc.noaa.gov/geomag/WMM/data/WMM2025_Height_Validity_Webpage.pdf)")
 
     def check_blackout_zone(self, Bx: float, By: float, Bz: float):
@@ -288,13 +298,13 @@ class wmm_calc():
 
         wmm_calc = wmm_elements(Bx, By, Bz)
         h = wmm_calc.get_Bh()
-        if h <= 2000.0:
+        if np.any(h <= 2000.0):
             warnings.warn(
-                f"Warning: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat}, {self.lon}, {self.alt}) is in the blackout zone around the magnetic pole as defined by the WMM military specification"
+                f"Warning: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat}, {self.lon}, {self.alt[self.alt <= 2000]}) is in the blackout zone around the magnetic pole as defined by the WMM military specification"
                 " (https://www.ngdc.noaa.gov/geomag/WMM/data/MIL-PRF-89500B.pdf). Compass accuracy is highly degraded in this region.\n")
-        elif h <= 6000.0:
+        elif np.any(h <= 6000.0):
             warnings.warn(
-                f"Caution: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat}, {self.lon}, {self.alt}) is approaching the blackout zone around the magnetic pole as defined by the WMM military specification "
+                f"Caution: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat}, {self.lon}, {self.alt[self.alt <= 2000]}) is approaching the blackout zone around the magnetic pole as defined by the WMM military specification "
                 "(https://www.ngdc.noaa.gov/geomag/WMM/data/MIL-PRF-89500B.pdf). Compass accuracy may be degraded in this region.\n")
 
     def forward_base(self) -> Tuple:
