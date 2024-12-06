@@ -172,7 +172,7 @@ class wmm_calc():
         wmm_coeffs = self.get_coefs_path(self.coef_file)
         return load.load_wmm_coef(wmm_coeffs, skip_two_columns=True)
 
-    def to_km(self, alt: float, unit: str) -> float:
+    def to_km(self, alt: np.ndarray, unit: str) -> float:
         """
         Transform the meter or feet to km
         :param alt: the altitude in meter or feet or km
@@ -191,7 +191,7 @@ class wmm_calc():
         else:
             raise ValueError("Get unknown unit. Please provide km, m or feet.")
 
-    def setup_env(self, lat: float, lon: float, alt: float, unit: str = "km", msl: bool = False):
+    def setup_env(self, lat: np.ndarray, lon: np.ndarray, alt: np.ndarray, unit: str = "km", msl: bool = False):
         """
         The function will initialize the radius, geocentric latitude in degree,
         spherical harmonic terms, maximum degree and legendre function for users.If user is not
@@ -212,9 +212,10 @@ class wmm_calc():
 
         self.check_coords(lat, lon, alt)
         if self.lat is not None and self.lon is not None and self.alt is not None:
-            # print('hi there!, the output is ',type(self.lon))
             if (lat.size != self.lat.size or lon.size != self.lon.size or alt.size != self.alt.size):
                 self.r, self.theta = util.geod_to_geoc_lat(lat, alt)
+                self.r = np.array(self.r)
+                self.theta = np.array(self.theta)
                 self.alt = alt
                 self.lon = lon
                 self.lat = lat
@@ -223,11 +224,13 @@ class wmm_calc():
         if (np.any(lat != self.lat) or np.any(lon != self.lon) or np.any(alt != self.alt)):
 
             self.r, self.theta = util.geod_to_geoc_lat(lat, alt)
+            self.r = np.array(self.r)
+            self.theta = np.array(self.theta)
             self.sph_dict = sh_vars.comp_sh_vars(lon, self.r, self.theta, self.nmax)
 
-        self.lat = lat
-        self.lon = lon
-        self.alt = alt
+        self.lat = np.array(lat)
+        self.lon = np.array(lon)
+        self.alt = np.array(alt)
 
         cotheta = 90.0 - self.theta
 
