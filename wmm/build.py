@@ -205,7 +205,12 @@ class wmm_calc():
         :param msl: default is True. set it to False if the altitude is ellipsoid height.
 
         """
-
+        if np.isscalar(lat):
+            lat = np.array([lat])
+        if np.isscalar(lat):
+            lon = np.array([lon])
+        if np.isscalar(alt):
+            alt = np.array([alt])
         alt = self.to_km(alt, unit)
         if msl:
             self.alt = util.alt_to_ellipsoid_height(alt, lat, lon)
@@ -238,8 +243,8 @@ class wmm_calc():
 
         self.Leg = legendre.Flattened_Chaos_Legendre1(self.nmax, cotheta)
 
-    def setup_time(self, year: Optional[int] = None, month: Optional[int] = None, day: Optional[int] = None,
-                   dyear: Optional[float] = None):
+    def setup_time(self, year: Optional[np.ndarray] = None, month: Optional[np.ndarray] = None, day: Optional[np.ndarray] = None,
+                   dyear: Optional[np.ndarray] = None):
         """
         It will load the coefficients and adjust g and h with the decimal year. The maximum and minimum year of the model
         will also be initialized at here.
