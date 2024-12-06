@@ -27,18 +27,20 @@ mag_map = model.get_all()
 It will return 
 
 ```python
-{'x': 33796.64504090552, 'y': 2169.5000759823192, 'z': 23807.375974798473, 'h': 33866.20655757965, 'f': 41396.993820881034, 'dec': 3.6729349783895064, 'inc': 35.10657605259875, 
- 'dx': 9.912130962173165, 'dy': -2.634967419902889, 'dz': 40.350644235766644, 'dh': 9.722972933209986, 'df': 31.159827050181296, 'ddec': -0.3313818373851883, 'dinc': 2.276927851932716}
+
+{'x': array([-17603.28858822, -15601.9029994 ]), 'y': array([3376.51054331, 3514.84345219]), 'z': array([57927.51624799, 59035.4644569 ]), 'h': array([17924.190151  , 15992.92036172]), 'f': array([60637.23057026, 61163.38418808]), 'dec': array([169.1418996 , 167.30418427]), 'inc': array([72.80665382, 74.8421807 ]), 'dx': array([295.42592776, 316.74492718]), 'dy': array([-9.42710882, -8.374395  ]), 'dz': array([-25.54450249, -27.87657315]), 'dh': array([-291.91269179, -310.841185  ]), 'df': array([-110.69153579, -108.18506608]), 'ddec': array([ -8.89792466, -13.20742715]), 'dinc': array([15.38195593, 16.45360138])}
 ```
 
 ### Get the uncertainty value of geomagnetic elements
 
 ```python
 from wmm import wmm_calc
+
 model = wmm_calc()
 
 # set up time
-model.setup_time(dyear=2025.5)
+dyear_in = np.array([2025.1, 2026.9])
+model.setup_time(dyear=dyear_in)
 # set up the occrdinates
 model.setup_env(lat, lon, alt)
 # get the uncertainty value
@@ -46,7 +48,7 @@ print(model.get_uncertainty())
 ```
 
 ```python
-{'x_uncertainty': 131, 'y_uncertainty': 94, 'z_uncertainty': 157, 'h_uncertainty': 128, 'f_uncertainty': 145, 'declination_uncertainty': 7.77269711369558e-06, 'inclination_uncertainty': 0.21}
+{'x_uncertainty': 137, 'y_uncertainty': 89, 'z_uncertainty': 141, 'h_uncertainty': 133, 'f_uncertainty': 138, 'declination_uncertainty': array([1.43123270e-05, 1.65339971e-05]), 'inclination_uncertainty': 0.2}
 ```
 
 ## WMM Python API Reference
@@ -73,8 +75,8 @@ print(model.get_uncertainty())
 
 #### 1. Set up time 
 
-**setup_time**(self, **year**: Optional[int] = None, **month**: Optional[int] = None, **day**: Optional[int] = None,
-                   **dyear**: Optional[float] = None):
+**setup_time**(self, **year**: Optional[np.ndarray] = None, **month**: Optional[np.ndarray] = None, **day**: Optional[np.ndarray] = None,
+                   **dyear**: Optional[np.ndarray] = None):
 
 If users don't call or assign any value to setup_time(), the current time will be used to compute the model.
 Either by providing year, month, day or deciaml year.
@@ -93,7 +95,7 @@ User allow to assign the date from "2024-12-17" to "2030-01-01"
 
 #### 2. Set up the coordinates
 
-**setup_env**(self, **lat**: float, **lon**: float, **alt**: float, **unit**: str = "km", **msl**: bool = False)
+**setup_env**(self, **lat**: np.ndarray, **lon**: np.ndarray, **alt**: np.ndarray, **unit**: str = "km", **msl**: bool = False)
 ```python
 from wmm import wmm_calc
 model = wmm_calc()

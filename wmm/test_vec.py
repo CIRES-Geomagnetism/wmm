@@ -7,15 +7,38 @@ from build import wmm_calc
 
 def update_lat(model, size):
 
+    lat = np.array([23.35, 24.5])
+    lon = np.array([40, 45])
+    alt = np.ones(len(lat))*21
+    model = wmm_calc()
+    lat, lon, alt = 50.3, 100.4, 0
+    model.setup_env(lat, lon, alt, unit="m")
 
+    # lat = np.array([23.35, 24.5])
+    # lon = np.array([40, 45])
+    # alt = np.ones(len(lat))*21
+    # year = np.array([2025.0, 2026.0]).astype(int)
+    # month = np.array([12.0, 1.0]).astype(int)
+    # day = np.array(["6", "15"]).astype(int)
+
+    # model.setup_time(year, month, day)
+
+    # model.setup_env(lat, lon, alt)
+
+
+
+
+
+    # print(model.get_all())
+    return
     """Simulate a computation-heavy process (e.g., matrix multiplication)."""
     
-    lats = np.linspace(-90.0, 90.0, num=size)
+    lats = np.linspace(-30.0, 30.0, num=size)
     print(len(lats))
     lon, alt = 40.55, 55.67
-    lon = np.zeros(len(lats))*lon
-    alt = np.zeros(len(lats))*alt
-
+    lon = np.ones(len(lats))*lon
+    alt = np.ones(len(lats))*alt
+    model.setup_time(2025, 1, 1)
     # for i in range(size):
     
          

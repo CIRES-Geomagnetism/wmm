@@ -103,10 +103,10 @@ class wmm_elements(magmath.GeomagElements):
 
         decl_variable = err_vals["D_OFFSET"] / h
         decl_constant = int(err_vals["D_OFFSET"])
-        uncert_decl = math.sqrt(decl_constant*decl_constant + decl_variable*decl_variable)
+        uncert_decl = np.sqrt(decl_constant*decl_constant + decl_variable*decl_variable)
 
-        if uncert_decl > 180:
-            uncert_decl = 180
+        uncert_decl = np.where(uncert_decl > 180, 180, uncert_decl)
+
 
         uncerMap = {}
         uncerMap["x_uncertainty"] = err_vals["X"]
@@ -255,11 +255,21 @@ class wmm_calc():
         :param decyear: None or int type
 
         """
+        if(np.isscalar(year)):
+            year = np.array([year])
+        if(np.isscalar(month)):
+            month = np.array([month])
+        if(np.isscalar(day)):
+            day = np.array([day])
+        if(np.isscalar(dyear)):
+            dyear = np.array([dyear])
 
         if dyear is None:
             if year is None or month is None or day is None:
                 year, month, day = fill_timeslot(year, month, day)
+            # print(type(year), year)
             curr_dyear = util.calc_dec_year(year, month, day)
+            
         else:
             curr_dyear = dyear
 
@@ -270,11 +280,11 @@ class wmm_calc():
         self.min_date = self.coef_dict["min_date"]
 
 
-        if curr_dyear < self.coef_dict["min_year"] or curr_dyear >= self.max_year:
+        if np.any(curr_dyear < self.coef_dict["min_year"]) or np.any(curr_dyear >= self.max_year):
             max_year = round(self.max_year, 1)
             raise ValueError(f"Invalid year. Please provide date from {self.min_date} to {int(max_year)}-01-01 00:00")
 
-        if curr_dyear != self.dyear:
+        if np.any(curr_dyear != self.dyear):
             self.dyear = curr_dyear
             self.timly_coef_dict = load.timely_modify_magnetic_model(self.coef_dict, self.dyear, self.max_sv)
 
