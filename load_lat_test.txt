@@ -1,2 +1,27 @@
 
 Testing with dataset size: 100
+Execution time: 0.63 seconds
+Peak memory usage: 131.73 MB
+
+
+Testing with dataset size: 500
+Execution time: 0.33 seconds
+Peak memory usage: 294.31 MB
+
+
+Testing with dataset size: 1000
+Execution time: 0.43 seconds
+Peak memory usage: 603.34 MB
+
+
+Testing with dataset size: 5000
+Execution time: 1.16 seconds
+Peak memory usage: 2354.61 MB
+
+
+Testing with dataset size: 10000
+Execution time: 2.32 seconds
+Peak memory usage: 4747.34 MB
+
+
+Testing with dataset size: 50000

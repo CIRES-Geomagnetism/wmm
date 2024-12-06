@@ -6,12 +6,15 @@ from memory_profiler import memory_usage
 from build import wmm_calc
 
 def update_lat(model, size):
+
+
     """Simulate a computation-heavy process (e.g., matrix multiplication)."""
     
     lats = np.linspace(-90.0, 90.0, num=size)
+    print(len(lats))
     lon, alt = 40.55, 55.67
-    # lon = np.zeros(len(lats))*lon
-    # alt = np.zeros(len(lats))*alt
+    lon = np.zeros(len(lats))*lon
+    alt = np.zeros(len(lats))*alt
 
     # for i in range(size):
     
@@ -19,7 +22,7 @@ def update_lat(model, size):
     #     model.setup_env(lats[i], lon, alt)
     #     results = model.get_all()  
         
-    model.setup_env(lats[0], lon, alt)
+    model.setup_env(lats, lon, alt)
     results = model.get_all()  
         
 def run_load_lat_test():

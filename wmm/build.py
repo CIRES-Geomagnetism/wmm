@@ -211,6 +211,7 @@ class wmm_calc():
             lon = np.array([lon])
         if np.isscalar(alt):
             alt = np.array([alt])
+        # if len(lat) != len(lon) or len(lat) != len(alt) or len()
         alt = self.to_km(alt, unit)
         if msl:
             self.alt = util.alt_to_ellipsoid_height(alt, lat, lon)
