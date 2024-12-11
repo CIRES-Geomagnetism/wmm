@@ -10,13 +10,20 @@ Set up the time and latitude and longtitude and altitude for the WMM model
 
 ```python
 from wmm import wmm_calc
-
 model = wmm_calc()
-lat, lon, alt = 23.35, 40, 21.0
+lat = np.array([23.35, 24.5])
+lon = np.array([40, 45])
+alt = np.ones(len(lat))*21
 
-model.setup_time(2025, 1, 1)
+year = np.array([2025, 2026]).astype(int)
+month = np.array([12, 1]).astype(int)
+day = np.array([6, 15]).astype(int)
+
+model.setup_time(year, month, day)
 
 model.setup_env(lat, lon, alt)
+
+print(model.get_all())
 ```
 
 Get all of the geomagnetic elements
@@ -41,7 +48,7 @@ model = wmm_calc()
 # set up time
 dyear_in = np.array([2025.1, 2026.9])
 model.setup_time(dyear=dyear_in)
-# set up the occrdinates
+# set up the coordinates
 model.setup_env(lat, lon, alt)
 # get the uncertainty value
 print(model.get_uncertainty())

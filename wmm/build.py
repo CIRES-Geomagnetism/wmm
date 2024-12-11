@@ -119,13 +119,6 @@ class wmm_elements(magmath.GeomagElements):
 
         return uncerMap
 
-
-
-
-
-
-
-
 class wmm_calc():
 
     def __init__(self):
@@ -211,12 +204,29 @@ class wmm_calc():
             lon = np.array([lon])
         if np.isscalar(alt):
             alt = np.array([alt])
+        lat_size,lon_size, alt_size= np.size(lat),np.size(lon),np.size(alt)
+        #if any of lat,lon, and alt have different shapes
+        if(lat_size != lon_size or lat_size != alt_size or alt_size != lon_size):
+            #If all values are either max size, or 1
+            sizes = np.array([lat_size,lon_size, alt_size])
+            if(len(np.unique(sizes)) == 2 and np.min(sizes) == 1):
+                print('scalar inputs have been broadcast to match the shape\n of vector inputs')
+                broadcast_template = np.ones(np.max(sizes))
+                if(lat_size == 1):
+                    lat = broadcast_template*lat[0] #make lat truly scalar for the moment
+                if(lon_size == 1):
+                    lon = broadcast_template*lon[0] #make lon truly scalar for the moment
+                if(alt_size == 1):
+                    alt = broadcast_template*alt[0] #make alt truly scalar for the moment
+
         # if len(lat) != len(lon) or len(lat) != len(alt) or len()
         alt = self.to_km(alt, unit)
         if msl:
             self.alt = util.alt_to_ellipsoid_height(alt, lat, lon)
 
         self.check_coords(lat, lon, alt)
+        #If self values don't match the size of setup_env values
+        #is not None protects from first iteration where self.lat/lon/alt are empty
         if self.lat is not None and self.lon is not None and self.alt is not None:
             if (lat.size != self.lat.size or lon.size != self.lon.size or alt.size != self.alt.size):
                 self.r, self.theta = util.geod_to_geoc_lat(lat, alt)
@@ -226,7 +236,7 @@ class wmm_calc():
                 self.lon = lon
                 self.lat = lat
                 self.sph_dict = sh_vars.comp_sh_vars(lon, self.r, self.theta, self.nmax)
-
+        #Set r and theta values
         if (np.any(lat != self.lat) or np.any(lon != self.lon) or np.any(alt != self.alt)):
 
             self.r, self.theta = util.geod_to_geoc_lat(lat, alt)
@@ -237,7 +247,7 @@ class wmm_calc():
         self.lat = np.array(lat)
         self.lon = np.array(lon)
         self.alt = np.array(alt)
-
+        print(self.lat,self.lon,self.alt, 'checking broadcast')
         cotheta = 90.0 - self.theta
 
 
