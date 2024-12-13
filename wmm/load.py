@@ -135,6 +135,7 @@ Copy the SV coefficients.  If input "t�" is the same as "t0", then this is mer
         for m in range(n+1):
             index = int(n * (n + 1) / 2 + m)
             if index < num_elems:
+                
                 sh_dict_time["g"][index] = sh_dict["g"][index] + date_diff * sh_dict["g_sv"][index]
                 sh_dict_time["h"][index] = sh_dict["h"][index] + date_diff * sh_dict["h_sv"][index]
 

@@ -27,7 +27,7 @@ def fill_timeslot(year: Optional[int], month: Optional[int], day: Optional[int])
     curr_time = dt.datetime.now()
 
     if year is None:
-        year = curr_time.year
+        year = curr_time.year + 1
     if month is None:
         month = curr_time.month
     if day is None:
@@ -38,8 +38,8 @@ def fill_timeslot(year: Optional[int], month: Optional[int], day: Optional[int])
 
 class wmm_elements(magmath.GeomagElements):
 
-    def __init__(self, Bx: float, By: float, Bz: float, dBx: Optional[float] = None, dBy: Optional[float] = None,
-                 dBz: Optional[float] = None):
+    def __init__(self, Bx: np.ndarray, By: np.ndarray, Bz: np.ndarray, dBx: Optional[np.ndarray] = None, dBy: Optional[np.ndarray] = None,
+                 dBz: Optional[np.ndarray] = None):
         """
 
         The class is used to compute the magnetic elements for
@@ -153,7 +153,7 @@ class wmm_calc():
         currdir = os.path.dirname(__file__)
 
         coef_file = os.path.join(currdir, "coefs", filename)
-
+        
         return coef_file
 
     def load_coeffs(self) -> dict:
@@ -200,26 +200,72 @@ class wmm_calc():
         """
         if np.isscalar(lat):
             lat = np.array([lat])
-        if np.isscalar(lat):
+        if np.isscalar(lon):
             lon = np.array([lon])
         if np.isscalar(alt):
             alt = np.array([alt])
-        lat_size,lon_size, alt_size= np.size(lat),np.size(lon),np.size(alt)
-        #if any of lat,lon, and alt have different shapes
-        if(lat_size != lon_size or lat_size != alt_size or alt_size != lon_size):
-            #If all values are either max size, or 1
+        need_broadcasting = False
+        
+        if(not(self.dyear is None)):
+            
+            lat_size,lon_size, alt_size, dyear_size= np.size(lat),np.size(lon),np.size(alt), np.size(self.dyear)
+            sizes = np.array([lat_size,lon_size, alt_size, dyear_size])
+        
+            if(len(np.unique(sizes))>2 ):
+                raise ValueError(f"The input time and space vectors have different sizes of time size: {dyear_size}, position sizes: {lat_size,lon_size, alt_size}, input scalars, or vectors of matching length")
+            if(len(np.unique(sizes)) == 2 and np.min(sizes) != 1):
+                
+                raise ValueError(f"The input time and space vectors have different sizes of time size: {dyear_size}, position sizes: {lat_size,lon_size, alt_size}, input scalars, or vectors of matching length")
+            if(np.any(dyear_size != np.array([lat_size,lon_size, alt_size]))):
+                need_broadcasting = True
+        else:
+            
+            lat_size,lon_size, alt_size = np.size(lat),np.size(lon),np.size(alt)
             sizes = np.array([lat_size,lon_size, alt_size])
-            if(len(np.unique(sizes)) == 2 and np.min(sizes) == 1):
-                print('scalar inputs have been broadcast to match the shape\n of vector inputs')
+            
+            if(len(np.unique(sizes))>2):
+                raise ValueError (f'The input position (lat,lon,alt) have different shapes{sizes}. Input positions must have the same shape or 1 (i.e. valid combinations for input lengths are (10,10,10) or (10,10,1))')
+            if(len(np.unique(sizes)) == 2 and np.min(sizes) != 1):
+            
+                raise ValueError (f'The input position (lat,lon,alt) have different shapes{sizes}. Input positions must have the same shape or 1 (i.e. valid combinations for input lengths are (10,10,10) or (10,10,1))')
+        #if any of lat,lon, and alt have different shapes
+        if(lat_size != lon_size or lat_size != alt_size or alt_size != lon_size or need_broadcasting):
+                
+                #If all values are either max size, or broadcast to match the shape\n of vector inputs')
                 broadcast_template = np.ones(np.max(sizes))
                 if(lat_size == 1):
-                    lat = broadcast_template*lat[0] #make lat truly scalar for the moment
+                #Broadcast scalar variable to vector length
+                    lat = broadcast_template*lat[0] 
                 if(lon_size == 1):
-                    lon = broadcast_template*lon[0] #make lon truly scalar for the moment
+                #Broadcast scalar variable to vector length
+                    lon = broadcast_template*lon[0] 
                 if(alt_size == 1):
-                    alt = broadcast_template*alt[0] #make alt truly scalar for the moment
+                #Broadcast scalar variable to vector length
+                    alt = broadcast_template*alt[0] 
+            #Check if time exists and potentially broadcast it
+        """beginning to set up case 2 w time/space"""
+        # if(self.dyear is not None):
+        #     all_position_are_scalar = np.max(sizes) == 1
+        #     time_is_scalar = len(self.dyear) == 1
+        #     #If position is scalar and time is scalar
+        #     if(all_position_are_scalar and time_is_scalar):
+        #         #No variables need to be broadcast
+        #         pass
+        #     #If position is scalar and time is vector
+        #     if(all_position_are_scalar and not time_is_scalar):
+        #         #Broadcast position to the length of time
+        #         #This case could be unnecessary. AKA Numpy could do this under the hood
 
-        # if len(lat) != len(lon) or len(lat) != len(alt) or len()
+
+        #     #If position is vector and time is scalar
+
+        #     #If position is vector and time is vector
+        #     if(not all_position_are_scalar and not time_is_scalar):
+        #         #Only ok if vectors have same length
+        #         if(np.max(sizes) == len(self.dyear)):
+        #             #broadcast any leftover scalars
+        # else:
+        """Finishign weird time stuff"""
         alt = self.to_km(alt, unit)
         if msl:
             self.alt = util.alt_to_ellipsoid_height(alt, lat, lon)
@@ -229,6 +275,7 @@ class wmm_calc():
         #is not None protects from first iteration where self.lat/lon/alt are empty
         if self.lat is not None and self.lon is not None and self.alt is not None:
             if (lat.size != self.lat.size or lon.size != self.lon.size or alt.size != self.alt.size):
+                
                 self.r, self.theta = util.geod_to_geoc_lat(lat, alt)
                 self.r = np.array(self.r)
                 self.theta = np.array(self.theta)
@@ -247,7 +294,6 @@ class wmm_calc():
         self.lat = np.array(lat)
         self.lon = np.array(lon)
         self.alt = np.array(alt)
-        print(self.lat,self.lon,self.alt, 'checking broadcast')
         cotheta = 90.0 - self.theta
 
 
@@ -265,6 +311,7 @@ class wmm_calc():
         :param decyear: None or int type
 
         """
+        #convert true scalars to numpy arrays
         if(np.isscalar(year)):
             year = np.array([year])
         if(np.isscalar(month)):
@@ -273,16 +320,67 @@ class wmm_calc():
             day = np.array([day])
         if(np.isscalar(dyear)):
             dyear = np.array([dyear])
+        
 
         if dyear is None:
+            #If no time has been input
             if year is None or month is None or day is None:
                 year, month, day = fill_timeslot(year, month, day)
-            # print(type(year), year)
+            #Make year, month, day the same length if they aren't
+            year_size, month_size, day_size = np.size(year), np.size(month), np.size(day)
+            sizes = np.array([year_size, month_size, day_size])
+            #Inputs may only be scalar or vector of consistent size
+            if(len(np.unique(sizes))>2):
+                raise ValueError (f'The input position (year,month,day) have different shapes{sizes}. Input dates must have the same shape or 1 (i.e. valid combinations for input lengths are (10,10,10) or (10,10,1))')
+            #If position has already been set:
+            if(year_size != month_size or year_size != day_size or day_size != month_size):
+                
+                #If all values are either max size, or broadcast to match the shape\n of vector inputs')
+                broadcast_template = np.ones(np.max(sizes), dtype = int)
+                if(year_size == 1):
+                #Broadcast scalar variable to vector length
+                    year = broadcast_template*year[0] 
+                if(month_size == 1):
+                #Broadcast scalar variable to vector length
+                    month = broadcast_template*month[0] 
+                if(day_size == 1):
+                #Broadcast scalar variable to vector length
+                    day = broadcast_template*day[0] 
             curr_dyear = util.calc_dec_year(year, month, day)
             
         else:
             curr_dyear = dyear
-
+        sizes = np.size(dyear)
+        if(sizes > 1):#if dyear is vector
+            is_none_type = self.lat is None
+            
+            if(not is_none_type):
+                lat_size,lon_size, alt_size= np.size(self.lat),np.size(self.lon),np.size(self.alt)
+                pos_sizes = np.array([lat_size,lon_size, alt_size])
+                
+                #Check if position is vector:
+                if(len(np.unique(pos_sizes)) > 1 or (np.max(pos_sizes)!= sizes and np.max(pos_sizes) != 1)):
+                    #If it is a vector 
+                    #If vectors have different lengths
+                    if(np.max(pos_sizes) != np.max(sizes)):
+                        raise ValueError(f"The input time and space vectors have different sizes of time size: {np.max(sizes)}, position size: {np.max(pos_sizes)}, input scalars, or vectors of matching length")
+                else:#position is scalar
+                    #broadcast position
+                    
+                    broadcast_template = np.ones(np.max(sizes))
+                    self.lat = broadcast_template*self.lat
+                    self.lon = broadcast_template*self.lon
+                    self.alt = broadcast_template*self.alt
+                    
+                    self.setup_env(self.lat, self.lon, self.alt)
+                    lat_size,lon_size, alt_size= np.size(self.lat),np.size(self.lon),np.size(self.alt)
+                    pos_sizes = np.array([lat_size,lon_size, alt_size])
+                    self.r, self.theta = util.geod_to_geoc_lat(self.lat,self.alt)
+                    self.r = np.array(self.r)
+                    self.theta = np.array(self.theta)
+                    self.sph_dict = sh_vars.comp_sh_vars(self.lon, self.r, self.theta, self.nmax)
+                    
+                
         if not self.coef_dict:
             self.coef_dict = self.load_coeffs()
 
@@ -328,12 +426,15 @@ class wmm_calc():
         wmm_calc = wmm_elements(Bx, By, Bz)
         h = wmm_calc.get_Bh()
         if np.any(h <= 2000.0):
+            problem_index = np.where(h <= 2000.0)
             warnings.warn(
-                f"Warning: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat}, {self.lon}, {self.alt[self.alt <= 2000]}) is in the blackout zone around the magnetic pole as defined by the WMM military specification"
+                f"Warning: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat[problem_index]}, {self.lon[problem_index]}, {self.alt[problem_index]}) is in the blackout zone around the magnetic pole as defined by the WMM military specification"
                 " (https://www.ngdc.noaa.gov/geomag/WMM/data/MIL-PRF-89500B.pdf). Compass accuracy is highly degraded in this region.\n")
         elif np.any(h <= 6000.0):
+            problem_index = np.where(h <= 6000.0)
             warnings.warn(
-                f"Caution: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat}, {self.lon}, {self.alt[self.alt <= 2000]}) is approaching the blackout zone around the magnetic pole as defined by the WMM military specification "
+                
+                f"Caution: (lat, lon, alt(Ellipsoid Height in km)) = ({self.lat[problem_index]}, {self.lon[problem_index]}, {self.alt[problem_index]}) is approaching the blackout zone around the magnetic pole as defined by the WMM military specification "
                 "(https://www.ngdc.noaa.gov/geomag/WMM/data/MIL-PRF-89500B.pdf). Compass accuracy may be degraded in this region.\n")
 
     def forward_base(self) -> Tuple:
@@ -345,13 +446,13 @@ class wmm_calc():
 
         if self.lat is None or self.lon is None or self.alt is None:
             raise TypeError("Coordinates haven't set up yet. Please use setup_env() to set up coordinates first.")
-
-        if self.timly_coef_dict == None:
+        
+        
+        if self.timly_coef_dict == {}:
+            
             self.setup_time()
-
         Bt, Bp, Br = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g"],
                                                self.timly_coef_dict["h"], self.Leg, self.theta)
-
         Bx, By, Bz = magmath.rotate_magvec(Bt, Bp, Br, self.theta, self.lat)
 
         self.check_blackout_zone(Bx, By, Bz)
@@ -368,14 +469,14 @@ class wmm_calc():
 
         if self.lat is None or self.lon is None or self.alt is None:
             raise TypeError("Coordinates haven't set up yet. Please use setup_env() to set up coordinates first.")
-
-        if not self.timly_coef_dict:
+        if self.timly_coef_dict == {}:
+            
             self.setup_time()
 
         dBt, dBp, dBr = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g_sv"],
                                                   self.timly_coef_dict["h_sv"], self.Leg, self.theta)
-
         dBx, dBy, dBz = magmath.rotate_magvec(dBt, dBp, dBr, self.theta, self.lat)
+        
 
         return dBx, dBy, dBz
 
