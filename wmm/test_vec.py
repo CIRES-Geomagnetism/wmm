@@ -387,7 +387,10 @@ def main():
     
     for i in range(0,11):
         vector_test_cases(i)
+    print('change things back please!!! here to 10 or whatever the last test case is')
 
+
+    
 
 if __name__ == "__main__":
     main()
