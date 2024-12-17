@@ -9,6 +9,7 @@ For more information about the WMM model, please visit [WMM](https://www.ncei.no
 Set up the time and latitude and longtitude and altitude for the WMM model
 
 ```python
+import numpy as np
 from wmm import wmm_calc
 model = wmm_calc()
 lat = np.array([23.35, 24.5])
@@ -35,7 +36,7 @@ It will return
 
 ```python
 
-{'x': array([-17603.28858822, -15601.9029994 ]), 'y': array([3376.51054331, 3514.84345219]), 'z': array([57927.51624799, 59035.4644569 ]), 'h': array([17924.190151  , 15992.92036172]), 'f': array([60637.23057026, 61163.38418808]), 'dec': array([169.1418996 , 167.30418427]), 'inc': array([72.80665382, 74.8421807 ]), 'dx': array([295.42592776, 316.74492718]), 'dy': array([-9.42710882, -8.374395  ]), 'dz': array([-25.54450249, -27.87657315]), 'dh': array([-291.91269179, -310.841185  ]), 'df': array([-110.69153579, -108.18506608]), 'ddec': array([ -8.89792466, -13.20742715]), 'dinc': array([15.38195593, 16.45360138])}
+{'x': array([33828.95752178, 33505.44405357]), 'y': array([2171.53955086, 1932.26765383]), 'z': array([23865.06803054, 26184.61762661]), 'h': array([33898.58331894, 33561.1149921 ]), 'f': array([41456.66922383, 42567.38939334]), 'dec': array([3.67287636, 3.3006066 ]), 'inc': array([35.14607142, 37.96160489]), 'dx': array([ 9.74138229, 14.15269211]), 'dy': array([-3.08678058, -4.24326699]), 'dz': array([39.2944816 , 33.10674659]), 'dh': array([ 9.52363521, 13.88491134]), 'df': array([30.40773033, 31.3122469 ]), 'ddec': array([-0.37568054, -0.51739277]), 'dinc': array([2.20977032, 1.41823256])}
 ```
 
 ### Get the uncertainty value of geomagnetic elements
@@ -44,7 +45,9 @@ It will return
 from wmm import wmm_calc
 
 model = wmm_calc()
-
+lat = np.array([23.35, 24.5])
+lon = np.array([40, 45])
+alt = np.ones(len(lat))*21
 # set up time
 dyear_in = np.array([2025.1, 2026.9])
 model.setup_time(dyear=dyear_in)
@@ -55,7 +58,7 @@ print(model.get_uncertainty())
 ```
 
 ```python
-{'x_uncertainty': 137, 'y_uncertainty': 89, 'z_uncertainty': 141, 'h_uncertainty': 133, 'f_uncertainty': 138, 'declination_uncertainty': array([1.43123270e-05, 1.65339971e-05]), 'inclination_uncertainty': 0.2}
+{'x_uncertainty': 137, 'y_uncertainty': 89, 'z_uncertainty': 141, 'h_uncertainty': 133, 'f_uncertainty': 138, 'declination_uncertainty': array([7.67172328e-06, 7.74430010e-06]), 'inclination_uncertainty': 0.2}
 ```
 
 ## WMM Python API Reference
@@ -98,7 +101,7 @@ model = wmm_calc()
 model.setup_time(dyear=2025.1)
 ```
 
-User allow to assign the date from "2024-12-17" to "2030-01-01"
+User allow to assign the date from "2024-11-13" to "2030-01-01"
 
 #### 2. Set up the coordinates
 

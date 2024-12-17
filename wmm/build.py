@@ -326,6 +326,9 @@ class wmm_calc():
             #If no time has been input
             if year is None or month is None or day is None:
                 year, month, day = fill_timeslot(year, month, day)
+                year = np.array([year])
+                month = np.array([month])
+                day = np.array([day])
             #Make year, month, day the same length if they aren't
             year_size, month_size, day_size = np.size(year), np.size(month), np.size(day)
             sizes = np.array([year_size, month_size, day_size])

@@ -1,3 +1,0 @@
-
-Testing with dataset size: 100
-Execution time: 0.00 seconds
