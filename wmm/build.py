@@ -6,10 +6,10 @@ from typing import Optional, Tuple
 import numpy as np
 
 from geomaglib import util, legendre, magmath, sh_vars, sh_loader
-# from wmm import load
-# from wmm import uncertainty
-import load
-import uncertainty
+from wmm import load
+from wmm import uncertainty
+#import load
+#import uncertainty
 
 
 def fill_timeslot(year: Optional[int], month: Optional[int], day: Optional[int]) -> Tuple:
@@ -126,10 +126,10 @@ class wmm_calc():
         The WMM model class for computing magnetic elements
         """
 
-        self.nmax = 133
+        self.nmax = 12
         self.max_year = 2030.0
-        self.max_sv = 15
-        self.coef_file = "WMMHR.cof"
+        self.max_sv = 12
+        self.coef_file = "WMM.cof"
         self.err_vals = uncertainty.err_model
         self.min_date = ""
         self.dyear = None
@@ -200,7 +200,7 @@ class wmm_calc():
         """
         if np.isscalar(lat):
             lat = np.array([lat])
-        if np.isscalar(lat):
+        if np.isscalar(lon):
             lon = np.array([lon])
         if np.isscalar(alt):
             alt = np.array([alt])
@@ -228,6 +228,7 @@ class wmm_calc():
         #If self values don't match the size of setup_env values
         #is not None protects from first iteration where self.lat/lon/alt are empty
         if self.lat is not None and self.lon is not None and self.alt is not None:
+
             if (lat.size != self.lat.size or lon.size != self.lon.size or alt.size != self.alt.size):
                 self.r, self.theta = util.geod_to_geoc_lat(lat, alt)
                 self.r = np.array(self.r)
@@ -292,7 +293,7 @@ class wmm_calc():
 
         if np.any(curr_dyear < self.coef_dict["min_year"]) or np.any(curr_dyear >= self.max_year):
             max_year = round(self.max_year, 1)
-            raise ValueError(f"Invalid year. Please provide date from {self.min_date} to {int(max_year)}-01-01 00:00")
+            raise ValueError(f"Invalid year: Please provide date from {self.min_date} to {int(max_year)}-01-01 00:00")
 
         if np.any(curr_dyear != self.dyear):
             self.dyear = curr_dyear
