@@ -6,12 +6,19 @@ from typing import Optional, Tuple
 import numpy as np
 
 from geomaglib import util, legendre, magmath, sh_vars, sh_loader
-# from wmm import load
-# from wmm import uncertainty
-import load
-import uncertainty
+from wmm import load
+from wmm import uncertainty
 
-
+def convert_to_ndarray(num):
+    if np.isscalar(num):
+        return np.array([num])
+    elif isinstance(num, list):
+        return np.array(num)
+    elif isinstance(num, np.ndarray):
+        return num
+    else:
+        
+        raise ValueError(f"Input data is not a supported type: {type(num), num}")
 def fill_timeslot(year: Optional[int], month: Optional[int], day: Optional[int]) -> Tuple:
     """
     Fill out the missing year, month or day with the current time.
@@ -182,7 +189,9 @@ class wmm_calc():
         elif unit == "feet":
             return alt * 0.0003048
         else:
-            raise ValueError("Get unknown unit. Please provide km, m or feet.")
+            raise ValueError ("Get unknown unit. Please provide km, m or feet.")
+
+        
 
     def setup_env(self, lat: np.ndarray, lon: np.ndarray, alt: np.ndarray, unit: str = "km", msl: bool = False):
         """
@@ -198,12 +207,10 @@ class wmm_calc():
         :param msl: default is True. set it to False if the altitude is ellipsoid height.
 
         """
-        if np.isscalar(lat):
-            lat = np.array([lat])
-        if np.isscalar(lon):
-            lon = np.array([lon])
-        if np.isscalar(alt):
-            alt = np.array([alt])
+        lat = convert_to_ndarray(lat)
+        lon = convert_to_ndarray(lon)
+        alt = convert_to_ndarray(alt)
+        
         need_broadcasting = False
         
         if(not(self.dyear is None)):
@@ -312,15 +319,14 @@ class wmm_calc():
 
         """
         #convert true scalars to numpy arrays
-        if(np.isscalar(year)):
-            year = np.array([year])
-        if(np.isscalar(month)):
-            month = np.array([month])
-        if(np.isscalar(day)):
-            day = np.array([day])
-        if(np.isscalar(dyear)):
-            dyear = np.array([dyear])
-        
+
+
+        if(dyear is not None): 
+            dyear = convert_to_ndarray(dyear)
+        else:
+            year = convert_to_ndarray(year)
+            month = convert_to_ndarray(month)
+            day = convert_to_ndarray(day)
 
         if dyear is None:
             #If no time has been input
@@ -349,7 +355,7 @@ class wmm_calc():
                 if(day_size == 1):
                 #Broadcast scalar variable to vector length
                     day = broadcast_template*day[0] 
-            curr_dyear = util.calc_dec_year(year, month, day)
+            curr_dyear = util.calc_dec_year_array(year, month, day)
             
         else:
             curr_dyear = dyear
@@ -386,7 +392,8 @@ class wmm_calc():
                 
         if not self.coef_dict:
             self.coef_dict = self.load_coeffs()
-
+        elif self.coef_dict == {}:
+            self.coef_dict = self.load_coeffs()
         self.max_year = self.coef_dict["epoch"] + 5.0
         self.min_date = self.coef_dict["min_date"]
 
@@ -399,7 +406,7 @@ class wmm_calc():
             self.dyear = curr_dyear
             self.timly_coef_dict = load.timely_modify_magnetic_model(self.coef_dict, self.dyear, self.max_sv)
 
-    def check_coords(self, lat: float, lon: float, alt: float):
+    def check_coords(self, lat: np.ndarray, lon: np.ndarray, alt: np.ndarray):
         """
         Validify the coordinate provide from user
         :param lat: latitude in degree
@@ -417,7 +424,7 @@ class wmm_calc():
         if np.any(alt < -1) or np.any(alt > 1900):
             warnings.warn("Warning: WMM will not meet MilSpec at this altitude. For more information see \n (https://www.ngdc.noaa.gov/geomag/WMM/data/WMM2025_Height_Validity_Webpage.pdf)")
 
-    def check_blackout_zone(self, Bx: float, By: float, Bz: float):
+    def check_blackout_zone(self, Bx: np.ndarray, By: np.ndarray, Bz: np.ndarray):
         """
         Return warning if the location is in balckout zone
         :param Bx: magnetic elements Bx
@@ -451,8 +458,8 @@ class wmm_calc():
             raise TypeError("Coordinates haven't set up yet. Please use setup_env() to set up coordinates first.")
         
         
-        if self.timly_coef_dict == {}:
-            
+        # if self.timly_coef_dict == {}:
+        if not self.timly_coef_dict:
             self.setup_time()
         Bt, Bp, Br = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g"],
                                                self.timly_coef_dict["h"], self.Leg, self.theta)

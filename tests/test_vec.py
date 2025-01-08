@@ -5,10 +5,12 @@ import warnings
 import pytest
 
 
+
 from build import wmm_calc as vectorized_wmm_calc
 
 
-def get_test_val(path= "/Users/coka4389/Library/CloudStorage/OneDrive-UCB-O365/Desktop/testWMM_Numpy/wmm/wmm/WMMHR2025_TEST_VALUE_TABLE_FOR_REPORT.txt"):
+
+def get_test_val(path= "WMMHR2025_TEST_VALUE_TABLE_FOR_REPORT.txt"):
     lat = []
     lon = []
     alt = []
@@ -393,4 +395,18 @@ def main():
     
 
 if __name__ == "__main__":
+    model =  vectorized_wmm_calc()
+    alt = [1]
+    
+    lat = np.array([1]) 
+    lon = [1]
+    print(type(alt))
+    year= [2001]
+    month = [2]
+    day = [3]
+    model.setup_env(alt,lat ,lon )
+    model.setup_time(year=year, month=month, day= day)
+    # old_model = wmm_calc()
+    # old_model.setup_env(lat[i], lon[i], alt[i])
+    vec_ans = model.get_all()
     main()

@@ -81,7 +81,7 @@ def load_wmm_coef(filename: str, skip_two_columns: bool =False, load_sv: bool = 
                 month = np.array([month])
                 day = np.array([day])
                 year = np.array([year])
-                coef_dict["min_year"] = util.calc_dec_year(year, month, day)
+                coef_dict["min_year"] = util.calc_dec_year_array(year, month, day)
                 coef_dict["min_date"] = str(f"{year}-{month}-{day}")
                 # print(f"Month: {month}, Day: {day}, Year: {year}")
             elif('/' in split[3]):#Old WMM with second value being decimal year
