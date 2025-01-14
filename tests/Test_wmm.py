@@ -2,12 +2,12 @@ import os.path
 import unittest
 import numpy as np
 
-from geomaglib import util
+from geomaglib import util, sh_loader
 
 from wmm import load
 from wmm import wmm_calc
 from wmm.build import fill_timeslot
-from wmm import uncertainty
+from wmm import utils
 
 
 class Test_wmm(unittest.TestCase):
@@ -27,7 +27,7 @@ class Test_wmm(unittest.TestCase):
         self.top_dir = os.path.dirname(os.path.dirname(__file__))
         self.wmm_file = os.path.join(self.top_dir, "wmm", "coefs", "WMM.cof")
 
-    def test_setup_dtime(self):
+    def test_setup_dtime_arr(self):
 
         model = wmm_calc()
         dyears = np.array([2025.5, 2026.6])
@@ -39,20 +39,76 @@ class Test_wmm(unittest.TestCase):
             self.assertAlmostEqual(dyears[i], model.dyear[i], places=1)
 
 
+    def test_setup_dtime_tuple(self):
+
+        model = wmm_calc()
+        dyears = (2025.5, 2026.6)
+
+        dy_arr = utils.to_npFloatarr(dyears)
+
+        lat = (10,20)
+
+        lat= utils.to_npIntarr(lat)
+
+        model.setup_env(lat, self.lon, self.alt)
+        model.setup_time(dyear=dy_arr)
+
+        for i in range(len(dyears)):
+            self.assertAlmostEqual(dyears[i], model.dyear[i], places=1)
+
     def test_setup_strdate(self):
 
         model = wmm_calc()
-        years = np.array([2025, 2026]).astype(int)
+        years = np.array([2025, 2026])
         months = np.array([10,11]).astype(int)
         days = np.array([1,2]).astype(int)
+
+
 
         model.setup_env(self.lat, self.lon, self.alt)
         model.setup_time(years, months, days)
 
+
         dyears = [2025.7479452054795, 2026.835616438356]
 
+
         for i in range(len(years)):
-            self.assertAlmostEqual(dyears[i], model.dyear[i], places=1)
+            self.assertAlmostEqual(dyears[i], model.dyear[i], places=6)
+
+    def test_fill_timeslot(self):
+        year = None
+        month = 3
+        day = 25
+
+        year, month, day = fill_timeslot(year, month, day)
+
+        self.assertEqual(year, 2025)
+        self.assertEqual(month, 3)
+        self.assertEqual(day, 25)
+
+        year, month, day = fill_timeslot()
+
+        self.assertEqual(year, 2025)
+        self.assertEqual(month, 1)
+
+    def test_setup_empty_time(self):
+
+        model = wmm_calc()
+        #model.setup_time()
+
+        year, month, day = fill_timeslot()
+
+        years = utils.to_npIntarr(year)
+        months = utils.to_npIntarr(month)
+        days = utils.to_npIntarr(day)
+
+        dyear = util.calc_dec_year(years, months, days)
+
+        model.setup_env(self.lat, self.lon, self.alt)
+
+        model.get_all()
+
+        self.assertEqual(dyear, model.dyear)
 
 
     def test_broadcast(self):
@@ -64,8 +120,8 @@ class Test_wmm(unittest.TestCase):
         days = np.array([1, 2]).astype(int)
         N = 20
 
+        # the shape of lats and lons is 1
         lats = np.array([1])
-        #lons = np.linspace(0,180, N)
         lons = np.array([100])
         alts = np.linspace(0, 100, N)
 
@@ -75,8 +131,15 @@ class Test_wmm(unittest.TestCase):
         self.assertEqual(len(model.lat), N)
         self.assertEqual(len(model.lon), N)
 
+        # the shape of lats is 1
+        lons = np.linspace(0,180, N)
+        alts = np.linspace(0, 100, N)
 
+        model.setup_env(lats, lons, alts)
+        model.setup_time(years, months, days)
 
+        self.assertEqual(len(model.lat), N)
+        self.assertEqual(len(model.lon), N)
 
     def test_setup_geod_to_geoc_lat(self):
 
@@ -86,6 +149,8 @@ class Test_wmm(unittest.TestCase):
         r, theta = util.geod_to_geoc_lat(self.lat, self.alt)
 
 
+
+
         wmm_model = wmm_calc()
         wmm_model.setup_env(self.lat, self.lon, self.alt, msl=False)
         wmm_model.setup_time(dyear=self.dyears)
@@ -93,6 +158,20 @@ class Test_wmm(unittest.TestCase):
         self.assertAlmostEqual(wmm_model.lat[0], self.lat[0], places=6)
 
         self.assertAlmostEqual(wmm_model.theta[len(self.lat) - 1], wmm_model.theta[len(self.lat) - 1], places=6)
+
+
+    def test_to_km(self):
+
+        wmm_model = wmm_calc()
+        wmm_model.setup_env(self.lat, self.lon, self.alt, msl=False, unit="m")
+        wmm_model.setup_time()
+
+        for i in range(len(self.alt)):
+            self.assertAlmostEqual(self.alt[i]*1000, wmm_model.alt[i], places=6)
+
+
+
+
 
     def test_forward_base(self):
 
@@ -110,7 +189,9 @@ class Test_wmm(unittest.TestCase):
         wmm_model.setup_env(lat, lon, alt, msl=False)
 
 
+        print(wmm_model.timly_coef_dict["g"][:5])
         Bx, By, Bz = wmm_model.forward_base()
+
 
         self.assertAlmostEqual(Bx[0], 13268.119649, delta=1e-3)
         self.assertAlmostEqual(By[0], -5498.179626, delta=1e-3)
@@ -161,6 +242,7 @@ class Test_wmm(unittest.TestCase):
         lon = np.array([138])
         alt = np.array([77])
 
+
         dec_year = np.array([2029.5])
 
         wmm_model = wmm_calc()
@@ -196,11 +278,21 @@ class Test_wmm(unittest.TestCase):
 
         self.assertAlmostEqual(lat2, -19)
 
-    def test_get_minyear(self):
+    def test_load_wmmcoeff(self):
 
-        coef = load.load_wmm_coef(self.wmm_file, skip_two_columns=True)
+        coef_dict = sh_loader.load_coef(self.wmm_file, skip_two_columns=True, end_degree=12)
 
-        self.assertAlmostEqual(coef["min_year"], 2024.866, delta=1e-6)
+
+
+
+
+        coef = load.load_wmm_coef(self.wmm_file)
+
+
+
+        self.assertEqual(2025, coef["epoch"])
+        self.assertAlmostEqual(coef["min_year"][0], 2024.866, delta=1e-3)
+
 
 
     def test_correct_time(self):
@@ -270,16 +362,7 @@ class Test_wmm(unittest.TestCase):
 
 
 
-    def test_fill_timeslot(self):
-        year = None
-        month =3
-        day = 25
 
-        year, month, day = fill_timeslot(year, month, day)
-
-        self.assertEqual(year, 2025)
-        self.assertEqual(month, 3)
-        self.assertEqual(day, 25)
 
     @unittest.expectedFailure
     def test_not_setup_env(self):

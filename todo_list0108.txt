@@ -1,0 +1,21 @@
+WMM: 
+1. Need to allow alt_to_ellipsoid_height() to accept array
+2. In build.py, it should use “”From wmm import load“
+3. Check whether self.timely_coef_dict{} is specified. Change to “if not” at #359 (forward_base) 
+4. Change hint type at #169 to_km
+5. Remove the print comments for “”check broadcast
+
+Update:
+1. Allow users to provide python array
+2. Broadcast for (year, month, day)?
+3. Update the hint type 
+
+Geonaglib
+1. Create new function for converting array like object to decimal year
+2. Update the hint type of geoc_lat in mag_SPH_summation (mgmath.py)
+3. year.size to len(year) in calc_dec_year in util.py
+4. Output type of geod_to_geoc_lat()
+
+To do by Lily:
+1. Trans form year, month, day to np array if users not provide year, month and day
+

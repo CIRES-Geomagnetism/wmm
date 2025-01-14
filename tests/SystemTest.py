@@ -76,13 +76,8 @@ def check_sv_results(res_map, index, lat, lon, alt, dyear, dec, inc, h, x, y, z,
 
 
 def refer_testValues(testval_filename: str) -> tuple[np.array, np.array, np.array, np.array]:
-    wmm_model = wmm_calc()
-
-    tol = 1e-6
 
     dyears, alts, lats, lons = [], [], [], []
-
-
     with open(testval_filename, "r") as fp:
 
         for line in fp:
@@ -114,10 +109,6 @@ def compare_single_results(testval_filename, dyears, lats, lons, alts, res_folde
 
     wmm_model.setup_time(dyear=dyears)
     wmm_model.setup_env(lats, lons, alts)
-
-
-
-
     tol = 1e-6
     index = 0
 
@@ -166,8 +157,6 @@ def main():
 
     dyears, lats, lons, alts = refer_testValues(testval_filename)
     compare_single_results(testval_filename, dyears, lats, lons, alts, res_folder, reserr_folder)
-
-
 
     N = len(mag_component)
     fp = open(out_file, "w")

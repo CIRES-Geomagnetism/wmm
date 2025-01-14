@@ -15,7 +15,7 @@ classifiers = [
 ]
 dependencies = [
     "numpy",
-    "geomaglib @ git+https://github.com/CIRES-Geomagnetism/geomaglib@vector_geomaglib"  # Git dependency
+    "geomaglib @ git+https://github.com/CIRES-Geomagnetism/geomaglib@vector_test"  # Git dependency
 ]
 readme = "README.md"
 

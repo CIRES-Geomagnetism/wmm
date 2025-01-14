@@ -8,11 +8,12 @@ import numpy as np
 from geomaglib import util, legendre, magmath, sh_vars, sh_loader
 from wmm import load
 from wmm import uncertainty
+from wmm import utils
 #import load
 #import uncertainty
 
 
-def fill_timeslot(year: Optional[int], month: Optional[int], day: Optional[int]) -> Tuple:
+def fill_timeslot(year: Optional[int]=None, month: Optional[int]=None, day: Optional[int]=None) -> Tuple:
     """
     Fill out the missing year, month or day with the current time.
 
@@ -163,9 +164,9 @@ class wmm_calc():
         """
 
         wmm_coeffs = self.get_coefs_path(self.coef_file)
-        return load.load_wmm_coef(wmm_coeffs, skip_two_columns=True)
+        return load.load_wmm_coef(wmm_coeffs)
 
-    def to_km(self, alt: np.ndarray, unit: str) -> float:
+    def to_km(self, alt: np.ndarray, unit: str) -> np.ndarray:
         """
         Transform the meter or feet to km
         :param alt: the altitude in meter or feet or km
@@ -255,6 +256,7 @@ class wmm_calc():
 
         self.Leg = legendre.Flattened_Chaos_Legendre1(self.nmax, cotheta)
 
+
     def setup_time(self, year: Optional[np.ndarray] = None, month: Optional[np.ndarray] = None, day: Optional[np.ndarray] = None,
                    dyear: Optional[np.ndarray] = None):
         """
@@ -266,22 +268,29 @@ class wmm_calc():
         :param decyear: None or int type
 
         """
-        if(np.isscalar(year)):
-            year = np.array([year])
+        '''if(np.isscalar(year)):
+            if not np.issubdtype(year, np.int64):
+                raise TypeError("year need to be int")
+            else:
+                year = np.array([year])
         if(np.isscalar(month)):
             month = np.array([month])
         if(np.isscalar(day)):
             day = np.array([day])
         if(np.isscalar(dyear)):
-            dyear = np.array([dyear])
+            dyear = np.array([dyear])'''
 
         if dyear is None:
             if year is None or month is None or day is None:
                 year, month, day = fill_timeslot(year, month, day)
-            # print(type(year), year)
-            curr_dyear = util.calc_dec_year(year, month, day)
+            #print(type(year), year)
+            years = utils.to_npIntarr(year)
+            months = utils.to_npIntarr(month)
+            days = utils.to_npIntarr(day)
+            curr_dyear = util.calc_dec_year(years, months, days)
             
         else:
+            dyear = utils.to_npFloatarr(dyear)
             curr_dyear = dyear
 
         if not self.coef_dict:
@@ -347,7 +356,7 @@ class wmm_calc():
         if self.lat is None or self.lon is None or self.alt is None:
             raise TypeError("Coordinates haven't set up yet. Please use setup_env() to set up coordinates first.")
 
-        if self.timly_coef_dict == None:
+        if not self.timly_coef_dict:
             self.setup_time()
 
         Bt, Bp, Br = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g"],

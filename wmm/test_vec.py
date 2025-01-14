@@ -3,7 +3,7 @@ import random
 import numpy as np
 from memory_profiler import memory_usage
 
-from build import wmm_calc
+from wmm import wmm_calc
 
 def update_lat(size):
 
@@ -79,7 +79,7 @@ def run_load_lat_test():
             fp.write(f"\nTesting with dataset size: {size}\n")
             start_time = time.time()
 
-            # mem_usage = memory_usage((update_lat, (size)), max_usage=True)  # Monitor memory usage
+            mem_usage = memory_usage((update_lat, (size)), max_usage=True)  # Monitor memory usage
             
             # Measure time taken
             end_time = time.time()
