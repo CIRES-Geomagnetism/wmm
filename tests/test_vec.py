@@ -5,12 +5,11 @@ import warnings
 import pytest
 
 
-
 from build import wmm_calc as vectorized_wmm_calc
 
 
 
-def get_test_val(path= "WMMHR2025_TEST_VALUE_TABLE_FOR_REPORT.txt"):
+def get_test_val(path= "WMM2025_TEST_VALUE_TABLE_FOR_REPORT.txt"):
     lat = []
     lon = []
     alt = []

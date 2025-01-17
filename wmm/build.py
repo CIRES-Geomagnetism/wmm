@@ -133,10 +133,10 @@ class wmm_calc():
         The WMM model class for computing magnetic elements
         """
 
-        self.nmax = 133
+        self.nmax = 12
         self.max_year = 2030.0
-        self.max_sv = 15
-        self.coef_file = "WMMHR.cof"
+        self.max_sv = 12
+        self.coef_file = "WMM.COF"
         self.err_vals = uncertainty.err_model
         self.min_date = ""
         self.dyear = None
@@ -400,7 +400,7 @@ class wmm_calc():
 
         if np.any(curr_dyear < self.coef_dict["min_year"]) or np.any(curr_dyear >= self.max_year):
             max_year = round(self.max_year, 1)
-            raise ValueError(f"Invalid year. Please provide date from {self.min_date} to {int(max_year)}-01-01 00:00")
+            raise ValueError(f"Invalid year. Please provide date from {self.min_date} to [{int(max_year)}]-[01]-[01] 00:00")
 
         if np.any(curr_dyear != self.dyear):
             self.dyear = curr_dyear
