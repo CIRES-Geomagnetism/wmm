@@ -111,21 +111,18 @@ def load_wmm_coef(filename: str, skip_two_columns: bool =False, load_sv: bool = 
                 coef_dict['h_sv'].append(float(split[3 + skip_adder]))
 
     coef_file.close()
-
     if len(coef_dict["g"]) > 0 and (coef_dict["g"][0] != 0 or coef_dict['h'][0] != 0):
         coef_dict["g"].insert(0, 0)
         coef_dict["h"].insert(0, 0)
         if load_sv:
             coef_dict["g_sv"].insert(0, 0)
             coef_dict["h_sv"].insert(0, 0)
-
     if end_degree is not None and len(coef_dict["g"]) > num_lines_load:
         coef_dict["g"].pop()
         coef_dict["h"].pop()
         if load_sv:
             coef_dict["g_sv"].pop()
             coef_dict["h_sv"].pop()
-
     return coef_dict
 
 def timely_modify_magnetic_model(sh_dict, dec_year, max_sv: Optional[int] = None):

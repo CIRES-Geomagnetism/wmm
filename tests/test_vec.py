@@ -68,7 +68,7 @@ def vector_test_cases(which_case):
             vec_ans = model.get_all()
             
             # old_ans = old_model.get_all()          
-            
+            print(vec_ans, test_X[i])
             assert np.isclose(test_X[i], vec_ans['x'], rtol=0, atol=0.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'], rtol=0, atol=0.1)
@@ -400,7 +400,7 @@ if __name__ == "__main__":
     lat = np.array([1]) 
     lon = [1]
     print(type(alt))
-    year= [2001]
+    year= [2025]
     month = [2]
     day = [3]
     model.setup_env(alt,lat ,lon )
@@ -408,4 +408,5 @@ if __name__ == "__main__":
     # old_model = wmm_calc()
     # old_model.setup_env(lat[i], lon[i], alt[i])
     vec_ans = model.get_all()
+    print('its getting caught up here?')
     main()

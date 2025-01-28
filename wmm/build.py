@@ -170,7 +170,9 @@ class wmm_calc():
         """
 
         wmm_coeffs = self.get_coefs_path(self.coef_file)
+
         return load.load_wmm_coef(wmm_coeffs, skip_two_columns=True)
+
 
     def to_km(self, alt: np.ndarray, unit: str) -> float:
         """
@@ -323,6 +325,7 @@ class wmm_calc():
 
         if(dyear is not None): 
             dyear = convert_to_ndarray(dyear)
+
         else:
             year = convert_to_ndarray(year)
             month = convert_to_ndarray(month)
@@ -389,11 +392,11 @@ class wmm_calc():
                     self.theta = np.array(self.theta)
                     self.sph_dict = sh_vars.comp_sh_vars(self.lon, self.r, self.theta, self.nmax)
                     
-                
         if not self.coef_dict:
             self.coef_dict = self.load_coeffs()
         elif self.coef_dict == {}:
             self.coef_dict = self.load_coeffs()
+        
         self.max_year = self.coef_dict["epoch"] + 5.0
         self.min_date = self.coef_dict["min_date"]
 
@@ -476,7 +479,6 @@ class wmm_calc():
         use the current time as default.
         :return: magnetic elements dBx, dBy and dBz in geodetic degree
         """
-
         if self.lat is None or self.lon is None or self.alt is None:
             raise TypeError("Coordinates haven't set up yet. Please use setup_env() to set up coordinates first.")
         if self.timly_coef_dict == {}:
@@ -485,6 +487,7 @@ class wmm_calc():
 
         dBt, dBp, dBr = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g_sv"],
                                                   self.timly_coef_dict["h_sv"], self.Leg, self.theta)
+
         dBx, dBy, dBz = magmath.rotate_magvec(dBt, dBp, dBr, self.theta, self.lat)
         
 
