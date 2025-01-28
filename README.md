@@ -6,6 +6,9 @@ For more information about the WMM model, please visit [WMM](https://www.ncei.no
 
 ## WMM Python API Quick Start
 
+WARNING: Input arrays of length 3,000,000 require ~ 16GB of memory. If using the WMMHR, 50,000 datapoints require ~16GB of memory.
+Users may input scalars, vectors, and combinations thereof. However, all input vectors must have the same length. 
+
 Set up the time and latitude and longtitude and altitude for the WMM model
 
 ```python
