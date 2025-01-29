@@ -15,7 +15,7 @@ classifiers = [
 ]
 dependencies = [
     "numpy",
-    "geomaglib==0.5.4"  # Git dependency
+    "geomaglib"  # Git dependency
 ]
 readme = "README.md"
 
