@@ -1,7 +1,7 @@
 # Field 1: Date
-# Field 2: Height (km)
-# Field 3: Latitude (deg)
-# Field 4: Longitude (deg)
+# Field 2: Height above WGS84 ellipsoid (km)
+# Field 3: Geodetic Latitude (deg)
+# Field 4: Geodetic Longitude (deg)
 # Field 5: X (nT)
 # Field 6: Y (nT)
 # Field 7: Z (nT)

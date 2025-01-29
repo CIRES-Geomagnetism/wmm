@@ -133,10 +133,10 @@ class wmm_calc():
         The WMM model class for computing magnetic elements
         """
 
-        self.nmax = 133
+        self.nmax = 12
         self.max_year = 2030.0
-        self.max_sv = 15
-        self.coef_file = "WMMHR.cof"
+        self.max_sv = 12
+        self.coef_file = "WMM.COF"
         self.err_vals = uncertainty.err_model
         self.min_date = ""
         self.dyear = None

@@ -6,11 +6,11 @@ import pytest
 
 
 
-from build import wmm_calc as vectorized_wmm_calc
+from wmm.build import wmm_calc as vectorized_wmm_calc
 
 
 
-def get_test_val(path= "WMMHR2025_TEST_VALUE_TABLE_FOR_REPORT.txt"):
+def get_test_val(path= "WMM2025_TEST_VALUE_TABLE_FOR_REPORT.txt"):
     lat = []
     lon = []
     alt = []
@@ -401,7 +401,7 @@ if __name__ == "__main__":
     lat = np.array([1]) 
     lon = [1]
     print(type(alt))
-    year= [2001]
+    year= [2025]
     month = [2]
     day = [3]
     model.setup_env(alt,lat ,lon )
