@@ -1,7 +1,7 @@
 import copy
 import os
 from typing import Optional
-
+import numpy as np
 from geomaglib import sh_loader, util
 
 def load_wmm_coef(filename: str, skip_two_columns: bool =False, load_sv: bool = True, end_degree: Optional[int] = None, load_year: Optional[float] = None) -> dict:
@@ -57,8 +57,9 @@ def load_wmm_coef(filename: str, skip_two_columns: bool =False, load_sv: bool = 
     for line in lines:
         split = line.split()
         # This will detect the footer and we can stop loading
-        if len(split) < footer_line_split_len:
-            break
+        if not header_line:
+            if len(split) < footer_line_split_len:
+                break
 
         if load_year is not None and split[1] == (str(load_year) + ".0"):
             load = True
@@ -71,9 +72,33 @@ def load_wmm_coef(filename: str, skip_two_columns: bool =False, load_sv: bool = 
             header_line = False
             if load_sv:
                 coef_dict["epoch"] = float(split[0])
-            coef_dict["min_year"] = float(split[2])
-            year, month, day, hour, minute = util.decimalYearToDateTime(float(split[2]))
-            coef_dict["min_date"] = str(f"{year}-{month}-{day} {hour}:{minute}")
+            
+            if('/' in split[2]): #modern WMM where second value is mm/dd/yyyy
+                date_string = split[2]
+
+                
+                month, day, year = map(int, date_string.split('/'))
+                month = np.array([month])
+                day = np.array([day])
+                year = np.array([year])
+                coef_dict["min_year"] = util.calc_dec_year_array(year, month, day)
+                coef_dict["min_date"] = str(f"{year}-{month}-{day}")
+                # print(f"Month: {month}, Day: {day}, Year: {year}")
+            elif('/' in split[3]):#Old WMM with second value being decimal year
+                date_string = split[3]
+
+                month, day, year = map(int, date_string.split('/'))
+                month = np.array([month])
+                day = np.array([day])
+                year = np.array([year])
+               
+
+                coef_dict["min_year"] = float(split[2])
+                year, month, day, hour, minute = util.decimalYearToDateTime(float(split[2]))
+
+                coef_dict["min_date"] = str(f"{year}-{month}-{day} {hour}:{minute}")
+            else:
+                raise ValueError(f"Header line of WMM.COF file should have form: 2025.0           WMM              11/13/2024")
             continue
         if num_lines_load is not None and load_counter >= num_lines_load:
             break
@@ -86,21 +111,18 @@ def load_wmm_coef(filename: str, skip_two_columns: bool =False, load_sv: bool = 
                 coef_dict['h_sv'].append(float(split[3 + skip_adder]))
 
     coef_file.close()
-
     if len(coef_dict["g"]) > 0 and (coef_dict["g"][0] != 0 or coef_dict['h'][0] != 0):
         coef_dict["g"].insert(0, 0)
         coef_dict["h"].insert(0, 0)
         if load_sv:
             coef_dict["g_sv"].insert(0, 0)
             coef_dict["h_sv"].insert(0, 0)
-
     if end_degree is not None and len(coef_dict["g"]) > num_lines_load:
         coef_dict["g"].pop()
         coef_dict["h"].pop()
         if load_sv:
             coef_dict["g_sv"].pop()
             coef_dict["h_sv"].pop()
-
     return coef_dict
 
 def timely_modify_magnetic_model(sh_dict, dec_year, max_sv: Optional[int] = None):
@@ -135,6 +157,7 @@ Copy the SV coefficients.  If input "t�" is the same as "t0", then this is mer
         for m in range(n+1):
             index = int(n * (n + 1) / 2 + m)
             if index < num_elems:
+                
                 sh_dict_time["g"][index] = sh_dict["g"][index] + date_diff * sh_dict["g_sv"][index]
                 sh_dict_time["h"][index] = sh_dict["h"][index] + date_diff * sh_dict["h_sv"][index]
 
