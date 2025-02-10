@@ -2,14 +2,14 @@ import os
 import warnings
 import math
 import datetime as dt
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 import numpy as np
 
 from geomaglib import util, legendre, magmath, sh_vars, sh_loader
 from wmm import load
 from wmm import uncertainty
 
-def convert_to_ndarray(num):
+def convert_to_ndarray(num: Union[int, float, list, np.ndarray]):
     if np.isscalar(num):
         return np.array([num])
     elif isinstance(num, list):
@@ -34,7 +34,7 @@ def fill_timeslot(year: Optional[int], month: Optional[int], day: Optional[int])
     curr_time = dt.datetime.now()
 
     if year is None:
-        year = curr_time.year + 1
+        year = curr_time.year
     if month is None:
         month = curr_time.month
     if day is None:
@@ -195,7 +195,7 @@ class wmm_calc():
 
         
 
-    def setup_env(self, lat: np.ndarray, lon: np.ndarray, alt: np.ndarray, unit: str = "km", msl: bool = False):
+    def setup_env(self, lat: Union[int, float, list, np.ndarray], lon: Union[int, float, list, np.ndarray], alt: Union[int, float, list, np.ndarray], unit: str = "km", msl: bool = False):
         """
         The function will initialize the radius, geocentric latitude in degree,
         spherical harmonic terms, maximum degree and legendre function for users.If user is not
@@ -309,8 +309,8 @@ class wmm_calc():
 
         self.Leg = legendre.Flattened_Chaos_Legendre1(self.nmax, cotheta)
 
-    def setup_time(self, year: Optional[np.ndarray] = None, month: Optional[np.ndarray] = None, day: Optional[np.ndarray] = None,
-                   dyear: Optional[np.ndarray] = None):
+    def setup_time(self, year: Union[int, float, list, np.ndarray] = None, month: Union[int, float, list, np.ndarray] = None, day: Union[int, float, list, np.ndarray] = None,
+                   dyear: Union[int, float, list, np.ndarray] = None):
         """
         It will load the coefficients and adjust g and h with the decimal year. The maximum and minimum year of the model
         will also be initialized at here.

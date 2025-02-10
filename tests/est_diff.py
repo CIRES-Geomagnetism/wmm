@@ -20,7 +20,7 @@ def estimate(file_path: str, out_fp: TextIO, mag_comp: str, tol: float):
             diff = abs(float(vals[4]) - float(vals[5]))
 
             if diff > tol:
-                raise f"{file_path} doesn't matched with Test values. Expected {vals[5]} Got {vals[4]}"
+                raise ValueError(f"{file_path} doesn't matched with Test values. Expected {vals[5]} Got {vals[4]}")
             diff_sum += diff
 
 
