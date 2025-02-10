@@ -160,7 +160,7 @@ def main():
 
     os.mkdir(reserr_folder)
 
-    dyears, lats, lons, alts = refer_testValues(testval_filename)
+    dyears, lats, lons, alts = refer_testValues(testval_path)
     compare_single_results(testval_path, dyears, lats, lons, alts, res_folder, reserr_folder)
 
     N = len(mag_component)
