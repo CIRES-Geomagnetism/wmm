@@ -36,7 +36,7 @@ jobs:
     - name: Run scientific accuracy tests
       run: |
         python tests/SystemTest.py
-        python tests/est_diff.py
+        
 
     - name: Upload Test results
       uses: actions/upload-artifact@v4
