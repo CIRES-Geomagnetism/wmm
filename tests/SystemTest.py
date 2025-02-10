@@ -140,8 +140,7 @@ def compare_single_results(testval_filename, dyears, lats, lons, alts, res_folde
 
 def main():
     testval_filename = "WMM2025_FINAL_TEST_VALUES_HIGHPREC.txt"
-    res_folder="results"
-    reserr_folder="results_err"
+
     out_filename = "diff_results.csv"
     mag_component = ["x", "y", "z", "h", "f", "dec", "inc"]
     magsv_component = ["dx", "dy", "dz", "dh", "df", "ddec", "dinc"]
@@ -149,6 +148,8 @@ def main():
 
     topdir = os.path.dirname(os.path. dirname(__file__))
     testval_path = os.path.join(topdir, "tests", testval_filename)
+    res_folder = os.path.join(topdir, "tests", "results")
+    reserr_folder = os.path.join(topdir, "tests", "results_err")
 
     if os.path.isdir(res_folder):
         shutil.rmtree(res_folder)
@@ -175,6 +176,7 @@ def main():
 
         if os.path.exists(file_path):
             estimate(file_path, fp, mag_component[i], tol)
+
 
     for i in range(N):
         file_path = f"{reserr_folder}/{mag_component[i]}.csv"
