@@ -326,13 +326,13 @@ class wmm_calc():
         if(dyear is not None): 
             dyear = convert_to_ndarray(dyear)
 
-        else:
+        elif (year is not None) and (month is not None) and (day is not None):
             year = convert_to_ndarray(year)
             month = convert_to_ndarray(month)
             day = convert_to_ndarray(day)
 
         if dyear is None:
-            #If no time has been input
+        #If no time has been input
             if year is None or month is None or day is None:
                 year, month, day = fill_timeslot(year, month, day)
                 year = np.array([year])

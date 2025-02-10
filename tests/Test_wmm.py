@@ -1,6 +1,7 @@
 import os.path
 import unittest
 import numpy as np
+import datetime as dt
 
 from geomaglib import util, sh_loader
 
@@ -25,7 +26,7 @@ class Test_wmm(unittest.TestCase):
         self.dyears = np.array([2025.5, 2026.6])
 
         self.top_dir = os.path.dirname(os.path.dirname(__file__))
-        self.wmm_file = os.path.join(self.top_dir, "wmm", "coefs", "WMM.cof")
+        self.wmm_file = os.path.join(self.top_dir, "wmm", "coefs", "WMM.COF")
 
     def test_setup_dtime_arr(self):
 
@@ -90,6 +91,25 @@ class Test_wmm(unittest.TestCase):
 
         self.assertEqual(year, 2025)
         self.assertEqual(month, 3)
+
+    def test_setup_empty_time(self):
+
+        model = wmm_calc()
+        # model.setup_time()
+
+        model.setup_time()
+
+        model.setup_env(self.lat, self.lon, self.alt)
+
+        model.get_all()
+        curr_time = dt.datetime.now()
+        year = curr_time.year
+        month = curr_time.month
+        day = curr_time.day
+
+        dyear = util.calc_dec_year(year, month, day)
+
+        self.assertEqual(dyear, model.dyear)
 
 
     def test_broadcast(self):
