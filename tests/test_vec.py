@@ -5,7 +5,7 @@ import warnings
 import pytest
 
 
-from build import wmm_calc as vectorized_wmm_calc
+from wmm.build import wmm_calc as vectorized_wmm_calc
 
 
 
