@@ -1,3 +1,4 @@
+import os
 import time
 import random
 import numpy as np
@@ -56,7 +57,9 @@ def vector_test_cases(which_case):
     #This test case attests that my additions of vector
     #Methods are consistent with the output from WMM previous to my changes
     #The cases are that alt, lat, lon (rtp) have
-    lat, lon, alt, time, test_X, test_dec, test_H, test_ydot = get_test_val()
+    top_dir = os.path.dirname(os.path.dirname(__file__))
+    testVal_file = os.path.join(top_dir, "tests", "WMM2025_TEST_VALUE_TABLE_FOR_REPORT.txt")
+    lat, lon, alt, time, test_X, test_dec, test_H, test_ydot = get_test_val(testVal_file)
 
     if(which_case == 0):#1a) All scalar
         model =  vectorized_wmm_calc()

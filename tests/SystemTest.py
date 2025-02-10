@@ -105,6 +105,9 @@ def main():
     res_folder="results"
     reserr_folder="results_err"
 
+    top_dir = os.path.dirname(os.path.dirname(__file__))
+    testval_file = os.path.join(top_dir, "tests", testval_filename)
+
     if os.path.isdir(res_folder):
         shutil.rmtree(res_folder)
 
@@ -115,7 +118,7 @@ def main():
 
     os.mkdir(reserr_folder)
 
-    refer_testValues(testval_filename, res_folder, reserr_folder)
+    refer_testValues(testval_file, res_folder, reserr_folder)
 
 
 if __name__ == "__main__":
