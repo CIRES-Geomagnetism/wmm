@@ -39,13 +39,17 @@ def main():
     tol = 0.06
 
 
-    out_file = "diff_results.csv"
+    out_filename = "diff_results.csv"
+    topdir = os.path.dirname(os.path.dirname(__file__))
+    out_path = os.path.join(topdir, "tests", out_filename)
+
+    print(out_path)
 
     mag_component = ["x","y","z","h","f","dec", "inc"]
 
     N = len(mag_component)
 
-    fp = open(out_file, "w")
+    fp = open(out_path, "w")
     fp.write("component,ave_diff,max_diff,min_diff\n")
 
     for i in range(N):

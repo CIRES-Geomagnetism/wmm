@@ -142,7 +142,7 @@ def main():
     testval_filename = "WMM2025_FINAL_TEST_VALUES_HIGHPREC.txt"
     res_folder="results"
     reserr_folder="results_err"
-    out_file = "diff_results.csv"
+    out_filename = "diff_results.csv"
     mag_component = ["x", "y", "z", "h", "f", "dec", "inc"]
     magsv_component = ["dx", "dy", "dz", "dh", "df", "ddec", "dinc"]
     tol = 0.06
@@ -164,7 +164,10 @@ def main():
     compare_single_results(testval_path, dyears, lats, lons, alts, res_folder, reserr_folder)
 
     N = len(mag_component)
-    fp = open(out_file, "w")
+    topdir = os.path.dirname(os.path.dirname(__file__))
+    out_path = os.path.join(topdir, "tests", out_filename)
+
+    fp = open(out_path, "w")
     fp.write("component,ave_diff,max_diff,min_diff\n")
 
     for i in range(N):
