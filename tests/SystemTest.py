@@ -147,6 +147,9 @@ def main():
     magsv_component = ["dx", "dy", "dz", "dh", "df", "ddec", "dinc"]
     tol = 0.06
 
+    topdir = os.path.dirname(os.path. dirname(__file__))
+    testval_path = os.path.join(topdir, "tests", testval_filename)
+
     if os.path.isdir(res_folder):
         shutil.rmtree(res_folder)
 
@@ -158,7 +161,7 @@ def main():
     os.mkdir(reserr_folder)
 
     dyears, lats, lons, alts = refer_testValues(testval_filename)
-    compare_single_results(testval_filename, dyears, lats, lons, alts, res_folder, reserr_folder)
+    compare_single_results(testval_path, dyears, lats, lons, alts, res_folder, reserr_folder)
 
     N = len(mag_component)
     fp = open(out_file, "w")
