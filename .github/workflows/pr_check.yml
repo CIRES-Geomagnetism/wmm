@@ -1,13 +1,16 @@
 name: wmm ci pipeline
 
 on:
-  push:
-    branches: ['*']
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        python_version: [ '3.9', '3.10', '3.11', '3.12' ]
 
     steps:
     - name: Checkout code
@@ -16,7 +19,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
+        python-version: ${{ matrix.python_version }}
 
     - name: Install dependencies
       run: |
@@ -34,8 +37,3 @@ jobs:
         python tests/SystemTest.py
         
 
-    - name: Upload Test results
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: tests/diff_results.csv
