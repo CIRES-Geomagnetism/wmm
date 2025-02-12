@@ -1,4 +1,4 @@
-name: wmm ci pipeline
+name: wmm pull request checks
 
 on:
   pull_request:
