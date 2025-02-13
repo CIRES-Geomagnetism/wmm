@@ -26,3 +26,4 @@ build-backend = "setuptools.build_meta"
 
 [project.urls]
 Homepage = "https://www.ncei.noaa.gov/products/world-magnetic-model"
+Repositories = "https://github.com/CIRES-Geomagnetism/wmm"
