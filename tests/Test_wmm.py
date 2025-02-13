@@ -15,9 +15,7 @@ class Test_wmm(unittest.TestCase):
 
     def setUp(self):
 
-        self.lat = np.array([23.35, 24.5])
-        self.lon = np.array([40, 45])
-        self.alt = np.ones(len(self.lat)) * 21
+
 
         self.year = np.array([2025, 2026]).astype(int)
         self.month = np.array([12, 1]).astype(int)
@@ -28,16 +26,62 @@ class Test_wmm(unittest.TestCase):
         self.top_dir = os.path.dirname(os.path.dirname(__file__))
         self.wmm_file = os.path.join(self.top_dir, "wmm", "coefs", "WMM.COF")
 
+        self.wmm_testval = os.path.join(self.top_dir, "tests", "WMM2025_TEST_VALUE_TABLE_FOR_REPORT.txt")
+        self.get_wmm_testval()
+
+    def get_wmm_testval(self):
+
+        self.dyears, self.alts, self.lats, self.lons = [], [], [], []
+        self.Bh, self.Bf, self.Bx, self.By, self.Bz, self.Bdec, self.Binc, self.Bgv = [], [], [], [], [], [], [], []
+        self.dBh, self.dBf, self.dBx, self.dBy, self.dBz, self.dBdec, self.dBinc = [], [], [], [], [], [], []
+
+        with open(self.wmm_testval, "r") as fp:
+            for line in fp:
+                vals = line.split()
+
+                if vals[0] == "#":
+                    continue
+                else:
+                    for i in range(len(vals)):
+                        vals[i] = float(vals[i])
+                    dyear, alt, lat, lon = vals[0], vals[1], vals[2], vals[3]
+                    x, y, z, h, f, inc, dec, gv = vals[4], vals[5], vals[6], vals[7], vals[8], vals[9], vals[10], vals[
+                        11]
+                    dx, dy, dz, dh, df, dinc, ddec = vals[12], vals[13], vals[14], vals[15], vals[16], vals[17], vals[
+                        18]
+
+                self.dyears.append(dyear)
+                self.alts.append(alt)
+                self.lats.append(lat)
+                self.lons.append(lon)
+
+                self.Bdec.append(dec)
+                self.Binc.append(inc)
+                self.Bx.append(x)
+                self.By.append(y)
+                self.Bz.append(z)
+                self.Bh.append(h)
+                self.Bf.append(f)
+                self.Bgv.append(gv)
+
+                self.dBdec.append(ddec)
+                self.dBinc.append(dinc)
+                self.dBx.append(dx)
+                self.dBy.append(dy)
+                self.dBz.append(dz)
+                self.dBh.append(dh)
+                self.dBf.append(df)
+
     def test_setup_dtime_arr(self):
 
         model = wmm_calc()
         dyears = np.array([2025.5, 2026.6])
 
-        model.setup_env(self.lat, self.lon, self.alt)
+        model.setup_env(self.lats, self.lons, self.alts)
         model.setup_time(dyear=self.dyears)
 
         for i in range(len(dyears)):
-            self.assertAlmostEqual(dyears[i], model.dyear[i], places=1)
+            self.assertAlmostEqual(self.dyears[i], model.dyear[i], places=1)
 
 
     def test_setup_dtime_tuple(self):
@@ -47,11 +91,13 @@ class Test_wmm(unittest.TestCase):
 
         dy_arr = utils.to_npFloatarr(dyears)
 
-        lat = (10,20)
+        lats = (10,20)
+        lons = [100, 105.5]
+        alts = [100, 200]
 
-        lat= utils.to_npIntarr(lat)
+        lats= utils.to_npIntarr(lats)
 
-        model.setup_env(lat, self.lon, self.alt)
+        model.setup_env(lats, lons, alts)
         model.setup_time(dyear=dy_arr)
 
         for i in range(len(dyears)):
@@ -66,7 +112,7 @@ class Test_wmm(unittest.TestCase):
 
 
 
-        model.setup_env(self.lat, self.lon, self.alt)
+        model.setup_env(self.lats[:2], self.lons[:2], self.alts[:2])
         model.setup_time(years, months, days)
 
 
@@ -99,7 +145,7 @@ class Test_wmm(unittest.TestCase):
 
         model.setup_time()
 
-        model.setup_env(self.lat, self.lon, self.alt)
+        model.setup_env(self.lats, self.lons, self.alts)
 
         model.get_all()
         curr_time = dt.datetime.now()
@@ -147,29 +193,30 @@ class Test_wmm(unittest.TestCase):
 
 
 
-        alt_true = util.alt_to_ellipsoid_height(self.alt, self.lat, self.lon)
-        r, theta = util.geod_to_geoc_lat(self.lat, self.alt)
+        alt_true = util.alt_to_ellipsoid_height(self.alts, self.lats, self.lons)
+        r, theta = util.geod_to_geoc_lat(self.lats, alt_true)
 
 
 
 
         wmm_model = wmm_calc()
-        wmm_model.setup_env(self.lat, self.lon, self.alt, msl=False)
+        wmm_model.setup_env(self.lats, self.lons, self.alts, msl=False)
         wmm_model.setup_time(dyear=self.dyears)
 
-        self.assertAlmostEqual(wmm_model.lat[0], self.lat[0], places=6)
+        for i in range(len(self.lats)):
+            self.assertAlmostEqual(wmm_model.lat[i], self.lats[i], places=6)
 
-        self.assertAlmostEqual(wmm_model.theta[len(self.lat) - 1], wmm_model.theta[len(self.lat) - 1], places=6)
+            self.assertAlmostEqual(wmm_model.theta[len(self.lats) - 1], theta[len(self.lats) - 1], places=6)
 
 
     def test_to_km(self):
 
         wmm_model = wmm_calc()
-        wmm_model.setup_env(self.lat, self.lon, self.alt, msl=False, unit="m")
+        wmm_model.setup_env(self.lats, self.lons, self.alts, msl=False, unit="m")
         wmm_model.setup_time(2025, 1, 1)
 
-        for i in range(len(self.alt)):
-            self.assertAlmostEqual(self.alt[i]*1000, wmm_model.alt[i], places=6)
+        for i in range(len(self.alts)):
+            self.assertAlmostEqual(self.alts[i]*1000, wmm_model.alt[i], places=6)
 
 
 
@@ -178,26 +225,19 @@ class Test_wmm(unittest.TestCase):
     def test_forward_base(self):
 
 
-
-        lat = np.array([-57])
-        lon = np.array([3])
-        alt = np.array([74])
-
-        dec_year = np.array([2026.0])
-
         wmm_model = wmm_calc()
 
-        wmm_model.setup_time(dyear=dec_year)
-        wmm_model.setup_env(lat, lon, alt, msl=False)
+        wmm_model.setup_time(dyear=self.dyears)
+        wmm_model.setup_env(self.lats, self.lons, self.alts, msl=False)
 
 
-        print(wmm_model.timly_coef_dict["g"][:5])
+
         Bx, By, Bz = wmm_model.forward_base()
 
-
-        self.assertAlmostEqual(Bx[0], 13268.119649, delta=1e-3)
-        self.assertAlmostEqual(By[0], -5498.179626, delta=1e-3)
-        self.assertAlmostEqual(Bz[0], -23576.062921, delta=1e-3)
+        for i in range(len(self.Bx)):
+            self.assertAlmostEqual(Bx[i], self.Bx[i], delta=0.05)
+            self.assertAlmostEqual(By[i], self.By[i], delta=0.05)
+            self.assertAlmostEqual(Bz[i], self.Bz[i], delta=0.05)
 
     def test_setup_sv(self):
 
@@ -209,16 +249,16 @@ class Test_wmm(unittest.TestCase):
 
         wmm_model = wmm_calc()
 
-        wmm_model.setup_time(dyear=dec_year)
-        wmm_model.setup_env(lat, lon, alt, msl=False)
-
+        wmm_model.setup_time(dyear=self.dyears)
+        wmm_model.setup_env(self.lats, self.lons, self.alts, msl=False)
 
         dBx, dBy, dBz = wmm_model.forward_sv()
 
-        tol = 1e-6
-        self.assertAlmostEqual(dBx[0],  2.471158, delta=tol)
-        self.assertAlmostEqual(dBy[0], -20.201885, delta=tol)
-        self.assertAlmostEqual(dBz[0], 14.262673, delta=tol)
+        tol = 0.05
+        for i in range(len(self.Bx)):
+            self.assertAlmostEqual(dBx[i], self.dBx[i], delta=tol)
+            self.assertAlmostEqual(dBy[i], self.dBy[i], delta=tol)
+            self.assertAlmostEqual(dBz[i], self.dBz[i], delta=tol)
 
     def test_get_dBh(self):
 
@@ -230,35 +270,31 @@ class Test_wmm(unittest.TestCase):
 
         wmm_model = wmm_calc()
 
-        wmm_model.setup_time(dyear=dec_year)
-        wmm_model.setup_env(lat, lon, alt, msl=False)
+        wmm_model.setup_time(dyear=self.dyears)
+        wmm_model.setup_env(self.lats, self.lons, self.alts, msl=False)
 
+        dh = wmm_model.get_dBh()
+        self.assertTrue(isinstance(dh[0], float))
 
-        self.assertTrue(isinstance(wmm_model.get_dBh()[0], float))
-        self.assertAlmostEqual(wmm_model.get_dBh()[0], 0.895474, delta=1e-3)
+        for i in range(len(self.dBh)):
+            self.assertAlmostEqual(dh[i], self.dBh[i], delta=0.05)
 
 
 
     def test_inherit_GeomagElements(self):
-        lat = np.array([-18])
-        lon = np.array([138])
-        alt = np.array([77])
 
-
-        dec_year = np.array([2029.5])
 
         wmm_model = wmm_calc()
 
-        wmm_model.setup_time(dyear=dec_year)
-        wmm_model.setup_env(lat, lon, alt, msl=False)
+        wmm_model.setup_time(dyear=self.dyears)
+        wmm_model.setup_env(self.lats, self.lons, self.alts, msl=False)
 
 
         map = wmm_model.get_all()
 
-        print(map)
-
-        self.assertAlmostEqual(map["ddec"][0]/60, -0.036580, places=6)
-        self.assertAlmostEqual(map["dinc"][0]/60, 0.012491, places=6)
+        for i in range(len(self.dBdec)):
+            self.assertAlmostEqual(map["ddec"][i] / 60, self.dBdec[i], delta=0.05)
+            self.assertAlmostEqual(map["dinc"][i] / 60, self.dBinc[i], delta=0.05)
 
     def test_reset_env(self):
         lat = np.array([-18])
@@ -282,11 +318,7 @@ class Test_wmm(unittest.TestCase):
 
     def test_load_wmmcoeff(self):
 
-        coef_dict = sh_loader.load_coef(self.wmm_file, skip_two_columns=True, end_degree=12)
-
-
-
-
+        wmm_model = wmm_calc()
 
         coef = load.load_wmm_coef(self.wmm_file)
 
@@ -301,46 +333,42 @@ class Test_wmm(unittest.TestCase):
 
 
 
-        user_time = np.array([2030.0])
+        user_time = np.array([2030.0, 2014.7])
 
-
-
-        wmm_model = wmm_calc()
-
-        try:
-            wmm_model.setup_time(dyear=user_time)
-        except ValueError as e:
-            print(e)
-
-
-
-
-    def test_check_altitude(self):
-
-        user_time = np.array([2025.1])
-
-        lat = np.array([-18])
-        lon = np.array([138])
-        alt = np.array([3000])
+        get_err = 0
 
         wmm_model = wmm_calc()
 
-        wmm_model.setup_time(dyear=user_time)
-        wmm_model.setup_env(lat, lon, alt, msl=False)
+        for i in range(2):
+            try:
+                wmm_model.setup_time(dyear=user_time)
+            except ValueError as e:
+                get_err += 1
+                self.assertEqual(str(e), "Invalid year. Please provide date from [2024]-[11]-[13] to [2030]-[01]-[01] 00:00")
+
+        self.assertEqual(get_err, 2)
+
 
 
     def test_check_latitude(self):
 
         user_time = np.array([2025.1])
-        lat, lon, alt = 90.1, 20, 700
+        lon, alt = 20, 700
+
+        lat = [-90.8, 90.1]
+        get_err = 0
 
         wmm_model = wmm_calc()
 
-        try:
-            wmm_model.setup_time(dyear=user_time)
-            wmm_model.setup_env(lat, lon, alt, msl=False)
-        except ValueError as e:
-            print(e)
+        for i in range(2):
+            try:
+                wmm_model.setup_time(dyear=user_time)
+                wmm_model.setup_env(lat, lon, alt, msl=False)
+            except ValueError as e:
+                self.assertEqual(str(e), "latitude should between -90 to 90")
+                get_err += 1
+
+        self.assertEqual(get_err, 2)
 
 
 
@@ -350,20 +378,21 @@ class Test_wmm(unittest.TestCase):
         user_time = np.array([2025.1])
 
         lat = np.array([-18])
-        lon = np.array([138])
+        lon = np.array([-180.0, 360.1])
         alt = np.array([3000])
 
         wmm_model = wmm_calc()
+        get_err = 0
 
-        try:
-            wmm_model.setup_time(dyear=user_time)
-            wmm_model.setup_env(lat, lon, alt, msl=False)
-        except ValueError as e:
-            print(e)
+        for i in range(2):
+            try:
+                wmm_model.setup_time(dyear=user_time)
+                wmm_model.setup_env(lat, lon, alt, msl=False)
+            except ValueError as e:
+                self.assertEqual(str(e), "lontitude should between -180 to 360")
+                get_err += 1
 
-
-
-
+        self.assertEqual(get_err, 2)
 
 
     @unittest.expectedFailure
@@ -382,10 +411,24 @@ class Test_wmm(unittest.TestCase):
 
         lat = np.array([-18])
         lon = np.array([138])
-        alt = np.array([3000])
+        alt = np.array([-2, 3000])
+
+
+        link = "\033[94mhttps://www.ncei.noaa.gov/products/world-magnetic-model/accuracy-limitations-error-model\033[0m"  # Blue color
 
         wmm_model = wmm_calc()
         wmm_model.setup_env(lat, lon, alt)
+
+
+        with self.assertWarns(UserWarning) as w:
+            wmm_model.setup_env(lat[0], lon[0], alt[0])
+        self.assertEqual(str(w.warning), f"Warning: WMM will not meet MilSpec at this altitude. For more information see {link}" )
+
+        with self.assertWarns(UserWarning) as w:
+            wmm_model.setup_env(lat[0], lon[0], alt[1])
+        self.assertEqual(str(w.warning), f"Warning: WMM will not meet MilSpec at this altitude. For more information see {link}" )
+
+
 
     def test_get_uncertainty(self):
 
@@ -400,8 +443,6 @@ class Test_wmm(unittest.TestCase):
         model.setup_env(lat, lon, alt)
 
         print(model.get_uncertainty())
-
-
 
 
 

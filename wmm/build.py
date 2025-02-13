@@ -422,7 +422,7 @@ class wmm_calc():
             raise ValueError("latitude should between -90 to 90")
 
         if np.any(lon > 360.0) or np.any(lon < -180.0):
-            raise ValueError("lontitude should between -180 to 180")
+            raise ValueError("lontitude should between -180 to 360")
 
         if np.any(alt < -1) or np.any(alt > 1900):
             link = "\033[94mhttps://www.ncei.noaa.gov/products/world-magnetic-model/accuracy-limitations-error-model\033[0m"  # Blue color
