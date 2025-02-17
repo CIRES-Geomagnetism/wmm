@@ -67,12 +67,12 @@ def check_sv_results(res_map, index, lat, lon, alt, dyear, dec, inc, h, x, y, z,
     if (fabs(res_map["df"][index] - f) > tol):
         filename = f"{folder_path}/f.csv"
         write_diff_results(filename, inputs, res_map['df'][index], f)
-    if (fabs(res_map["ddec"][index] / 60 - dec) > tol):
+    if (fabs(res_map["ddec"][index] - dec) > tol):
         filename = f"{folder_path}/dec.csv"
-        write_diff_results(filename, inputs, res_map['ddec'][index] / 60, dec)
-    if (fabs(res_map["dinc"][index] / 60 - inc) > tol):
+        write_diff_results(filename, inputs, res_map['ddec'][index], dec)
+    if (fabs(res_map["dinc"][index] - inc) > tol):
         filename = f"{folder_path}/inc.csv"
-        write_diff_results(filename, inputs, res_map['dinc'][index] / 60, inc)
+        write_diff_results(filename, inputs, res_map['dinc'][index], inc)
 
 
 def refer_testValues(testval_filename: str) -> tuple[np.array, np.array, np.array, np.array]:
