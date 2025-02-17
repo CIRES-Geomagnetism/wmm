@@ -2,7 +2,8 @@
 name = "wmm-calculator"
 version = "1.3.5"
 description = "WMM Python Module based on WMM2025"
-authors = [{ name = "Li-Yin Young", email = "liyin.young@noaa.gov" }]
+authors = [{ name = "Li-Yin Young", email = "liyin.young@noaa.gov" },
+    {name = "Collin Kadlecek", email = "collin.kadlecek@noaa.gov"}]
 requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
