@@ -19,6 +19,7 @@ def get_test_val(path= "WMM2025_TEST_VALUE_TABLE_FOR_REPORT.txt"):
     test_dec = []
     test_H = []
     test_ydot = []
+    test_ddec = []
     with open(path, 'r') as infile:
         for line in infile:
             values = line.split()
@@ -33,8 +34,9 @@ def get_test_val(path= "WMM2025_TEST_VALUE_TABLE_FOR_REPORT.txt"):
             test_H.append( np.float64(values[7]))
             test_dec.append(np.float64(values[10]))
             test_ydot.append( np.float64(values[13]))
+            test_ddec.append(np.float64(values[-1]))
 
-    return np.array(lat), np.array(lon), np.array(alt), np.array(time), np.array(test_X), np.array(test_dec), np.array(test_H), np.array(test_ydot)
+    return np.array(lat), np.array(lon), np.array(alt), np.array(time), np.array(test_X), np.array(test_dec), np.array(test_H), np.array(test_ydot), np.array(test_ddec)
 def get_ymd(time,lat):
     year = []
     month = []
@@ -59,7 +61,7 @@ def vector_test_cases(which_case):
     #The cases are that alt, lat, lon (rtp) have
     top_dir = os.path.dirname(os.path.dirname(__file__))
     testVal_file = os.path.join(top_dir, "tests", "WMM2025_TEST_VALUE_TABLE_FOR_REPORT.txt")
-    lat, lon, alt, time, test_X, test_dec, test_H, test_ydot = get_test_val(testVal_file)
+    lat, lon, alt, time, test_X, test_dec, test_H, test_ydot, test_ddec = get_test_val(testVal_file)
 
     if(which_case == 0):#1a) All scalar
         model =  vectorized_wmm_calc()
@@ -71,11 +73,12 @@ def vector_test_cases(which_case):
             vec_ans = model.get_all()
             
             # old_ans = old_model.get_all()          
-            print(vec_ans, test_X[i])
+            print(vec_ans, test_X[i], test_ddec[i])
             assert np.isclose(test_X[i], vec_ans['x'], rtol=0, atol=0.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'], rtol=0, atol=0.1)
             assert np.isclose(test_ydot[i] , vec_ans['dy'], rtol=0, atol=0.1)
+            assert np.isclose(test_ddec[i], vec_ans['ddec'], rtol=0, atol=0.01)
     elif(which_case == 1):#1b) All vector
         model2 =  vectorized_wmm_calc()
         
@@ -89,6 +92,7 @@ def vector_test_cases(which_case):
 
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_ydot[i] , vec_ans['dy'][i], rtol=0, atol=0.1)
     elif(which_case == 2):#1c) 1 vector 2 scalar pos
         # print("should produce 4 warnings due to broadcasted locations being in blackout zones")
@@ -112,6 +116,7 @@ def vector_test_cases(which_case):
                 assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=0.1)
                 assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
                 assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
+                assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
                 assert np.isclose(test_ydot[i] , vec_ans['dy'][i], rtol=0, atol=0.1)
             for i in range(0,len(lat)):
                 model =  vectorized_wmm_calc()
@@ -122,6 +127,7 @@ def vector_test_cases(which_case):
                 assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=0.1)
                 assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
                 assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
+                assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
                 assert np.isclose(test_ydot[i] , vec_ans['dy'][i], rtol=0, atol=0.1)
             for i in range(0,len(lat)):
                 model =  vectorized_wmm_calc()
@@ -132,6 +138,7 @@ def vector_test_cases(which_case):
                 assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=0.1)
                 assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
                 assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
+                assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
                 assert np.isclose(test_ydot[i] , vec_ans['dy'][i], rtol=0, atol=0.1)
     elif(which_case == 3):#1d) 2 vector 1 scalar pos
         # 1di) vectors have the same length
@@ -155,6 +162,7 @@ def vector_test_cases(which_case):
                 assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=0.1)
                 assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
                 assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
+                assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
                 assert np.isclose(test_ydot[i] , vec_ans['dy'][i], rtol=0, atol=0.1)
             for i in range(0,len(lat)):
                 model =  vectorized_wmm_calc()
@@ -164,6 +172,7 @@ def vector_test_cases(which_case):
                 vec_ans = model.get_all()
                 assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=0.1)
                 assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
+                assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
                 assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
                 assert np.isclose(test_ydot[i] , vec_ans['dy'][i], rtol=0, atol=0.1)
             for i in range(0,len(lat)):
@@ -175,6 +184,7 @@ def vector_test_cases(which_case):
                 assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=0.1)
                 assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
                 assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
+                assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
                 assert np.isclose(test_ydot[i] , vec_ans['dy'][i], rtol=0, atol=0.1)
         # 1dii) vectors have different length
     
@@ -191,7 +201,7 @@ def vector_test_cases(which_case):
             vec_ans = model.get_all()
             
             # old_ans = old_model.get_all()          
-            
+            assert np.isclose(test_ddec[i], vec_ans['ddec'], rtol=0, atol=0.01)
             assert np.isclose(test_X[i], vec_ans['x'], rtol=0, atol=0.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'], rtol=0, atol=0.1)
@@ -205,7 +215,7 @@ def vector_test_cases(which_case):
         for i in range(0,len(lat)):
         
             assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=0.1)
-
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
             assert np.isclose(test_ydot[i] , vec_ans['dy'][i], rtol=0, atol=0.1)
@@ -218,7 +228,7 @@ def vector_test_cases(which_case):
             model.setup_time(year[i], month[i], day)
 
             vec_ans = model.get_all()
-            
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
@@ -229,7 +239,7 @@ def vector_test_cases(which_case):
             model.setup_env(lat, lon, alt)
             model.setup_time(year[i], month, day[i])
             vec_ans = model.get_all()
-
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
@@ -240,6 +250,7 @@ def vector_test_cases(which_case):
             model.setup_env(lat, lon, alt)
             model.setup_time(year, month[i], day[i])
             vec_ans = model.get_all()
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
@@ -253,6 +264,7 @@ def vector_test_cases(which_case):
             model.setup_env(lat, lon, alt)
             model.setup_time(year, month, day[i])
             vec_ans = model.get_all()
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
@@ -263,6 +275,7 @@ def vector_test_cases(which_case):
             model.setup_env(lat, lon, alt)
             model.setup_time(year, month[i], day)
             vec_ans = model.get_all()
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
@@ -273,6 +286,8 @@ def vector_test_cases(which_case):
             model.setup_env(lat, lon, alt)
             model.setup_time(year[i], month, day)
             vec_ans = model.get_all()
+
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
@@ -290,7 +305,7 @@ def vector_test_cases(which_case):
 
             vec_ans = model.get_all()
           
-                       
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=0.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
@@ -302,7 +317,7 @@ def vector_test_cases(which_case):
 
             vec_ans = model.get_all()
           
-                       
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=0.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
@@ -315,7 +330,7 @@ def vector_test_cases(which_case):
 
             vec_ans = model.get_all()
           
-                       
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=0.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
@@ -327,7 +342,7 @@ def vector_test_cases(which_case):
 
             vec_ans = model.get_all()
           
-                       
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=0.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
@@ -340,7 +355,7 @@ def vector_test_cases(which_case):
 
             vec_ans = model.get_all()
           
-                       
+            assert np.isclose(test_ddec[i], vec_ans['ddec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_X[i], vec_ans['x'][i], rtol=0, atol=0.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'][i], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'][i], rtol=0, atol=0.1)
@@ -391,25 +406,25 @@ def main():
     
     for i in range(0,11):
         vector_test_cases(i)
-    print('change things back please!!! here to 10 or whatever the last test case is')
+    # print('change things back please!!! here to 10 or whatever the last test case is')
 
 
     
 
 if __name__ == "__main__":
-    model =  vectorized_wmm_calc()
-    alt = [1]
+    # model =  vectorized_wmm_calc()
+    # alt = [1]
     
-    lat = np.array([1]) 
-    lon = [1]
-    print(type(alt))
-    year= [2025]
-    month = [2]
-    day = [3]
-    model.setup_env(alt,lat ,lon )
-    model.setup_time(year=year, month=month, day= day)
-    # old_model = wmm_calc()
-    # old_model.setup_env(lat[i], lon[i], alt[i])
-    vec_ans = model.get_all()
-    print('its getting caught up here?')
+    # lat = np.array([1]) 
+    # lon = [1]
+    # print(type(alt))
+    # year= [2025]
+    # month = [2]
+    # day = [3]
+    # model.setup_env(alt,lat ,lon )
+    # model.setup_time(year=year, month=month, day= day)
+    # # old_model = wmm_calc()
+    # # old_model.setup_env(lat[i], lon[i], alt[i])
+    # vec_ans = model.get_all()
+    # print('its getting caught up here?')
     main()

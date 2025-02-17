@@ -97,8 +97,6 @@ class wmm_elements(magmath.GeomagElements):
         """
         mag_map = super().get_all()
 
-
-
         mag_map["ddec"] = mag_map["ddec"] * 60.0
         mag_map["dinc"] = mag_map["dinc"] * 60.0
 
