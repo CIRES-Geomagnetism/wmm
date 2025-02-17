@@ -293,8 +293,8 @@ class Test_wmm(unittest.TestCase):
         map = wmm_model.get_all()
 
         for i in range(len(self.dBdec)):
-            self.assertAlmostEqual(map["ddec"][i] / 60, self.dBdec[i], delta=0.05)
-            self.assertAlmostEqual(map["dinc"][i] / 60, self.dBinc[i], delta=0.05)
+            self.assertAlmostEqual(map["ddec"][i] , self.dBdec[i], delta=0.05)
+            self.assertAlmostEqual(map["dinc"][i] , self.dBinc[i], delta=0.05)
 
     def test_reset_env(self):
         lat = np.array([-18])
