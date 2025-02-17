@@ -81,20 +81,20 @@ print(model.get_uncertainty())
 
 ### Description of the components
 
-- **‘Dec’ - Declination (deg)** Angle between the horizontal magnetic field vector and true north, positive east, measured in degrees.
-- **‘Inc’ - Inclination (deg)**: The angle made by the Earth's magnetic field with the horizontal plane, positive down, measured in degrees.
+- **‘dec’ - Declination (deg)** Angle between the horizontal magnetic field vector and true north, positive east, measured in degrees.
+- **‘inc’ - Inclination (deg)**: The angle made by the Earth's magnetic field with the horizontal plane, positive down, measured in degrees.
 - **‘h’ - H (nT)**: Horizontal intensity of the Earth's magnetic field, measured in nanoteslas (nT).
 - **‘x’- X (nT)**: Northward component of the Earth's magnetic field, measured in nanoteslas (nT).
 - **‘y’ - Y (nT)**: Eastward component of the Earth's magnetic field, measured in nanoteslas (nT).
 - **‘z’ - Z (nT)**: Downward component of the Earth's magnetic field, measured in nanoteslas (nT).
 - **F (nT)**: Total intensity of the Earth's magnetic field, measured in nanoteslas (nT).
-- **dD/dt (deg/year)**: Rate of change of declination over time, measured in degrees per year.
-- **dI/dt (deg/year)**: Rate of inclination change over time, measured in degrees per year.
-- **dH/dt (nT/year)**: Rate of change of horizontal intensity over time, measured in nanoteslas per year.
-- **dX/dt (nT/year)**: Rate of change of the northward component over time, measured in nanoteslas per year.
-- **dY/dt (nT/year)**: Rate of change of the eastward component over time, measured in nanoteslas per year.
-- **dZ/dt (nT/year)**: Rate of change of the downward component over time, measured in nanoteslas per year.
-- **dF/dt (nT/year)**: Rate of change of the total intensity over time, measured in nanoteslas per year.
+- **ddec/dt (deg/year)**: Rate of change of declination over time, measured in degrees per year.
+- **dinc/dt (deg/year)**: Rate of inclination change over time, measured in degrees per year.
+- **dh/dt (nT/year)**: Rate of change of horizontal intensity over time, measured in nanoteslas per year.
+- **dx/dt (nT/year)**: Rate of change of the northward component over time, measured in nanoteslas per year.
+- **dy/dt (nT/year)**: Rate of change of the eastward component over time, measured in nanoteslas per year.
+- **dz/dt (nT/year)**: Rate of change of the downward component over time, measured in nanoteslas per year.
+- **df/dt (nT/year)**: Rate of change of the total intensity over time, measured in nanoteslas per year.
 
 
 ### Set up the time and coordinates for the WMM model
