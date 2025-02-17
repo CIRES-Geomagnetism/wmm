@@ -1,11 +1,16 @@
+
+
+## WMM Python module
+
 ![PyPI - Version](https://img.shields.io/pypi/v/wmm-calculator)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wmm-calculator)
 ![PyPI - License](https://img.shields.io/pypi/l/wmm-calculator)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/wmm-calculator)
 
-## Create the environment for developing WMM Python module
+This is a Python implementation of the latest World Magnetic Model(WMM) by the Cooperative Institute For Research in Environmental Sciences (CIRES), University of Colorado.
+The World Magnetic Model (WMM) is the standard model for navigation, attitude, and heading referencing systems that use the  geomagnetic field. 
 
-This is a Python implementation of the latest World Magnetic Model(WMM) by the Cooperative Institute For Research in Environmental Sciences (CIRES), University of Colorado. The software computes all the geomagnetic field components from the WMM model for a specific date and location. 
+A new version of the model is updated every five years to address changes in Earth’s magnetic field. The current version (WMM2025) was released on December 17, 2024, and will remain valid until late 2029. 
 
 **For more information about the WMM model, please visit [WMM](https://www.ncei.noaa.gov/products/world-magnetic-model)**
 
