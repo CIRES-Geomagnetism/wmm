@@ -56,30 +56,29 @@ mag_map = model.get_all()
 It will return 
 
 ```python
-
-{'x': array([33828.95752178, 33505.44405357]), 'y': array([2171.53955086, 1932.26765383]), 'z': array([23865.06803054, 26184.61762661]), 'h': array([33898.58331894, 33561.1149921 ]), 'f': array([41456.66922383, 42567.38939334]), 'dec': array([3.67287636, 3.3006066 ]), 'inc': array([35.14607142, 37.96160489]), 'dx': array([ 9.74138229, 14.15269211]), 'dy': array([-3.08678058, -4.24326699]), 'dz': array([39.2944816 , 33.10674659]), 'dh': array([ 9.52363521, 13.88491134]), 'df': array([30.40773033, 31.3122469 ]), 'ddec': array([-0.37568054, -0.51739277]), 'dinc': array([2.20977032, 1.41823256])}
+{'x': array([33805.9794844 , 33492.10462007]), 'y': array([2167.06741335, 1899.8602046 ]), 'z': array([23844.95317237, 26150.62563705]), 'h': array([33875.36612457, 33545.94671013]), 'f': array([41426.10555998, 42534.52435243]), 'dec': array([3.6678175, 3.2466589]), 'inc': array([35.14180823, 37.93807267]), 'dx': array([ 9.91215814, 14.60583551]), 'dy': array([-2.63505666, -4.26437959]), 'dz': array([40.35078867, 34.39738965]), 'dh': array([ 9.72328589, 14.34088148]), 'df': array([31.17702034, 32.45814375]), 'ddec': array([-0.00552022, -0.00868461]), 'dinc': array([0.03789554, 0.02466632])}
 ```
 
 ### Get the uncertainty value of geomagnetic elements
 
 ```python
-from wmm import wmm_calc
-
 model = wmm_calc()
-lat = np.array([23.35, 24.5])
-lon = np.array([40, 45])
-alt = np.ones(len(lat))*21
+lat = [80.,  0., 80.]
+lon = [  0., 120.,   0.]
+alt = [0., 0., 0.]
+dyear = [2025.,  2025.,  2027.5]
+
 # set up time
-dyear_in = np.array([2025.1, 2026.9])
-model.setup_time(dyear=dyear_in)
+model.setup_time(dyear=dyear)
 # set up the coordinates
 model.setup_env(lat, lon, alt)
-# get the uncertainty value
 print(model.get_uncertainty())
+
 ```
 
 ```python
-{'x_uncertainty': 137, 'y_uncertainty': 89, 'z_uncertainty': 141, 'h_uncertainty': 133, 'f_uncertainty': 138, 'declination_uncertainty': array([7.67172328e-06, 7.74430010e-06]), 'inclination_uncertainty': 0.2}
+{'x_uncertainty': 137, 'y_uncertainty': 89, 'z_uncertainty': 141, 'h_uncertainty': 133, 'f_uncertainty': 138, 'declination_uncertainty': array([3.98575493e-05, 6.55276509e-06, 3.99539341e-05]), 'inclination_uncertainty': 0.2}
+
 ```
 
 ## WMM Python API Reference
@@ -110,7 +109,7 @@ print(model.get_uncertainty())
                    **dyear**: Optional[np.ndarray] = None):
 
 If users don't call or assign any value to setup_time(), the current time will be used to compute the model.
-Either by providing year, month, day or deciaml year.
+Either by providing year, month, day or deciaml year. When passing the decimal year, please pass the decimal year as float point or array to `dyear`
 ```python
 from wmm import wmm_calc
 model = wmm_calc()

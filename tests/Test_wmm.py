@@ -444,6 +444,47 @@ class Test_wmm(unittest.TestCase):
 
         print(model.get_uncertainty())
 
+    def test_readme1(self):
+
+        model = wmm_calc()
+        lat = [80.,  0., 80.]
+        lon = [  0., 120.,   0.]
+        alt = [0., 0., 0.]
+
+        #year = [2025, 2026]
+        #month = [12, 1]
+        #day = [6, 15]
+        dyear = [2025.,  2025.,  2027.5]
+
+        # set up time
+        #model.setup_time(year, month, day)
+        model.setup_time(dyear=dyear)
+        # set up the coordinates
+        model.setup_env(lat, lon, alt)
+
+        print(model.get_uncertainty())
+
+    def test_readme2(self):
+
+        model = wmm_calc()
+        lat = [23.35, 24.5]
+        lon = [40, 45]
+        alt = [21, 21]
+
+        year = [2025, 2026]
+        month = [12, 1]
+        day = [6, 15]
+
+        # set up time
+        model.setup_time(year, month, day)
+        # set up the coordinates
+        model.setup_env(lat, lon, alt)
+
+        print(model.get_all())
+        print(model.get_uncertainty())
+
+
+
 
 
 if __name__ == '__main__':
