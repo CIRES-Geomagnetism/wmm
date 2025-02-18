@@ -73,7 +73,7 @@ def vector_test_cases(which_case):
             vec_ans = model.get_all()
             
             # old_ans = old_model.get_all()          
-            # print(vec_ans, test_X[i], test_ddec[i])
+            print(vec_ans, test_X[i], test_ddec[i])
             assert np.isclose(test_X[i], vec_ans['x'], rtol=0, atol=0.1)
             assert np.isclose(test_dec[i] ,vec_ans['dec'], rtol=0, atol=0.01)
             assert np.isclose(test_H[i] , vec_ans['h'], rtol=0, atol=0.1)
