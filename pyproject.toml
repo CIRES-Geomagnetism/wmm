@@ -31,4 +31,4 @@ Homepage = "https://www.ncei.noaa.gov/products/world-magnetic-model"
 Repositories = "https://github.com/CIRES-Geomagnetism/wmm"
 
 [tool.setuptools]
-packages = ["wmm"]  # Adjust based on your structure
+packages = ["wmm"]

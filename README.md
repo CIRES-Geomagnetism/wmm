@@ -30,6 +30,8 @@ WARNING: Input arrays of length 3,000,000 require ~ 16GB of memory. However, all
 ### Get magnetic components
 Set up the time and latitude and longtitude and altitude for the WMM model
 
+To get the detail of the magnetic components, please see **[Description of the WMM magnetic components](https://github.com/CIRES-Geomagnetism/wmm/blob/check_nmax/description.md)**
+
 ```python
 from wmm import wmm_calc
 model = wmm_calc()
@@ -59,11 +61,11 @@ It will return
 {'x': array([33805.9794844 , 33492.10462007]), 'y': array([2167.06741335, 1899.8602046 ]), 'z': array([23844.95317237, 26150.62563705]), 'h': array([33875.36612457, 33545.94671013]), 'f': array([41426.10555998, 42534.52435243]), 'dec': array([3.6678175, 3.2466589]), 'inc': array([35.14180823, 37.93807267]), 'dx': array([ 9.91215814, 14.60583551]), 'dy': array([-2.63505666, -4.26437959]), 'dz': array([40.35078867, 34.39738965]), 'dh': array([ 9.72328589, 14.34088148]), 'df': array([31.17702034, 32.45814375]), 'ddec': array([-0.00552022, -0.00868461]), 'dinc': array([0.03789554, 0.02466632])}
 ```
 
-To get the detail of the magnetic components, please see **[Description of the WMM magnetic components](https://github.com/CIRES-Geomagnetism/wmm/blob/main/description.md)**
 
 
 
 ### Get the uncertainty value of geomagnetic elements
+To get the detail of the uncertainty values, please see **[Description of the WMM magnetic components](https://github.com/CIRES-Geomagnetism/wmm/blob/check_nmax/description.md)**
 
 ```python
 model = wmm_calc()
@@ -84,9 +86,6 @@ print(model.get_uncertainty())
 {'x_uncertainty': 137, 'y_uncertainty': 89, 'z_uncertainty': 141, 'h_uncertainty': 133, 'f_uncertainty': 138, 'declination_uncertainty': array([3.98575493e-05, 6.55276509e-06, 3.99539341e-05]), 'inclination_uncertainty': 0.2}
 
 ```
-To get the detail of the uncertainty values, please see **[Description of the WMM magnetic components](https://github.com/CIRES-Geomagnetism/wmm/blob/main/description.md)**
-
-
 
 ## WMM Python API Reference
 
