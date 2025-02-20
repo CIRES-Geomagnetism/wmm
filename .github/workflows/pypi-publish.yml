@@ -30,3 +30,22 @@ jobs:
         TWINE_USERNAME: "__token__"
         TWINE_PASSWORD: "${{ secrets.PYPI_API_TOKEN }}"
       run: twine upload dist/*
+  smoke_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install api from PyPI
+        run: |
+          pip install wmm-calculator==1.4.1
+          pip install pytest
+
+      - name: Run smoke Test
+        run: |
+          pytest -m smoke smoke_tests/test_postdeployment.py

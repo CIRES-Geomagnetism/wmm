@@ -126,12 +126,17 @@ class wmm_elements(magmath.GeomagElements):
 
 class wmm_calc():
 
-    def __init__(self):
+    def __init__(self, nmax: int=12):
         """
         The WMM model class for computing magnetic elements
         """
 
-        self.nmax = 12
+        self.max_degree = 12
+
+        if nmax != self.max_degree:
+            self.nmax = self.setup_max_degree(nmax)
+        else:
+            self.nmax = self.max_degree
         self.max_year = 2030.0
         self.max_sv = 12
         self.coef_file = "WMM.COF"
@@ -169,7 +174,7 @@ class wmm_calc():
 
         wmm_coeffs = self.get_coefs_path(self.coef_file)
 
-        return load.load_wmm_coef(wmm_coeffs, skip_two_columns=True)
+        return load.load_wmm_coefs(wmm_coeffs, self.nmax)
 
 
     def to_km(self, alt: np.ndarray, unit: str) -> float:
@@ -191,7 +196,14 @@ class wmm_calc():
         else:
             raise ValueError ("Get unknown unit. Please provide km, m or feet.")
 
-        
+
+    def setup_max_degree(self, nmax: int):
+
+        if nmax <= 0 or nmax > self.max_degree:
+            raise ValueError (f"The degree is not available. Please assign the degree > 0 and degree <= {self.max_degree}.")
+        else:
+            return nmax
+
 
     def setup_env(self, lat: Union[int, float, list, np.ndarray], lon: Union[int, float, list, np.ndarray], alt: Union[int, float, list, np.ndarray], unit: str = "km", msl: bool = False):
         """
