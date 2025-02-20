@@ -72,6 +72,45 @@ class Test_wmm(unittest.TestCase):
                 self.dBh.append(dh)
                 self.dBf.append(df)
 
+    def test_load_wmmcoeff(self):
+
+        nmax = 12
+        coef = load.load_wmm_coefs(self.wmm_file, nmax)
+        num_elems = sh_loader.calc_sh_degrees_to_num_elems(nmax)
+
+
+        self.assertEqual(2025, coef["epoch"])
+        self.assertAlmostEqual(coef["min_year"][0], 2024.866, delta=1e-3)
+        self.assertEqual(len(coef["g"]), num_elems + 1)
+
+    def test_setup_max_degree(self):
+
+
+
+        nmax_cases = [1, 5.0, 10, 11]
+
+        for nmax in nmax_cases:
+            model = wmm_calc(nmax)
+            model.setup_time(dyear = 2025.5 + 0.1*nmax)
+            num_elements = sh_loader.calc_sh_degrees_to_num_elems(nmax)
+            self.assertEqual(len(model.coef_dict["g"]), num_elements + 1)
+            self.assertEqual(nmax, model.nmax)
+
+        nmax_cases = [0, 13, 12.9]
+        for nmax in nmax_cases:
+            try:
+                model = wmm_calc(nmax)
+                model.setup_max_degree(nmax)
+                model.setup_time(dyear = 2025.5 + 0.1*nmax)
+            except ValueError as e:
+                self.assertEqual(str(e), f"The degree is not available. Please assign the degree > 0 and degree <= 12.")
+
+
+
+
+
+
+
     def test_setup_dtime_arr(self):
 
         model = wmm_calc()
@@ -315,20 +354,6 @@ class Test_wmm(unittest.TestCase):
         lat2 = wmm_model.lat[0]
 
         self.assertAlmostEqual(lat2, -19)
-
-    def test_load_wmmcoeff(self):
-
-        wmm_model = wmm_calc()
-
-        nmax = 12
-        coef = load.load_wmm_coefs(self.wmm_file, nmax)
-        num_elems = sh_loader.calc_sh_degrees_to_num_elems(nmax)
-
-
-
-        self.assertEqual(2025, coef["epoch"])
-        self.assertAlmostEqual(coef["min_year"][0], 2024.866, delta=1e-3)
-        self.assertEqual(len(coef["g"]), num_elems + 1)
 
 
 

@@ -111,6 +111,7 @@ def compare_single_results(testval_filename, dyears, lats, lons, alts, res_folde
     wmm_model.setup_env(lats, lons, alts)
     tol = 1e-6
     index = 0
+    map = wmm_model.get_all()
 
     with open(testval_filename, "r") as fp:
 
@@ -125,8 +126,6 @@ def compare_single_results(testval_filename, dyears, lats, lons, alts, res_folde
                 dyear, alt, lat, lon = vals[0], vals[1], vals[2], vals[3]
                 dec, inc, h, x, y, z, f = vals[4], vals[5], vals[6], vals[7], vals[8], vals[9], vals[10]
                 ddec, dinc, dh, dx, dy, dz, df = vals[11], vals[12], vals[13], vals[14], vals[15], vals[16], vals[17]
-
-                map = wmm_model.get_all()
 
                 check_base_results(map, index, lat, lon, alt, dyear, dec, inc, h, x, y, z, f, tol, res_folder)
                 check_sv_results(map, index, lat, lon, alt, dyear, ddec, dinc, dh, dx, dy, dz, df, tol, reserr_folder)

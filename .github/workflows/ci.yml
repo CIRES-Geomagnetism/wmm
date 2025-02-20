@@ -32,10 +32,18 @@ jobs:
     - name: Run scientific accuracy tests
       run: |
         python tests/SystemTest.py
-        
 
-    - name: Upload Test results
+    - name: Run stressful testing
+      run: |
+        python tests/load_testing.py
+
+    - name: Upload test results
       uses: actions/upload-artifact@v4
       with:
         name: test-results
-        path: tests/diff_results.csv
+        path: |
+          tests/diff_results.csv
+          tests/load_lat_test.txt
+
+
+
