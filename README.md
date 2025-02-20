@@ -12,7 +12,7 @@ The World Magnetic Model (WMM) is the standard model for navigation, attitude, a
 
 A new version of the model is updated every five years to address changes in Earth’s magnetic field. The current version (WMM2025) was released on December 17, 2024, and will remain valid until late 2029. 
 
-**For more information about the WMM model, please visit [WMM](https://www.ncei.noaa.gov/products/world-magnetic-model)**
+**For more information about the WMM model, please visit [WMM](https://www.ncei.noaa.gov/products/world-magnetic-model)** website.
 
 ## Installation
 
@@ -27,6 +27,7 @@ pip install wmm-calculator
 
 WARNING: Input arrays of length 3,000,000 require ~ 16GB of memory. However, all input vectors must have the same length. 
 
+### Get magnetic components
 Set up the time and latitude and longtitude and altitude for the WMM model
 
 ```python
@@ -44,20 +45,23 @@ day = [6, 15]
 model.setup_time(year, month, day)
 # set up the coordinates
 model.setup_env(lat, lon, alt)
-
-print(model.get_all())
 ```
 
 Get all of the geomagnetic elements
 
 ```python
 mag_map = model.get_all()
+print(model.get_all())
 ```
 It will return 
 
 ```python
 {'x': array([33805.9794844 , 33492.10462007]), 'y': array([2167.06741335, 1899.8602046 ]), 'z': array([23844.95317237, 26150.62563705]), 'h': array([33875.36612457, 33545.94671013]), 'f': array([41426.10555998, 42534.52435243]), 'dec': array([3.6678175, 3.2466589]), 'inc': array([35.14180823, 37.93807267]), 'dx': array([ 9.91215814, 14.60583551]), 'dy': array([-2.63505666, -4.26437959]), 'dz': array([40.35078867, 34.39738965]), 'dh': array([ 9.72328589, 14.34088148]), 'df': array([31.17702034, 32.45814375]), 'ddec': array([-0.00552022, -0.00868461]), 'dinc': array([0.03789554, 0.02466632])}
 ```
+
+To get the detail of the magnetic components, please see **[Description of the WMM magnetic components](https://github.com/CIRES-Geomagnetism/wmm/blob/main/description.md)**
+
+
 
 ### Get the uncertainty value of geomagnetic elements
 
@@ -80,26 +84,11 @@ print(model.get_uncertainty())
 {'x_uncertainty': 137, 'y_uncertainty': 89, 'z_uncertainty': 141, 'h_uncertainty': 133, 'f_uncertainty': 138, 'declination_uncertainty': array([3.98575493e-05, 6.55276509e-06, 3.99539341e-05]), 'inclination_uncertainty': 0.2}
 
 ```
+To get the detail of the uncertainty values, please see **[Description of the WMM magnetic components](https://github.com/CIRES-Geomagnetism/wmm/blob/main/description.md)**
+
+
 
 ## WMM Python API Reference
-
-### Description of the components
-
-- **‘dec’ - Declination (deg)** Angle between the horizontal magnetic field vector and true north, positive east, measured in degrees.
-- **‘inc’ - Inclination (deg)**: The angle made by the Earth's magnetic field with the horizontal plane, positive down, measured in degrees.
-- **‘h’ - H (nT)**: Horizontal intensity of the Earth's magnetic field, measured in nanoteslas (nT).
-- **‘x’- X (nT)**: Northward component of the Earth's magnetic field, measured in nanoteslas (nT).
-- **‘y’ - Y (nT)**: Eastward component of the Earth's magnetic field, measured in nanoteslas (nT).
-- **‘z’ - Z (nT)**: Downward component of the Earth's magnetic field, measured in nanoteslas (nT).
-- **F (nT)**: Total intensity of the Earth's magnetic field, measured in nanoteslas (nT).
-- **ddec/dt (deg/year)**: Rate of change of declination over time, measured in degrees per year.
-- **dinc/dt (deg/year)**: Rate of inclination change over time, measured in degrees per year.
-- **dh/dt (nT/year)**: Rate of change of horizontal intensity over time, measured in nanoteslas per year.
-- **dx/dt (nT/year)**: Rate of change of the northward component over time, measured in nanoteslas per year.
-- **dy/dt (nT/year)**: Rate of change of the eastward component over time, measured in nanoteslas per year.
-- **dz/dt (nT/year)**: Rate of change of the downward component over time, measured in nanoteslas per year.
-- **df/dt (nT/year)**: Rate of change of the total intensity over time, measured in nanoteslas per year.
-
 
 ### Set up the time and coordinates for the WMM model
 
@@ -178,6 +167,7 @@ or get single magnetic elements by calling
 - `get_dBf()`
 - `get_dBdec()`
 - `get_dBinc()`
+
 
 for example,
 ```python

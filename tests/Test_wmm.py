@@ -320,12 +320,15 @@ class Test_wmm(unittest.TestCase):
 
         wmm_model = wmm_calc()
 
-        coef = load.load_wmm_coef(self.wmm_file)
+        nmax = 12
+        coef = load.load_wmm_coefs(self.wmm_file, nmax)
+        num_elems = sh_loader.calc_sh_degrees_to_num_elems(nmax)
 
 
 
         self.assertEqual(2025, coef["epoch"])
         self.assertAlmostEqual(coef["min_year"][0], 2024.866, delta=1e-3)
+        self.assertEqual(len(coef["g"]), num_elems + 1)
 
 
 

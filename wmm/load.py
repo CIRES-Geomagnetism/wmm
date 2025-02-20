@@ -1,8 +1,52 @@
 import copy
-import os
+import datetime as dt
 from typing import Optional
 import numpy as np
 from geomaglib import sh_loader, util
+
+def load_wmm_coefs(filename: str, nmax: int):
+
+    num_lines_load = sh_loader.calc_sh_degrees_to_num_elems(nmax)
+
+    coef_dict = {}
+    coef_dict["g"] = [0]*(num_lines_load+1)
+    coef_dict["h"] = [0] * (num_lines_load + 1)
+    coef_dict["g_sv"] = [0] * (num_lines_load + 1)
+    coef_dict["h_sv"] = [0] * (num_lines_load + 1)
+
+
+
+    fmt = "%m/%d/%Y"
+
+    with open(filename, "r") as fp:
+        idx = 0
+        for line in fp:
+            vals = line.split()
+
+            # if it only has 3 elements, it is header
+            if idx == 0:
+                coef_dict["epoch"] = float(vals[0])
+                coef_dict["model_name"] = vals[1]
+
+                end_time_obj = dt.datetime.strptime(vals[2], fmt)
+                year = end_time_obj.year
+                month = end_time_obj.month
+                day = end_time_obj.day
+
+                coef_dict["min_year"] = [util.calc_dec_year(year, month, day)]
+                coef_dict["min_date"] = str(f"{year}-{month}-{day}")
+            else:
+                coef_dict["g"][idx] = float(vals[2])
+                coef_dict["h"][idx] = float(vals[3])
+                coef_dict["g_sv"][idx] = float(vals[4])
+                coef_dict["h_sv"][idx] = float(vals[5])
+
+            idx += 1
+
+            if idx >= num_lines_load:
+                break
+
+    return coef_dict
 
 def load_wmm_coef(filename: str, skip_two_columns: bool =False, load_sv: bool = True, end_degree: Optional[int] = None, load_year: Optional[float] = None) -> dict:
     """
@@ -125,7 +169,7 @@ def load_wmm_coef(filename: str, skip_two_columns: bool =False, load_sv: bool = 
             coef_dict["h_sv"].pop()
     return coef_dict
 
-def timely_modify_magnetic_model(sh_dict, dec_year, max_sv: Optional[int] = None):
+def timely_modify_magnetic_model(sh_dict, dec_year, max_sv: Optional[int] = 12):
     """
     Time change the Model coefficients from the base year of the model(epoch) using secular variation coefficients.
 Store the coefficients of the static model with their values advanced from epoch t0 to epoch t.
@@ -140,19 +184,25 @@ Copy the SV coefficients.  If input "t�" is the same as "t0", then this is mer
     dictionary: Copy of sh_dict with the elements timely shifted
     """
 
-    sh_dict_time = copy.deepcopy(sh_dict)
+    sh_dict_time = {}
     epoch = sh_dict.get("epoch", 0)
     #If the sh_dict doesn't have secular variations just return a copy
     #of the dictionary
     num_elems = len(sh_dict["g"])
 
 
+
+    sh_dict_time["g"] = [0] * num_elems
+    sh_dict_time["h"] = [0] * num_elems
+
+
     if max_sv is None:
         max_sv = sh_loader.calc_num_elems_to_sh_degrees(num_elems)
     if  "g_sv" not in sh_dict or "h_sv" not in sh_dict:
-        return sh_dict_time
+        return sh_dict
 
     date_diff = dec_year - epoch
+    index = 0
     for n in range(1, (max_sv+1)):
         for m in range(n+1):
             index = int(n * (n + 1) / 2 + m)
@@ -160,5 +210,11 @@ Copy the SV coefficients.  If input "t�" is the same as "t0", then this is mer
                 
                 sh_dict_time["g"][index] = sh_dict["g"][index] + date_diff * sh_dict["g_sv"][index]
                 sh_dict_time["h"][index] = sh_dict["h"][index] + date_diff * sh_dict["h_sv"][index]
+
+    while index < num_elems:
+        sh_dict_time["g"][index] = sh_dict["g"][index]
+        sh_dict_time["h"][index] = sh_dict["h"][index]
+        index += 1
+
 
     return sh_dict_time
