@@ -88,13 +88,19 @@ class Test_wmm(unittest.TestCase):
 
 
         nmax_cases = [1, 5.0, 10, 11]
+        print("here")
+
 
         for nmax in nmax_cases:
+            print(f'doing test case {nmax}')
             model = wmm_calc(nmax)
             model.setup_time(dyear = 2025.5 + 0.1*nmax)
             num_elements = sh_loader.calc_sh_degrees_to_num_elems(nmax)
             self.assertEqual(len(model.coef_dict["g"]), num_elements + 1)
             self.assertEqual(nmax, model.nmax)
+            model.setup_env(lat = 5, lon = 5, alt = 0)
+            print(f"Get_all output of nmax = {nmax}",model.get_all())
+
 
         nmax_cases = [0, 13, 12.9]
         for nmax in nmax_cases:
@@ -104,9 +110,6 @@ class Test_wmm(unittest.TestCase):
                 model.setup_time(dyear = 2025.5 + 0.1*nmax)
             except ValueError as e:
                 self.assertEqual(str(e), f"The degree is not available. Please assign the degree > 0 and degree <= 12.")
-
-
-
 
 
 
