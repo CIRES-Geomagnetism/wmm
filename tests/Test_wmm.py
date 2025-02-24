@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 import datetime as dt
 
+
 from geomaglib import util, sh_loader
 
 from wmm import load, utils
