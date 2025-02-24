@@ -134,9 +134,10 @@ class wmm_calc():
         self.max_degree = 12
 
         if nmax != self.max_degree:
-            self.nmax = self.setup_max_degree(nmax)
+            self.nmax = int(self.setup_max_degree(nmax))
         else:
-            self.nmax = self.max_degree
+            self.nmax = int(self.max_degree)
+
         self.max_year = 2030.0
         self.max_sv = 12
         self.coef_file = "WMM.COF"
