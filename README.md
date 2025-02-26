@@ -14,6 +14,16 @@ A new version of the model is updated every five years to address changes in Ear
 
 **For more information about the WMM model, please visit [WMM](https://www.ncei.noaa.gov/products/world-magnetic-model)** website.
 
+NCEI also developed the **World Magnetic Model High Resolution ([WMMHR](https://www.ncei.noaa.gov/products/world-magnetic-model-high-resolution)**), an advanced magnetic field model with more comprehensive data on the geomagnetic fields than the original World Magnetic Model.
+
+**The Python API for WMMHR: [https://pypi.org/project/wmmhr/](https://pypi.org/project/wmmhr/)**
+
+## Table of contents
+- [Installation](#installation)
+- [Outputs](#Output)
+- [WMM Python API Quick Start](#WMM-Python-API-Quick-Start)
+- [WMM Python API Reference](#WMM-Python-API-Reference)
+
 ## Installation
 
 The recommended way to install wmm-calculator is via [pip](https://pip.pypa.io/en/stable/)
@@ -22,6 +32,9 @@ The recommended way to install wmm-calculator is via [pip](https://pip.pypa.io/e
 pip install wmm-calculator 
 ```
 
+## Outputs
+
+It will output the magnetic components and uncertainty value. To get the detail of the outputs, please see **[Description of the WMM magnetic components](https://github.com/CIRES-Geomagnetism/wmm/blob/check_nmax/description.md)**
 
 ## WMM Python API Quick Start
 
@@ -29,8 +42,6 @@ WARNING: Input arrays of length 3,000,000 require ~ 16GB of memory. However, all
 
 ### Get magnetic components
 Set up the time and latitude and longtitude and altitude for the WMM model
-
-To get the detail of the magnetic components, please see **[Description of the WMM magnetic components](https://github.com/CIRES-Geomagnetism/wmm/blob/check_nmax/description.md)**
 
 ```python
 from wmm import wmm_calc
@@ -65,7 +76,6 @@ It will return
 
 
 ### Get the uncertainty value of geomagnetic elements
-To get the detail of the uncertainty values, please see **[Description of the WMM magnetic components](https://github.com/CIRES-Geomagnetism/wmm/blob/check_nmax/description.md)**
 
 ```python
 model = wmm_calc()
@@ -178,4 +188,12 @@ model.setup_env(lat, lon, alt, unit="m", msl=True)
 model.setup_time(year, month, day)
 mag_map = model.get_Bh()
 ```
+### 4. Change the resolution(max degree) of the model
 
+**wmm_calc(nmax=12)**
+
+The default maximum degree for WMM is 12. Users allow to assign the max degree from 1 to 12 to WMM Python API.
+```python
+from wmm import wmm_calc
+model = wmm_calc(nmax=10)
+```

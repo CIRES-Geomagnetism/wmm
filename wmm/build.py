@@ -70,11 +70,17 @@ class wmm_elements(magmath.GeomagElements):
         :return: delta declination
         """
         ddec = super().get_dBdec()
-        ddec = ddec * 60.0
+        ddec = ddec
 
-        if (ddec > 180): ddec-=360
 
-        if (ddec <= -180): ddec += 360
+        if np.any(ddec > 180):
+            idx_set = np.where(ddec > 180)
+
+            ddec[idx_set] -= 360
+
+        if np.any(ddec <= -180):
+            idx_set = np.where(ddec <= -180)
+            ddec[idx_set] += 360
 
         return ddec
 
@@ -83,24 +89,10 @@ class wmm_elements(magmath.GeomagElements):
             Get magnetic elemnts delta inclination(dBdec). The dBinc need to be multiplied with 60 for argmin.
             :return: delta inclination
         """
-        ddec = super().get_dBinc()
+        dinc = super().get_dBinc()
 
-        return ddec * 60.0
+        return dinc
 
-    def get_all(self) -> dict[str, float]:
-        """
-            Get all of magnetic elemnts for
-             Bx, By, Bz, Bh, Bf, Bdec, Binc
-            dBx, dBy, dBz, dBh, dBf, dBdec, dBinc
-
-            :return: delta inclination
-        """
-        mag_map = super().get_all()
-
-        mag_map["ddec"] = mag_map["ddec"] * 60.0
-        mag_map["dinc"] = mag_map["dinc"] * 60.0
-
-        return mag_map
 
     def get_uncertainity(self, err_vals):
 

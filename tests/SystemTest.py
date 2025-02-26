@@ -1,8 +1,11 @@
 import os
 import shutil
 from math import fabs
-from wmm.build import wmm_calc
+import argparse
 import numpy as np
+
+from wmm.build import wmm_calc
+
 from est_diff import estimate
 
 
@@ -103,7 +106,7 @@ def refer_testValues(testval_filename: str) -> tuple[np.array, np.array, np.arra
     return dyears, lats, lons, alts
 
 
-def compare_single_results(testval_filename, dyears, lats, lons, alts, res_folder, reserr_folder):
+def compare_all_results(testval_filename, dyears, lats, lons, alts, res_folder, reserr_folder):
 
     wmm_model = wmm_calc()
 
@@ -132,15 +135,72 @@ def compare_single_results(testval_filename, dyears, lats, lons, alts, res_folde
 
                 index += 1
 
+def get_single_results(wmm_model: wmm_calc) -> dict:
 
+    map = {}
 
+    map["x"] = wmm_model.get_Bx()
+    map["y"] = wmm_model.get_By()
+    map["z"] = wmm_model.get_Bz()
+    map["h"] = wmm_model.get_Bh()
+    map["f"] = wmm_model.get_Bf()
+    map["dec"] = wmm_model.get_Bdec()
+    map["inc"] = wmm_model.get_Binc()
+
+    map["dx"] = wmm_model.get_dBx()
+    map["dy"] = wmm_model.get_dBy()
+    map["dz"] = wmm_model.get_dBz()
+    map["dh"] = wmm_model.get_dBh()
+    map["df"] = wmm_model.get_dBf()
+    map["ddec"] = wmm_model.get_dBdec()
+    map["dinc"] = wmm_model.get_dBinc()
+
+    return map
+def compare_single_results(testval_filename, dyears, lats, lons, alts, res_folder, reserr_folder):
+
+    wmm_model = wmm_calc()
+
+    wmm_model.setup_time(dyear=dyears)
+    wmm_model.setup_env(lats, lons, alts)
+    tol = 1e-6
+    index = 0
+
+    map = get_single_results(wmm_model)
+
+    with open(testval_filename, "r") as fp:
+
+        for line in fp:
+            vals = line.split()
+
+            if vals[0] == "#":
+                continue
+            else:
+                for i in range(len(vals)):
+                    vals[i] = float(vals[i])
+                dyear, alt, lat, lon = vals[0], vals[1], vals[2], vals[3]
+                dec, inc, h, x, y, z, f = vals[4], vals[5], vals[6], vals[7], vals[8], vals[9], vals[10]
+                ddec, dinc, dh, dx, dy, dz, df = vals[11], vals[12], vals[13], vals[14], vals[15], vals[16], vals[17]
+
+                check_base_results(map, index, lat, lon, alt, dyear, dec, inc, h, x, y, z, f, tol, res_folder)
+                check_sv_results(map, index, lat, lon, alt, dyear, ddec, dinc, dh, dx, dy, dz, df, tol, reserr_folder)
+
+                index += 1
 
 
 
 def main():
     testval_filename = "WMM2025_FINAL_TEST_VALUES_HIGHPREC.txt"
 
-    out_filename = "diff_results.csv"
+    parser = argparse.ArgumentParser(description="scitific tests for WMM Python api")
+    parser.add_argument("--results_type", "-r", type=str, help="The results type of wmm_calc. all for wmm_calc.get_all(); single for verifying the every single outputs from wmm_calc. e.g. get_Bx(), get_By()")
+
+    args = parser.parse_args()
+
+    out_filename_all = "diff_results_get_all.csv"
+    out_filename_single = "diff_results_get_single.csv"
+
+
+
     mag_component = ["x", "y", "z", "h", "f", "dec", "inc"]
     magsv_component = ["dx", "dy", "dz", "dh", "df", "ddec", "dinc"]
     tol = 0.06
@@ -161,10 +221,22 @@ def main():
     os.mkdir(reserr_folder)
 
     dyears, lats, lons, alts = refer_testValues(testval_path)
-    compare_single_results(testval_path, dyears, lats, lons, alts, res_folder, reserr_folder)
+
+    if args.results_type == "all":
+        out_filename = out_filename_all
+        compare_all_results(testval_path, dyears, lats, lons, alts, res_folder, reserr_folder)
+    elif args.results_type == "single":
+        out_filename = out_filename_single
+        compare_single_results(testval_path, dyears, lats, lons, alts, res_folder, reserr_folder)
+    else:
+        print("Assign all or single to the -r flag.")
+        exit(1)
+
 
     N = len(mag_component)
     topdir = os.path.dirname(os.path.dirname(__file__))
+
+
     out_path = os.path.join(topdir, "tests", out_filename)
 
     fp = open(out_path, "w")

@@ -305,11 +305,6 @@ class Test_wmm(unittest.TestCase):
 
     def test_get_dBh(self):
 
-        lat = np.array([-18])
-        lon = np.array([138])
-        alt = np.array([77])
-
-        dec_year = np.array([2029.5])
 
         wmm_model = wmm_calc()
 
@@ -321,6 +316,33 @@ class Test_wmm(unittest.TestCase):
 
         for i in range(len(self.dBh)):
             self.assertAlmostEqual(dh[i], self.dBh[i], delta=0.05)
+
+    def test_get_dBdec(self):
+
+        wmm_model = wmm_calc()
+
+        wmm_model.setup_time(dyear=self.dyears)
+        wmm_model.setup_env(self.lats, self.lons, self.alts, msl=False)
+
+        dBdec = wmm_model.get_dBdec()
+        self.assertTrue(isinstance(dBdec[0], float))
+
+        for i in range(len(self.dBh)):
+            self.assertAlmostEqual(dBdec[i], self.dBdec[i], delta=0.05)
+
+
+    def test_get_dBinc(self):
+
+        wmm_model = wmm_calc()
+
+        wmm_model.setup_time(dyear=self.dyears)
+        wmm_model.setup_env(self.lats, self.lons, self.alts, msl=False)
+
+        dBinc = wmm_model.get_dBinc()
+        self.assertTrue(isinstance(dBinc[0], float))
+
+        for i in range(len(self.dBh)):
+            self.assertAlmostEqual(dBinc[i], self.dBinc[i], delta=0.05)
 
 
 
@@ -475,6 +497,9 @@ class Test_wmm(unittest.TestCase):
         model.setup_env(lat, lon, alt)
 
         print(model.get_uncertainty())
+
+
+
 
     def test_readme1(self):
 
