@@ -23,6 +23,7 @@ NCEI also developed the **World Magnetic Model High Resolution ([WMMHR](https://
 - [Outputs](#Output)
 - [WMM Python API Quick Start](#WMM-Python-API-Quick-Start)
 - [WMM Python API Reference](#WMM-Python-API-Reference)
+- [Contacts](#Contacts)
 
 ## Installation
 
@@ -38,7 +39,7 @@ It will output the magnetic components and uncertainty value. To get the detail 
 
 ## WMM Python API Quick Start
 
-WARNING: Input arrays of length 3,000,000 require ~ 16GB of memory. However, all input vectors must have the same length. 
+**WARNING:** Input arrays of length 3,000,000 require ~ 16GB of memory. However, all input vectors must have the same length. 
 
 ### Get magnetic components
 Set up the time and latitude and longtitude and altitude for the WMM model
@@ -197,3 +198,5 @@ The default maximum degree for WMM is 12. Users allow to assign the max degree f
 from wmm import wmm_calc
 model = wmm_calc(nmax=10)
 ```
+### Contacts:
+If you have any questions, please email `geomag.models@noaa.gov`
