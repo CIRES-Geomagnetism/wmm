@@ -125,11 +125,7 @@ class wmm_calc():
 
         self.max_degree = 12
 
-        if nmax != self.max_degree:
-            self.nmax = int(self.setup_max_degree(nmax))
-        else:
-            self.nmax = int(self.max_degree)
-
+        self.nmax = self.setup_max_degree(nmax)
         self.max_year = 2030.0
         self.max_sv = 12
         self.coef_file = "WMM.COF"
@@ -191,6 +187,9 @@ class wmm_calc():
 
 
     def setup_max_degree(self, nmax: int):
+
+        if not isinstance(nmax, int):
+            raise TypeError(f"Please provide nmax with integer type.")
 
         if nmax <= 0 or nmax > self.max_degree:
             raise ValueError (f"The degree is not available. Please assign the degree > 0 and degree <= {self.max_degree}.")

@@ -88,7 +88,7 @@ class Test_wmm(unittest.TestCase):
 
 
 
-        nmax_cases = [1, 5.0, 10, 11]
+        nmax_cases = [1, 5, 10, 11]
         print("here")
 
 
@@ -103,7 +103,7 @@ class Test_wmm(unittest.TestCase):
             print(f"Get_all output of nmax = {nmax}",model.get_all())
 
 
-        nmax_cases = [0, 13, 12.9]
+        nmax_cases = [0, 13, 14]
         for nmax in nmax_cases:
             try:
                 model = wmm_calc(nmax)
@@ -111,6 +111,18 @@ class Test_wmm(unittest.TestCase):
                 model.setup_time(dyear = 2025.5 + 0.1*nmax)
             except ValueError as e:
                 self.assertEqual(str(e), f"The degree is not available. Please assign the degree > 0 and degree <= 12.")
+
+        nmax_cases = [5.0, 11.9]
+        for nmax in nmax_cases:
+            try:
+                print(nmax)
+                model = wmm_calc(nmax)
+                model.setup_max_degree(nmax)
+                model.setup_time(dyear = 2025.5 + 0.1*nmax)
+            except TypeError as e:
+                print(e)
+                self.assertEqual(str(e), f"Please provide nmax with integer type.")
+
 
 
 
