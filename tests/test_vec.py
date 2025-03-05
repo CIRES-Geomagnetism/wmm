@@ -408,7 +408,7 @@ def test_setup_max_degree_w_env():
 
 
 
-    nmax_cases = [1, 5.0, 10, 11]
+    nmax_cases = [1, 5, 10, 11]
 
     for nmax in nmax_cases:
         model = wmm_calc(nmax)
