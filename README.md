@@ -25,7 +25,7 @@ NCEI also developed the **World Magnetic Model High Resolution ([WMMHR](https://
 - <details> <summary><a href="#WMM-Python-API-Reference">WMM Python API Reference</a></summary>
   <ul>
   <li><a href="#1-change-the-resolutionmax-degree-of-the-model">wmm_calc(nmax=12)</a></li>
-  <li><a href="#2-set-up-time-">wmm_calc.setup_time</a></li>
+  <li><a href="#2-set-up-time">wmm_calc.setup_time</a></li>
   <li><a href="#3-set-up-the-coordinates">wmm_calc.setup_env</a></li>
   <li><a href="#5-get-uncertainty-value">wmm_calc.get_uncertainty</a></li>
   
