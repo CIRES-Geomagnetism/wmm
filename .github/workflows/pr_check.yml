@@ -34,6 +34,8 @@ jobs:
 
     - name: Run scientific accuracy tests
       run: |
-        python tests/SystemTest.py
+        python tests/SystemTest.py -r single
+        python tests/SystemTest.py -r all
+        diff -r tests/diff_results_get_all.csv tests/diff_results_get_single.csv
         
 
