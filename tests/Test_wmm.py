@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 import datetime as dt
 
+
 from geomaglib import util, sh_loader
 
 from wmm import load, utils
@@ -71,6 +72,60 @@ class Test_wmm(unittest.TestCase):
                 self.dBz.append(dz)
                 self.dBh.append(dh)
                 self.dBf.append(df)
+
+    def test_load_wmmcoeff(self):
+
+        nmax = 12
+        coef = load.load_wmm_coefs(self.wmm_file, nmax)
+        num_elems = sh_loader.calc_sh_degrees_to_num_elems(nmax)
+
+
+        self.assertEqual(2025, coef["epoch"])
+        self.assertAlmostEqual(coef["min_year"][0], 2024.866, delta=1e-3)
+        self.assertEqual(len(coef["g"]), num_elems + 1)
+
+    def test_setup_max_degree(self):
+
+
+
+        nmax_cases = [1, 5, 10, 11]
+        print("here")
+
+
+        for nmax in nmax_cases:
+            print(f'doing test case {nmax}')
+            model = wmm_calc(nmax)
+            model.setup_time(dyear = 2025.5 + 0.1*nmax)
+            num_elements = sh_loader.calc_sh_degrees_to_num_elems(nmax)
+            self.assertEqual(len(model.coef_dict["g"]), num_elements + 1)
+            self.assertEqual(nmax, model.nmax)
+            model.setup_env(lat = 5, lon = 5, alt = 0)
+            print(f"Get_all output of nmax = {nmax}",model.get_all())
+
+
+        nmax_cases = [0, 13, 14]
+        for nmax in nmax_cases:
+            try:
+                model = wmm_calc(nmax)
+                model.setup_max_degree(nmax)
+                model.setup_time(dyear = 2025.5 + 0.1*nmax)
+            except ValueError as e:
+                self.assertEqual(str(e), f"The degree is not available. Please assign the degree > 0 and degree <= 12.")
+
+        nmax_cases = [5.0, 11.9]
+        for nmax in nmax_cases:
+            try:
+                print(nmax)
+                model = wmm_calc(nmax)
+                model.setup_max_degree(nmax)
+                model.setup_time(dyear = 2025.5 + 0.1*nmax)
+            except TypeError as e:
+                print(e)
+                self.assertEqual(str(e), f"Please provide nmax with integer type.")
+
+
+
+
 
     def test_setup_dtime_arr(self):
 
@@ -262,11 +317,6 @@ class Test_wmm(unittest.TestCase):
 
     def test_get_dBh(self):
 
-        lat = np.array([-18])
-        lon = np.array([138])
-        alt = np.array([77])
-
-        dec_year = np.array([2029.5])
 
         wmm_model = wmm_calc()
 
@@ -278,6 +328,33 @@ class Test_wmm(unittest.TestCase):
 
         for i in range(len(self.dBh)):
             self.assertAlmostEqual(dh[i], self.dBh[i], delta=0.05)
+
+    def test_get_dBdec(self):
+
+        wmm_model = wmm_calc()
+
+        wmm_model.setup_time(dyear=self.dyears)
+        wmm_model.setup_env(self.lats, self.lons, self.alts, msl=False)
+
+        dBdec = wmm_model.get_dBdec()
+        self.assertTrue(isinstance(dBdec[0], float))
+
+        for i in range(len(self.dBh)):
+            self.assertAlmostEqual(dBdec[i], self.dBdec[i], delta=0.05)
+
+
+    def test_get_dBinc(self):
+
+        wmm_model = wmm_calc()
+
+        wmm_model.setup_time(dyear=self.dyears)
+        wmm_model.setup_env(self.lats, self.lons, self.alts, msl=False)
+
+        dBinc = wmm_model.get_dBinc()
+        self.assertTrue(isinstance(dBinc[0], float))
+
+        for i in range(len(self.dBh)):
+            self.assertAlmostEqual(dBinc[i], self.dBinc[i], delta=0.05)
 
 
 
@@ -315,17 +392,6 @@ class Test_wmm(unittest.TestCase):
         lat2 = wmm_model.lat[0]
 
         self.assertAlmostEqual(lat2, -19)
-
-    def test_load_wmmcoeff(self):
-
-        wmm_model = wmm_calc()
-
-        coef = load.load_wmm_coef(self.wmm_file)
-
-
-
-        self.assertEqual(2025, coef["epoch"])
-        self.assertAlmostEqual(coef["min_year"][0], 2024.866, delta=1e-3)
 
 
 
@@ -443,6 +509,9 @@ class Test_wmm(unittest.TestCase):
         model.setup_env(lat, lon, alt)
 
         print(model.get_uncertainty())
+
+
+
 
     def test_readme1(self):
 

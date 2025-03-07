@@ -5,6 +5,8 @@ import numpy as np
 import warnings
 import pytest
 
+from geomaglib import util, sh_loader
+from wmm import wmm_calc
 
 from wmm import wmm_calc as vectorized_wmm_calc
 
@@ -402,8 +404,35 @@ def vector_test_cases(which_case):
     print(f'passed test case {which_case}')
     return
 
+def test_setup_max_degree_w_env():
+
+
+
+    nmax_cases = [1, 5, 10, 11]
+
+    for nmax in nmax_cases:
+        model = wmm_calc(nmax)
+        model.setup_time(dyear = 2025.5 + 0.1*nmax)
+        # num_elements = sh_loader.calc_sh_degrees_to_num_elems(nmax)
+        # self.assertEqual(len(model.coef_dict["g"]), num_elements + 1)
+        # self.assertEqual(nmax, model.nmax)
+        model.setup_env(lat = 5, lon = 5, alt = 2)
+        print(model.get_all())
+
+    # nmax_cases = [0, 13, 12.9]
+    # for nmax in nmax_cases:
+    #     try:
+    #         model = wmm_calc(nmax)
+    #         model.setup_max_degree(nmax)
+    #         model.setup_time(dyear = 2025.5 + 0.1*nmax)
+        # except ValueError as e:
+        #     self.assertEqual(str(e), f"The degree is not available. Please assign the degree > 0 and degree <= 12.")
+
+
+
+
 def main():
-    
+    test_setup_max_degree_w_env()
     for i in range(0,11):
         vector_test_cases(i)
     # print('change things back please!!! here to 10 or whatever the last test case is')

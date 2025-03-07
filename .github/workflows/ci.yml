@@ -7,6 +7,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    continue-on-error: false  # Fail the job if differences exist
 
 
     steps:
@@ -31,11 +32,21 @@ jobs:
 
     - name: Run scientific accuracy tests
       run: |
-        python tests/SystemTest.py
+        python tests/SystemTest.py -r single
+        python tests/SystemTest.py -r all
+        diff -r tests/diff_results_get_all.csv tests/diff_results_get_single.csv
         
 
-    - name: Upload Test results
+    - name: Upload test results
       uses: actions/upload-artifact@v4
       with:
         name: test-results
-        path: tests/diff_results.csv
+        path: |
+          tests/diff_results_get_all.csv
+          tests/diff_results_get_single.csv
+
+    
+
+
+
+

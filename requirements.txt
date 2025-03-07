@@ -1,3 +1,2 @@
-geomaglib
-numpy
 pytest
+memory-profiler
