@@ -22,7 +22,37 @@ NCEI also developed the **World Magnetic Model High Resolution ([WMMHR](https://
 - [Installation](#installation)
 - [Outputs](#Output)
 - [WMM Python API Quick Start](#WMM-Python-API-Quick-Start)
-- [WMM Python API Reference](#WMM-Python-API-Reference)
+- <details> <summary><a href="#WMM-Python-API-Reference">WMM Python API Reference</a></summary>
+  <ul>
+  <li><a href="#1-change-the-resolutionmax-degree-of-the-model">wmm_calc(nmax=12)</a></li>
+  <li><a href="#2-set-up-time-">wmm_calc.setup_time</a></li>
+  <li><a href="#3-set-up-the-coordinates">wmm_calc.setup_env</a></li>
+  <li><a href="#5-get-uncertainty-value">wmm_calc.get_uncertainty</a></li>
+  
+  <li><details><summary><a href="#4-get-the-geomagnetic-elements">Get magnetic elements </a></summary>
+      <nav>
+     <ul>
+     <li><a href="#get_all">wmm_calc.get_all() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_Bx() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_By() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_Bz() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_Bh() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_Bf() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_Bdec() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_Binc() </a></li>
+    
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_dBx() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_dBy() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_dBz() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_dBh() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_dBf() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_dBdec() </a></li>
+     <li><a href="#get-single-magnetic-elements-by-calling-">wmm_calc.get_dBinc() </a></li>
+    </ul>
+  </ul>
+  </nav>
+  </details></li>
+  </details>
 - [Contacts](#Contacts)
 
 ## Installation
@@ -35,7 +65,7 @@ pip install wmm-calculator
 
 ## Outputs
 
-It will output the magnetic components and uncertainty value. To get the detail of the outputs, please see **[Description of the WMM magnetic components](https://github.com/CIRES-Geomagnetism/wmm/blob/check_nmax/description.md)**
+It will output the magnetic components(X, Y, Z, H, F, I and D, dX, dY, dZ, dD, dI, dH, dF) and its uncertainty value. To get the detail of the outputs, please see **[Description of the WMM magnetic components](https://github.com/CIRES-Geomagnetism/wmm/blob/check_nmax/description.md)**
 
 ## WMM Python API Quick Start
 
@@ -73,36 +103,32 @@ It will return
 {'x': array([33805.9794844 , 33492.10462007]), 'y': array([2167.06741335, 1899.8602046 ]), 'z': array([23844.95317237, 26150.62563705]), 'h': array([33875.36612457, 33545.94671013]), 'f': array([41426.10555998, 42534.52435243]), 'dec': array([3.6678175, 3.2466589]), 'inc': array([35.14180823, 37.93807267]), 'dx': array([ 9.91215814, 14.60583551]), 'dy': array([-2.63505666, -4.26437959]), 'dz': array([40.35078867, 34.39738965]), 'dh': array([ 9.72328589, 14.34088148]), 'df': array([31.17702034, 32.45814375]), 'ddec': array([-0.00552022, -0.00868461]), 'dinc': array([0.03789554, 0.02466632])}
 ```
 
-
-
-
-### Get the uncertainty value of geomagnetic elements
+Get uncertainty value
 
 ```python
-model = wmm_calc()
-lat = [80.,  0., 80.]
-lon = [  0., 120.,   0.]
-alt = [0., 0., 0.]
-dyear = [2025.,  2025.,  2027.5]
-
-# set up time
-model.setup_time(dyear=dyear)
-# set up the coordinates
-model.setup_env(lat, lon, alt)
 print(model.get_uncertainty())
-
 ```
 
 ```python
-{'x_uncertainty': 137, 'y_uncertainty': 89, 'z_uncertainty': 141, 'h_uncertainty': 133, 'f_uncertainty': 138, 'declination_uncertainty': array([3.98575493e-05, 6.55276509e-06, 3.99539341e-05]), 'inclination_uncertainty': 0.2}
-
+{'x_uncertainty': 137, 'y_uncertainty': 89, 'z_uncertainty': 141, 'h_uncertainty': 133, 'f_uncertainty': 138, 'declination_uncertainty': array([7.67519380e-06, 7.75056379e-06]), 'inclination_uncertainty': 0.2}
 ```
 
 ## WMM Python API Reference
 
 ### Set up the time and coordinates for the WMM model
 
-#### 1. Set up time 
+#### 1. Change the resolution(max degree) of the model
+
+**wmm_calc(nmax=12)**
+
+The default maximum degree for WMM is 12. Users allow to assign the max degree from 1 to 12 to WMM Python API.
+```python
+from wmm import wmm_calc
+model = wmm_calc(nmax=10)
+```
+
+
+#### 2. Set up time 
 
 **setup_time**(self, **year**: Optional[np.ndarray] = None, **month**: Optional[np.ndarray] = None, **day**: Optional[np.ndarray] = None,
                    **dyear**: Optional[np.ndarray] = None):
@@ -123,7 +149,7 @@ model.setup_time(dyear=2025.1)
 
 User allow to assign the date from "2024-11-13" to "2030-01-01"
 
-#### 2. Set up the coordinates
+#### 3. Set up the coordinates
 
 **setup_env**(self, **lat**: np.ndarray, **lon**: np.ndarray, **alt**: np.ndarray, **unit**: str = "km", **msl**: bool = False)
 ```python
@@ -143,9 +169,10 @@ lat, lon, alt = 50.3, 100.4, 0
 model.setup_env(lat, lon, alt, unit="m", msl=True)
 ```
 
-#### 3. Get the geomagnetic elements
+#### 4. Get the geomagnetic elements
 
-**get_all()**
+
+##### get_all()
 
 After setting up the time and coordinates for the WMM model, you can get all the geomagnetic elements by
 
@@ -161,23 +188,53 @@ mag_map = model.get_all()
 
 which will return all magnetic elements in dict type.
 
-or get single magnetic elements by calling
+##### Get single magnetic elements by calling 
+<details>
+<summary>Click to see the available functions to get single elements</summary>
+<p>wmm_calc.get_Bx()
+  <li>Northward component of the Earth's magnetic field, measured in nanoteslas (nT). </li>
+</p>
 
-- `get_Bx()`
-- `get_By()`
-- `get_Bz()`
-- `get_Bh()`
-- `get_Bf()`
-- `get_Bdec()`
-- `get_Binc()`
-- `get_dBx()`
-- `get_dBy()`
-- `get_dBz()`
-- `get_dBh()`
-- `get_dBf()`
-- `get_dBdec()`
-- `get_dBinc()`
-
+<p>wmm_calc.get_By()
+  <li>Eastward component of the Earth's magnetic field, measured in nanoteslas (nT). </li>
+</p>
+<p>wmm_calc.get_Bz()
+<li>Downward component of the Earth's magnetic field, measured in nanoteslas (nT). </li>
+</p>
+<p>wmm_calc.get_Bh()
+<li>Horizontal intensity of the Earth's magnetic field, measured in nanoteslas (nT).</li>
+</p>
+<p>wmm_calc.get_Bf()
+<li>Total intensity of the Earth's magnetic field, measured in nanoteslas (nT).</li>
+</p>
+<p>wmm_calc.get_Bdec()
+<li>Rate of change of declination over time, measured in degrees per year.</li>
+</p>
+<p>wmm_calc.get_Binc()
+<li>Rate of inclination change over time, measured in degrees per year.</li>
+</p>
+<p>wmm_calc.get_dBx()
+<li>Rate of change of the northward component over time, measured in nanoteslas per year.</li>
+</p>
+<p>wmm_calc.get_dBy()
+<li>Rate of change of the eastward component over time, measured in nanoteslas per year.</li>
+</p>
+<p>wmm_calc.get_dBz()
+<li>Rate of change of the downward component over time, measured in nanoteslas per year.</li>
+</p>
+<p>wmm_calc.get_dBh()
+<li>Rate of change of horizontal intensity over time, measured in nanoteslas per year.</li>
+</p>
+<p>wmm_calc.get_dBf()
+<li>Rate of change of the total intensity over time, measured in nanoteslas per year.</li>
+</p>
+<p>wmm_calc.get_dBdec()
+<li>Rate of change of declination over time, measured in degrees per year.</li>
+</p>
+<p>wmm_calc.get_dBinc()
+<li>Rate of inclination change over time, measured in degrees per year.</li>
+</p>
+</details>
 
 for example,
 ```python
@@ -189,14 +246,35 @@ model.setup_env(lat, lon, alt, unit="m", msl=True)
 model.setup_time(year, month, day)
 mag_map = model.get_Bh()
 ```
-### 4. Change the resolution(max degree) of the model
 
-**wmm_calc(nmax=12)**
+#### 5. Get uncertainty value
 
-The default maximum degree for WMM is 12. Users allow to assign the max degree from 1 to 12 to WMM Python API.
+**wmm_calc.get_uncertainty()**
+
+The WMM Python API includes an error model that providesing uncertainty estimates for every geomagnetic element (X, Y, Z, H, F, I and D) and every location at Earth's surface. 
+
+For more infromation about the error model, please visit [World Magnetic Model Accuracy, Limitations, and Error Model](https://www.ncei.noaa.gov/products/world-magnetic-model/accuracy-limitations-error-model)
+
 ```python
-from wmm import wmm_calc
-model = wmm_calc(nmax=10)
+model = wmm_calc()
+lat = [80.,  0., 80.]
+lon = [  0., 120.,   0.]
+alt = [0., 0., 0.]
+dyear = [2025.,  2025.,  2027.5]
+
+# set up time
+model.setup_time(dyear=dyear)
+# set up the coordinates
+model.setup_env(lat, lon, alt)
+print(model.get_uncertainty())
+
 ```
+It will return
+```python
+{'x_uncertainty': 137, 'y_uncertainty': 89, 'z_uncertainty': 141, 'h_uncertainty': 133, 'f_uncertainty': 138, 'declination_uncertainty': array([3.98575493e-05, 6.55276509e-06, 3.99539341e-05]), 'inclination_uncertainty': 0.2}
+
+```
+
+
 ### Contacts:
 If you have any questions, please email `geomag.models@noaa.gov`
