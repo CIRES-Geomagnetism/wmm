@@ -11,7 +11,7 @@
 - **‘f’ - F (nT):** Total intensity of the Earth's magnetic field, measured in nanoteslas (nT).
 - **‘ddec’ - dD/dt (deg/year):** Rate of change of declination over time, measured in degrees per year.
 - **‘dinc’ - dI/dt (deg/year):** Rate of inclination change over time, measured in degrees per year.
-- **‘dh’ dH/dt (nT/year):** Rate of change of horizontal intensity over time, measured in nanoteslas per year.
+- **‘dh’ - dH/dt (nT/year):** Rate of change of horizontal intensity over time, measured in nanoteslas per year.
 - **‘dx’ - dX/dt (nT/year):** Rate of change of the northward component over time, measured in nanoteslas per year.
 - **‘dy’ - dY/dt (nT/year):** Rate of change of the eastward component over time, measured in nanoteslas per year.
 - **‘dz’ - dZ/dt (nT/year):** Rate of change of the downward component over time, measured in nanoteslas per year.
