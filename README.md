@@ -53,7 +53,7 @@ NCEI also developed the **World Magnetic Model High Resolution ([WMMHR](https://
   </nav>
   </details></li>
   </details>
-- [Contacts](#Contacts)
+- [Contacts and contributing to WMM](#contacts-and-contributing-to-wmm)
 
 ## Installation
 
@@ -191,47 +191,47 @@ which will return all magnetic elements in dict type.
 ##### Get single magnetic elements by calling 
 <details>
 <summary>Click to see the available functions to get single elements</summary>
-<p>wmm_calc.get_Bx()
+<p> <b>wmm_calc.get_Bx()</b>
   <li>Northward component of the Earth's magnetic field, measured in nanoteslas (nT). </li>
 </p>
 
-<p>wmm_calc.get_By()
+<p> <b>wmm_calc.get_By()</b>
   <li>Eastward component of the Earth's magnetic field, measured in nanoteslas (nT). </li>
 </p>
-<p>wmm_calc.get_Bz()
+<p><b>wmm_calc.get_Bz()</b>
 <li>Downward component of the Earth's magnetic field, measured in nanoteslas (nT). </li>
 </p>
-<p>wmm_calc.get_Bh()
+<p><b>wmm_calc.get_Bh()</b>
 <li>Horizontal intensity of the Earth's magnetic field, measured in nanoteslas (nT).</li>
 </p>
-<p>wmm_calc.get_Bf()
+<p><b>wmm_calc.get_Bf()</b>
 <li>Total intensity of the Earth's magnetic field, measured in nanoteslas (nT).</li>
 </p>
-<p>wmm_calc.get_Bdec()
+<p><b>wmm_calc.get_Bdec()</b>
 <li>Rate of change of declination over time, measured in degrees per year.</li>
 </p>
-<p>wmm_calc.get_Binc()
+<p><b>wmm_calc.get_Binc()</b>
 <li>Rate of inclination change over time, measured in degrees per year.</li>
 </p>
-<p>wmm_calc.get_dBx()
+<p><b>wmm_calc.get_dBx()</b>
 <li>Rate of change of the northward component over time, measured in nanoteslas per year.</li>
 </p>
-<p>wmm_calc.get_dBy()
+<p><b>wmm_calc.get_dBy()</b>
 <li>Rate of change of the eastward component over time, measured in nanoteslas per year.</li>
 </p>
-<p>wmm_calc.get_dBz()
+<p><b>wmm_calc.get_dBz()</b>
 <li>Rate of change of the downward component over time, measured in nanoteslas per year.</li>
 </p>
-<p>wmm_calc.get_dBh()
+<p><b>wmm_calc.get_dBh()</b>
 <li>Rate of change of horizontal intensity over time, measured in nanoteslas per year.</li>
 </p>
-<p>wmm_calc.get_dBf()
+<p><b>wmm_calc.get_dBf()</b>
 <li>Rate of change of the total intensity over time, measured in nanoteslas per year.</li>
 </p>
-<p>wmm_calc.get_dBdec()
+<p><b>wmm_calc.get_dBdec()</b>
 <li>Rate of change of declination over time, measured in degrees per year.</li>
 </p>
-<p>wmm_calc.get_dBinc()
+<p><b>wmm_calc.get_dBinc()</b>
 <li>Rate of inclination change over time, measured in degrees per year.</li>
 </p>
 </details>
@@ -276,5 +276,5 @@ It will return
 ```
 
 
-### Contacts:
-If you have any questions, please email `geomag.models@noaa.gov`
+### Contacts and contributing to WMM:
+If you have any questions, please email `geomag.models@noaa.gov`, submit issue or pull request at [https://github.com/CIRES-Geomagnetism/wmm](https://github.com/CIRES-Geomagnetism/wmm).
