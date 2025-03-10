@@ -172,7 +172,7 @@ model.setup_env(lat, lon, alt, unit="m", msl=True)
 #### 4. Get the geomagnetic elements
 
 
-##### get_all()
+##### wmm_calc.get_all()
 
 After setting up the time and coordinates for the WMM model, you can get all the geomagnetic elements by
 
