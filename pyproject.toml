@@ -1,6 +1,6 @@
 [project]
 name = "wmm-calculator"
-version = "1.4.1"
+version = "1.4.2"
 description = "WMM Python Module based on WMM2025"
 authors = [{name = "Collin Kadlecek", email = "collin.kadlecek@noaa.gov"},
     { name = "Li-Yin Young", email = "liyin.young@noaa.gov" }
@@ -16,8 +16,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "numpy>=2.0.2",
-    "geomaglib>=1.1.5"
+    "numpy",
+    "geomaglib>=1.2.1"
 ]
 readme = "README.md"
 

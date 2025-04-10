@@ -5,7 +5,8 @@
 ![PyPI - Version](https://img.shields.io/pypi/v/wmm-calculator)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wmm-calculator)
 ![PyPI - License](https://img.shields.io/pypi/l/wmm-calculator)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/wmm-calculator)
+[![PyPI Downloads](https://static.pepy.tech/badge/wmm-calculator/month)](https://pepy.tech/projects/wmm-calculator)
+[![PyPI Downloads](https://static.pepy.tech/badge/wmm-calculator)](https://pepy.tech/projects/wmm-calculator)
 
 This is a Python implementation of the latest World Magnetic Model(WMM) by the Cooperative Institute For Research in Environmental Sciences (CIRES), University of Colorado.
 The World Magnetic Model (WMM) is the standard model for navigation, attitude, and heading referencing systems that use the  geomagnetic field. 
@@ -115,9 +116,9 @@ print(model.get_uncertainty())
 
 ## WMM Python API Reference
 
-### Set up the time and coordinates for the WMM model
 
-#### 1. Change the resolution(max degree) of the model
+
+### 1. Change the resolution(max degree) of the model
 
 **wmm_calc(nmax=12)**
 
@@ -128,7 +129,7 @@ model = wmm_calc(nmax=10)
 ```
 
 
-#### 2. Set up time 
+### 2. Set up time 
 
 **setup_time**(self, **year**: Optional[np.ndarray] = None, **month**: Optional[np.ndarray] = None, **day**: Optional[np.ndarray] = None,
                    **dyear**: Optional[np.ndarray] = None):
@@ -149,7 +150,7 @@ model.setup_time(dyear=2025.1)
 
 User allow to assign the date from "2024-11-13" to "2030-01-01"
 
-#### 3. Set up the coordinates
+### 3. Set up the coordinates
 
 **setup_env**(self, **lat**: np.ndarray, **lon**: np.ndarray, **alt**: np.ndarray, **unit**: str = "km", **msl**: bool = False)
 ```python
@@ -169,7 +170,7 @@ lat, lon, alt = 50.3, 100.4, 0
 model.setup_env(lat, lon, alt, unit="m", msl=True)
 ```
 
-#### 4. Get the geomagnetic elements
+### 4. Get the geomagnetic elements
 
 
 ##### wmm_calc.get_all()
@@ -247,7 +248,7 @@ model.setup_time(year, month, day)
 mag_map = model.get_Bh()
 ```
 
-#### 5. Get uncertainty value
+### 5. Get uncertainty value
 
 **wmm_calc.get_uncertainty()**
 
