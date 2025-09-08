@@ -179,7 +179,7 @@ class wmm_calc():
             return alt
 
         elif unit == "m":
-            return alt * 1000
+            return alt / 1000
         elif unit == "feet":
             return alt * 0.0003048
         else:

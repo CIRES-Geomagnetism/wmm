@@ -1,7 +1,7 @@
 [project]
 name = "wmm-calculator"
-version = "1.4.2"
-description = "WMM Python Module based on WMM2025"
+version = "1.4.3"
+description = "WMM Python Module"
 authors = [{name = "Collin Kadlecek", email = "collin.kadlecek@noaa.gov"},
     { name = "Li-Yin Young", email = "liyin.young@noaa.gov" }
     ]
@@ -12,6 +12,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
