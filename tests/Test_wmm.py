@@ -182,15 +182,18 @@ class Test_wmm(unittest.TestCase):
         month = 3
         day = 25
 
+        dt_today = dt.datetime.now()
+        this_year = dt_today.year
+
         year, month, day = fill_timeslot(year, month, day)
 
-        self.assertEqual(year, 2025)
+        self.assertEqual(year, this_year)
         self.assertEqual(month, 3)
         self.assertEqual(day, 25)
 
         year, month, day = fill_timeslot(year, month, day)
 
-        self.assertEqual(year, 2025)
+        self.assertEqual(year, this_year)
         self.assertEqual(month, 3)
 
     def test_setup_empty_time(self):
