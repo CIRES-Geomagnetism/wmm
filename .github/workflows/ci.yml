@@ -2,12 +2,15 @@ name: wmm ci pipeline
 
 on:
   push:
-    branches: ['*']
+    branches: ['python314']
 
 jobs:
   test:
     runs-on: ubuntu-latest
     continue-on-error: false  # Fail the job if differences exist
+    strategy:
+        matrix:
+            python-version: ['3.11', '3.12', '3.13', '3.14']
 
 
     steps:
@@ -17,7 +20,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.13"
+        python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: |
@@ -37,15 +40,7 @@ jobs:
         diff -r tests/diff_results_get_all.csv tests/diff_results_get_single.csv
         
 
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: |
-          tests/diff_results_get_all.csv
-          tests/diff_results_get_single.csv
-
-    
+   
 
 
 
