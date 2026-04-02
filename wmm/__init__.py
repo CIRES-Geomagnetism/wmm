@@ -3,7 +3,7 @@ from .uncertainty import err_model
 
 __all__ = ['wmm_calc', 'wmm_elements']
 
-__version__ = "1.3.1"
+__version__ = "1.4.4"
 
 
 
