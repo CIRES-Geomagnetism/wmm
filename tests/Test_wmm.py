@@ -1,5 +1,7 @@
 import os.path
 import unittest
+
+import geomaglib.util
 import numpy as np
 import datetime as dt
 
@@ -26,9 +28,12 @@ class Test_wmm(unittest.TestCase):
 
         self.top_dir = os.path.dirname(os.path.dirname(__file__))
         self.wmm_file = os.path.join(self.top_dir, "wmm", "coefs", "WMM.COF")
+        coef = load.load_wmm_coefs(self.wmm_file, nmax=12)
+        self.start_time = coef["epoch"]
 
         self.wmm_testval = os.path.join(self.top_dir, "tests", "WMM2025_TEST_VALUE_TABLE_FOR_REPORT.txt")
         self.get_wmm_testval()
+
 
     def get_wmm_testval(self):
 
@@ -92,10 +97,13 @@ class Test_wmm(unittest.TestCase):
         print("here")
 
 
+        decimal_year = float(self.start_time) + 0.5
+
+
         for nmax in nmax_cases:
             print(f'doing test case {nmax}')
             model = wmm_calc(nmax)
-            model.setup_time(dyear = 2025.5 + 0.1*nmax)
+            model.setup_time(dyear = decimal_year + 0.1*nmax)
             num_elements = sh_loader.calc_sh_degrees_to_num_elems(nmax)
             self.assertEqual(len(model.coef_dict["g"]), num_elements + 1)
             self.assertEqual(nmax, model.nmax)
@@ -108,7 +116,7 @@ class Test_wmm(unittest.TestCase):
             try:
                 model = wmm_calc(nmax)
                 model.setup_max_degree(nmax)
-                model.setup_time(dyear = 2025.5 + 0.1*nmax)
+                model.setup_time(dyear = decimal_year + 0.1*nmax)
             except ValueError as e:
                 self.assertEqual(str(e), f"The degree is not available. Please assign the degree > 0 and degree <= 12.")
 
@@ -118,7 +126,7 @@ class Test_wmm(unittest.TestCase):
                 print(nmax)
                 model = wmm_calc(nmax)
                 model.setup_max_degree(nmax)
-                model.setup_time(dyear = 2025.5 + 0.1*nmax)
+                model.setup_time(dyear = decimal_year + 0.1*nmax)
             except TypeError as e:
                 print(e)
                 self.assertEqual(str(e), f"Please provide nmax with integer type.")
@@ -130,7 +138,10 @@ class Test_wmm(unittest.TestCase):
     def test_setup_dtime_arr(self):
 
         model = wmm_calc()
-        dyears = np.array([2025.5, 2026.6])
+        date1 = float(self.start_time) + 0.66
+        date2 = float(self.start_time) + 0.7
+
+        dyears = np.array([date1, date2])
 
         model.setup_env(self.lats, self.lons, self.alts)
         model.setup_time(dyear=self.dyears)
@@ -142,7 +153,11 @@ class Test_wmm(unittest.TestCase):
     def test_setup_dtime_tuple(self):
 
         model = wmm_calc()
-        dyears = (2025.5, 2026.6)
+        date1 = float(self.start_time) + 2.8
+        date2 = float(self.start_time) + 3.5
+
+
+        dyears = (date1, date2)
 
         dy_arr = utils.to_npFloatarr(dyears)
 
@@ -161,18 +176,18 @@ class Test_wmm(unittest.TestCase):
     def test_setup_strdate(self):
 
         model = wmm_calc()
-        years = np.array([2025, 2026])
+        year1 = int(self.start_time) + 2
+        year2 = int(self.start_time) + 3
+        years = np.array([year1, year2])
         months = np.array([10,11]).astype(int)
         days = np.array([1,2]).astype(int)
 
-
+        dYear1 = geomaglib.util.calc_dec_year(year1, 10, 1)
+        dYear2 = geomaglib.util.calc_dec_year(year2, 11, 2)
+        dyears = [dYear1, dYear2]
 
         model.setup_env(self.lats[:2], self.lons[:2], self.alts[:2])
         model.setup_time(years, months, days)
-
-
-        dyears = [2025.7479452054795, 2026.835616438356]
-
 
         for i in range(len(years)):
             self.assertAlmostEqual(dyears[i], model.dyear[i], places=6)
@@ -220,7 +235,11 @@ class Test_wmm(unittest.TestCase):
 
 
         model = wmm_calc()
-        years = np.array([2025.5, 2026]).astype(int)
+
+        year1 = int(self.start_time) + 1
+        year2 = int(self.start_time) + 3
+
+        years = np.array([year1, year2]).astype(int)
         months = np.array([10, 11]).astype(int)
         days = np.array([1, 2]).astype(int)
         N = 20
@@ -239,7 +258,8 @@ class Test_wmm(unittest.TestCase):
         # the shape of lats is 1
         lons = np.linspace(0,180, N)
         alts = np.linspace(0, 100, N)
-        model.dyear = [2025.5]
+        dYear = float(self.start_time) + 0.55
+        model.dyear = [dYear]
 
         model.setup_env(lats, lons, alts)
         model.setup_time(years, months, days)
@@ -271,7 +291,8 @@ class Test_wmm(unittest.TestCase):
 
         wmm_model = wmm_calc()
         wmm_model.setup_env(self.lats, self.lons, self.alts, msl=False, unit="m")
-        wmm_model.setup_time(2025, 1, 1)
+        iYear = int(self.start_time)
+        wmm_model.setup_time(iYear, 1, 1)
 
         for i in range(len(self.alts)):
             self.assertAlmostEqual(self.alts[i]/1000, wmm_model.alt[i], places=6)
@@ -303,7 +324,8 @@ class Test_wmm(unittest.TestCase):
         lon = np.array([138])
         alt = np.array([77])
 
-        dec_year = np.array([2029.5])
+        dYear = float(self.start_time) + 4.5
+        dec_year = np.array([dYear])
 
         wmm_model = wmm_calc()
 
@@ -381,7 +403,8 @@ class Test_wmm(unittest.TestCase):
         lon = np.array([138])
         alt = np.array([77])
 
-        dec_year = np.array([2029.5])
+        dYear = float(self.start_time) + 4.5
+        dec_year = np.array([dYear])
 
         wmm_model = wmm_calc()
         wmm_model.setup_time(dyear=dec_year)
@@ -401,8 +424,9 @@ class Test_wmm(unittest.TestCase):
     def test_correct_time(self):
 
 
-
-        user_time = np.array([2030.0, 2014.7])
+        date1 = float(self.start_time) + 5.0
+        date2 = float(self.start_time) - 0.3
+        user_time = np.array([date1, date2])
 
         get_err = 0
 
@@ -421,7 +445,8 @@ class Test_wmm(unittest.TestCase):
 
     def test_check_latitude(self):
 
-        user_time = np.array([2025.1])
+        date1 = float(self.start_time) + 0.1
+        user_time = np.array([date1])
         lon, alt = 20, 700
 
         lat = [-90.8, 90.1]
@@ -444,7 +469,8 @@ class Test_wmm(unittest.TestCase):
 
     def test_check_longtitude(self):
 
-        user_time = np.array([2025.1])
+        date1 = float(self.start_time) + 0.1
+        user_time = np.array([date1])
 
         lat = np.array([-18])
         lon = np.array([-180.0, 360.1])
@@ -467,8 +493,9 @@ class Test_wmm(unittest.TestCase):
     @unittest.expectedFailure
     def test_not_setup_env(self):
 
+        date1 = float(self.start_time) + 3.77
         model = wmm_calc()
-        user_time = np.array([2025.1])
+        user_time = np.array([date1])
         model.setup_time(dyear=user_time)
         x = model.get_Bx()
 
@@ -476,7 +503,8 @@ class Test_wmm(unittest.TestCase):
 
     def test_wmm_altitude_warning(self):
 
-        user_time = np.array([2025.1])
+        date1 = float(self.start_time) + 2.778
+        user_time = np.array([date1])
 
         lat = np.array([-18])
         lon = np.array([138])
@@ -501,6 +529,7 @@ class Test_wmm(unittest.TestCase):
 
     def test_get_uncertainty(self):
 
+        date1 = float(self.start_time) + 1.46
         user_time = np.array([2025.1])
 
         lat = np.array([-18, 20, 20])
