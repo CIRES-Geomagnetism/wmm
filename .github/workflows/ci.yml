@@ -8,9 +8,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     continue-on-error: false  # Fail the job if differences exist
-    strategy:
-        matrix:
-            python-version: ['3.11', '3.12', '3.13', '3.14']
 
 
     steps:
@@ -20,7 +17,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.14"
 
     - name: Install dependencies
       run: |
