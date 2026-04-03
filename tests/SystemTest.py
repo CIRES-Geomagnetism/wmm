@@ -6,7 +6,7 @@ import numpy as np
 
 from wmm.build import wmm_calc
 
-from est_diff import estimate
+from tests.est_diff import estimate
 
 
 def write_diff_results(file_path, inputs, true_v, pred_v):

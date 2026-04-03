@@ -429,6 +429,11 @@ def test_setup_max_degree_w_env():
         #     self.assertEqual(str(e), f"The degree is not available. Please assign the degree > 0 and degree <= 12.")
 
 
+@pytest.mark.parametrize("which_case", range(0, 11))
+def test_vector_cases(which_case):
+    vector_test_cases(which_case)
+
+
 
 
 def main():
