@@ -32,6 +32,7 @@ def estimate(file_path: str, out_fp: TextIO, mag_comp: str, tol: float):
     out_fp.write(f"{mag_comp},{round(ave,6)},{round(max_diff,6)},{round(min_diff,6)}\n")
 
 
+
 def main():
 
     diff_res_folder = "results"
@@ -65,6 +66,8 @@ def main():
 
         if os.path.exists(file_path):
             estimate(file_path, fp, magsv_component[i], tol)
+
+
 
 
     fp.close()

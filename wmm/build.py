@@ -346,6 +346,8 @@ class wmm_calc():
             #Inputs may only be scalar or vector of consistent size
             if(len(np.unique(sizes))>2):
                 raise ValueError (f'The input position (year,month,day) have different shapes{sizes}. Input dates must have the same shape or 1 (i.e. valid combinations for input lengths are (10,10,10) or (10,10,1))')
+            if(len(np.unique(sizes)) == 2 and np.min(sizes) != 1):
+                raise ValueError (f'The input position (year,month,day) have different shapes{sizes}. Input dates must have the same shape or 1 (i.e. valid combinations for input lengths are (10,10,10) or (10,10,1))')
             #If position has already been set:
             if(year_size != month_size or year_size != day_size or day_size != month_size):
                 
@@ -467,6 +469,12 @@ class wmm_calc():
         # if self.timly_coef_dict == {}:
         if not self.timly_coef_dict:
             self.setup_time()
+
+        # Check the shape before computing
+        sizes = set([len(self.dyear), len(self.theta)])
+
+        if len(sizes) > 1 and 1 not in sizes:
+            raise ValueError(f"Broadcast error: Get time size: {len(self.dyear)}, Get position size: (lat, lon, alt) = {(len(self.lat),len(self.lon),len(self.alt))}. Please input scalars, single array for one parameter or vectors of matching length")
         Bt, Bp, Br = magmath.mag_SPH_summation(self.nmax, self.sph_dict, self.timly_coef_dict["g"],
                                                self.timly_coef_dict["h"], self.Leg, self.theta)
         Bx, By, Bz = magmath.rotate_magvec(Bt, Bp, Br, self.theta, self.lat)

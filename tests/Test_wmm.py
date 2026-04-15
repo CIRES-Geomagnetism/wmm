@@ -1,11 +1,12 @@
 import os.path
+import random
 import unittest
 
 import geomaglib.util
 import numpy as np
 import datetime as dt
 
-
+import pytest
 from geomaglib import util, sh_loader
 
 from wmm import load, utils
@@ -242,21 +243,8 @@ class Test_wmm(unittest.TestCase):
 
         self.assertEqual(dyear, model.dyear)
 
-
-    def test_broadcast(self):
-        """
-        Test whether the model can broadcast each of coordinates(lat, lon and alt) to the same shape.
-        """
-
-
+    def test_broadcast_when_two_array_is_size_one(self):
         model = wmm_calc()
-
-        year1 = int(self.start_time) + 1
-        year2 = int(self.start_time) + 3
-
-        years = np.array([year1, year2]).astype(int)
-        months = np.array([10, 11]).astype(int)
-        days = np.array([1, 2]).astype(int)
         N = 20
 
         # the shape of lats and lons is 1
@@ -265,40 +253,141 @@ class Test_wmm(unittest.TestCase):
         alts = np.linspace(0, 100, N)
 
         model.setup_env(lats, lons, alts)
-        model.setup_time(years, months, days)
-
-
 
         self.assertEqual(len(model.lat), N)
         self.assertEqual(len(model.lon), N)
+    def test_broadcast_when_one_array_is_size_one(self):
+        """
+        Test whether the model can broadcast each of coordinates(lat, lon and alt) to the same shape.
+        """
 
+        model = wmm_calc()
         # the shape of lats is 1
+        lats = [10]
+        N = 20
         lons = np.linspace(0,180, N)
         alts = np.linspace(0, 100, N)
         dYear = float(self.start_time) + 0.55
-        model.dyear = [2025.5]
 
         model.setup_env(lats, lons, alts)
-        model.setup_time(years, months, days)
         self.assertEqual(len(model.lat), N)
         self.assertEqual(len(model.lon), N)
 
+        # When latitude is float type
+        lats = 10
+        model.setup_env(lats, lons, alts)
+
+        self.assertEqual(len(model.lat), N)
+        self.assertEqual(len(model.lon), N)
+
+    def test_scalar_time_input(self):
+        """
+        It should convert scalar inputs into nu,py array
+        """
+
+        model = wmm_calc()
+        model.setup_time(dyear=float(self.start_time) + 0.5)
+
+        self.assertEqual(type(model.dyear), np.ndarray)
+
+        year = int(self.start_time)
+        month = 11
+        day = 25
+
+        model = wmm_calc()
+        model.setup_time(year, month, day)
+        self.assertEqual(type(model.dyear), np.ndarray)
+
+    def test_scalar_env_input(self):
+
+        model = wmm_calc()
+        lat, lon, alt = 25, 101, 30
+        model.setup_env(lat, lon, alt)
+
+        self.assertEqual(type(model.lat), np.ndarray)
+        self.assertEqual(type(model.lon), np.ndarray)
+        self.assertEqual(type(model.alt), np.ndarray)
+
+
+
+    def test_check_time_ymd_size(self):
+
+        M = 10
+        years = [int(self.start_time) for _ in range(M)]
+        months = [random.randint(1, 12) for _ in range(2)]
+        days = [random.randint(1, 28) for _ in range(M)]
+
+
+        model = wmm_calc()
+        year_size, month_size, day_size = np.size(years), np.size(months), np.size(days)
+        sizes = np.array([year_size, month_size, day_size])
+
+
+        with pytest.raises(ValueError) as excinfo:
+             model.setup_time(years, months, days)
+
+        assert (f"The input position (year,month,day) have different shapes{sizes}. "
+                f"Input dates must have the same shape or 1 "
+                f"(i.e. valid combinations for input lengths are (10,10,10) or (10,10,1))") in str(excinfo.value)
+
+
+    def test_return_error_when_time_coordinates_has_different_shape(self):
         # When year, month, day and coordinates has different shape, and year, month and day shape is not 1
+
+        N = 20
+        lats = [random.uniform(-45, 45) for i in range(N)]
+        lons = [random.uniform(150, -150) for i in range(N)]
+        alts = [random.uniform(1, 28) for i in range(N)]
+
+        M = 2
+        years = [int(self.start_time) for i in range(M)]
+        months = [random.randint(1, 12) for i in range(M)]
+        days = [random.randint(1, 28) for i in range(M)]
+
         wmm = wmm_calc()
         wmm.setup_env(lats, lons, alts)
-        try:
-
-            wmm.setup_time(years, months, days)
-        except ValueError as e:
-            self.assertEqual(str(e), f"The input time and space vectors have different sizes of time size: {len(years)}, "
-                                     f"position sizes: ({len(lats)}, {len(lons)}, {len(alts)}), input scalars, or vectors of matching length")
+        wmm.setup_time(years, months, days)
 
 
+        with pytest.raises(ValueError) as excinfo:
+            wmm.get_all()
+
+        assert (f"Broadcast error: Get time size: {len(years)}, Get position size: (lat, lon, alt) = {(len(lats),len(lons),len(alts))}. "
+                f"Please input scalars, single array for one parameter or vectors of matching length") in str(excinfo.value)
 
 
 
-        #except ValueError as e:
-        #    print(str(e))
+
+
+    def test_users_reset_the_coordinates_which_is_not_matched_time_inputs(self):
+
+        N = 10
+        lats = [random.uniform(-45, 45) for i in range(N)]
+        lons = [random.uniform(150, -150) for i in range(N)]
+        alts = [random.uniform(1, 28) for i in range(N)]
+
+        M = 10
+        years = [int(self.start_time) for i in range(M)]
+        months = [random.randint(1, 12) for i in range(M)]
+        days = [random.randint(1, 28) for i in range(M)]
+
+        wmm = wmm_calc()
+        wmm.setup_time(years, months, days)
+        wmm.setup_env(lats, lons, alts)
+
+        for N in range(11, 15):
+            lats = [random.uniform(-45, 45) for i in range(N)]
+            lons = [random.uniform(150, -150) for i in range(N)]
+            alts = [random.uniform(1, 28) for i in range(N)]
+
+            try:
+                wmm.setup_env(lats, lons, alts)
+            except ValueError as e:
+                self.assertEqual(str(e),
+                                 f"The input time and space vectors have different sizes of time size: {len(years)}, "
+                                 f"position sizes: ({len(lats)}, {len(lons)}, {len(alts)}), input scalars, or vectors of matching length")
+
+
 
 
     def test_setup_geod_to_geoc_lat(self):
