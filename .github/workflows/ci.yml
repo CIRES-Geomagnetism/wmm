@@ -2,7 +2,7 @@ name: wmm ci pipeline
 
 on:
   push:
-    branches: ['python314']
+    branches: ['further_broadcast']
 
 jobs:
   test:
