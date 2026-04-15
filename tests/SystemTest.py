@@ -10,6 +10,9 @@ from est_diff import estimate
 
 
 def write_diff_results(file_path, inputs, true_v, pred_v):
+    """
+    Write th results that are different with the test values into csv file for statistic analysis
+    """
 
     results_str = (",").join(inputs)
 
@@ -24,6 +27,9 @@ def write_diff_results(file_path, inputs, true_v, pred_v):
 
 
 def check_base_results(res_map, index, lat, lon, alt, dyear, dec, inc, h, x, y, z, f, tol, folder_path):
+    """
+    Verify the results for non sv magnetic elements
+    """
 
     inputs = [str(dyear), str(lat), str(lon), str(alt)]
 
@@ -53,6 +59,9 @@ def check_base_results(res_map, index, lat, lon, alt, dyear, dec, inc, h, x, y, 
 
 
 def check_sv_results(res_map, index, lat, lon, alt, dyear, dec, inc, h, x, y, z, f, tol, folder_path):
+    """
+    Verify the sv results
+    """
 
     inputs = [str(dyear), str(lat), str(lon), str(alt)]
     if (fabs(res_map["dx"][index] - x) > tol):
@@ -79,6 +88,9 @@ def check_sv_results(res_map, index, lat, lon, alt, dyear, dec, inc, h, x, y, z,
 
 
 def refer_testValues(testval_filename: str) -> tuple[np.array, np.array, np.array, np.array]:
+    """
+    Get the values from test value files
+    """
 
     dyears, alts, lats, lons = [], [], [], []
     with open(testval_filename, "r") as fp:
@@ -107,6 +119,9 @@ def refer_testValues(testval_filename: str) -> tuple[np.array, np.array, np.arra
 
 
 def compare_all_results(testval_filename, dyears, lats, lons, alts, res_folder, reserr_folder):
+    """
+    Verify the results obtained from get_all()
+    """
 
     wmm_model = wmm_calc()
 
@@ -136,6 +151,9 @@ def compare_all_results(testval_filename, dyears, lats, lons, alts, res_folder, 
                 index += 1
 
 def get_single_results(wmm_model: wmm_calc) -> dict:
+    """
+    Test get each magnetic element individually.
+    """
 
     map = {}
 
@@ -189,6 +207,12 @@ def compare_single_results(testval_filename, dyears, lats, lons, alts, res_folde
 
 
 def main():
+    """
+    Verify its scientific accuracy by comparing the results obtained from the WMM Python API.
+    To verify the get_all(), pass the all to -r
+    To verify the outputs of getting single elements like get_Bx(), pass the single to -r
+    The statistic results will be saved in diff_results.csv in the same folder
+    """
     testval_filename = "WMM2025_FINAL_TEST_VALUES_HIGHPREC.txt"
 
     parser = argparse.ArgumentParser(description="scitific tests for WMM Python api")
@@ -223,9 +247,11 @@ def main():
     dyears, lats, lons, alts = refer_testValues(testval_path)
 
     if args.results_type == "all":
+        # Test get_all()
         out_filename = out_filename_all
         compare_all_results(testval_path, dyears, lats, lons, alts, res_folder, reserr_folder)
     elif args.results_type == "single":
+        # Test the outputs of getting single elements like get_Bx()
         out_filename = out_filename_single
         compare_single_results(testval_path, dyears, lats, lons, alts, res_folder, reserr_folder)
     else:

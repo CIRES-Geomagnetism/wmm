@@ -8,9 +8,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    continue-on-error: false
     strategy:
       matrix:
-        python_version: [ '3.9', '3.10', '3.11', '3.12', '3.13']
+        python_version: [ '3.11', '3.12', '3.13', '3.14']
 
     steps:
     - name: Checkout code
